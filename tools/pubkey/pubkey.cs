@@ -31,14 +31,13 @@ class PublicKey
 {
     static void Main(string[] args)
     {
-	StringBuilder sb = new StringBuilder();
-	foreach (byte b in Assembly.GetExecutingAssembly().GetName().GetPublicKey())
+	var stringBuilder = new StringBuilder();
+	foreach (var b in Assembly.GetExecutingAssembly().GetName().GetPublicKey())
 	{
-	    sb.AppendFormat("{0:X2}", b);
+	    stringBuilder.AppendFormat("{0:X2}", b);
 	}
-	using (StreamWriter sw = new StreamWriter("pubkey.txt"))
-	{
-	    sw.Write(sb);
-	}
+
+	using var streamWriter = new StreamWriter("pubkey.txt");
+	streamWriter.Write(stringBuilder);
     }
 }
