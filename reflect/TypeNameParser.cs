@@ -22,7 +22,6 @@
   
 */
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -38,23 +37,13 @@ namespace IKVM.Reflection
 
 		internal TypeName(string ns, string name)
 		{
-			if (name == null)
-			{
-				throw new ArgumentNullException("name");
-			}
 			this.ns = ns;
-			this.name = name;
+			this.name = name ?? throw new ArgumentNullException("name");
 		}
 
-		internal string Name
-		{
-			get { return name; }
-		}
+		internal string Name => name;
 
-		internal string Namespace
-		{
-			get { return ns; }
-		}
+		internal string Namespace => ns;
 
 		public static bool operator ==(TypeName o1, TypeName o2)
 		{
@@ -109,15 +98,14 @@ namespace IKVM.Reflection
 
 		internal static TypeName Split(string name)
 		{
-			int dot = name.LastIndexOf('.');
+			var dot = name.LastIndexOf('.');
 			if (dot == -1)
 			{
 				return new TypeName(null, name);
 			}
-			else
-			{
-				return new TypeName(name.Substring(0, dot), name.Substring(dot + 1));
-			}
+			
+			return new TypeName(name.Substring(0, dot), name.Substring(dot + 1));
+			
 		}
 	}
 
@@ -139,10 +127,10 @@ namespace IKVM.Reflection
 			{
 				return null;
 			}
-			StringBuilder sb = null;
-			for (int pos = 0; pos < name.Length; pos++)
+			StringBuilder stringBuilder = null;
+			for (var pos = 0; pos < name.Length; pos++)
 			{
-				char c = name[pos];
+				var c = name[pos];
 				switch (c)
 				{
 					case '\\':
@@ -152,67 +140,66 @@ namespace IKVM.Reflection
 					case ']':
 					case '*':
 					case '&':
-						if (sb == null)
+						if (stringBuilder == null)
 						{
-							sb = new StringBuilder(name, 0, pos, name.Length + 3);
+							stringBuilder = new StringBuilder(name, 0, pos, name.Length + 3);
 						}
-						sb.Append("\\").Append(c);
+						stringBuilder.Append("\\").Append(c);
 						break;
 					default:
-						if (sb != null)
+						if (stringBuilder != null)
 						{
-							sb.Append(c);
+							stringBuilder.Append(c);
 						}
 						break;
 				}
 			}
-			return sb != null ? sb.ToString() : name;
+			return stringBuilder != null ? stringBuilder.ToString() : name;
 		}
 
 		internal static string Unescape(string name)
 		{
-			int pos = name.IndexOf('\\');
+			var pos = name.IndexOf('\\');
 			if (pos == -1)
 			{
 				return name;
 			}
-			StringBuilder sb = new StringBuilder(name, 0, pos, name.Length - 1);
+			var stringBuilder = new StringBuilder(name, 0, pos, name.Length - 1);
 			for (; pos < name.Length; pos++)
 			{
-				char c = name[pos];
+				var c = name[pos];
 				if (c == '\\')
 				{
 					c = name[++pos];
 				}
-				sb.Append(c);
+				stringBuilder.Append(c);
 			}
-			return sb.ToString();
+			return stringBuilder.ToString();
 		}
 
 		internal static TypeNameParser Parse(string typeName, bool throwOnError)
 		{
 			if (throwOnError)
 			{
-				Parser parser = new Parser(typeName);
+				var parser = new Parser(typeName);
 				return new TypeNameParser(ref parser, true);
 			}
-			else
+			
+			try
 			{
-				try
-				{
-					Parser parser = new Parser(typeName);
-					return new TypeNameParser(ref parser, true);
-				}
-				catch (ArgumentException)
-				{
-					return new TypeNameParser();
-				}
+				var parser = new Parser(typeName);
+				return new TypeNameParser(ref parser, true);
 			}
+			catch (ArgumentException)
+			{
+				return new TypeNameParser();
+			}
+			
 		}
 
 		private TypeNameParser(ref Parser parser, bool withAssemblyName)
 		{
-			bool genericParameter = parser.pos != 0;
+			var genericParameter = parser.pos != 0;
 			name = parser.NextNamePart();
 			nested = null;
 			parser.ParseNested(ref nested);
@@ -227,20 +214,11 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal bool Error
-		{
-			get { return name == null; }
-		}
+		internal bool Error => name == null;
 
-		internal string FirstNamePart
-		{
-			get { return name; }
-		}
+		internal string FirstNamePart => name;
 
-		internal string AssemblyName
-		{
-			get { return assemblyName; }
-		}
+		internal string AssemblyName => assemblyName;
 
 		private struct Parser
 		{
@@ -273,19 +251,18 @@ namespace IKVM.Reflection
 					pos++;
 					return true;
 				}
-				else
-				{
-					return false;
-				}
+				
+				return false;
+				
 			}
 
 			internal string NextNamePart()
 			{
 				SkipWhiteSpace();
-				int start = pos;
+				var start = pos;
 				for (; pos < typeName.Length; pos++)
 				{
-					char c = typeName[pos];
+					var c = typeName[pos];
 					if (c == '\\')
 					{
 						pos++;
@@ -301,10 +278,8 @@ namespace IKVM.Reflection
 				{
 					return typeName;
 				}
-				else
-				{
-					return typeName.Substring(start, pos - start);
-				}
+				
+				return typeName.Substring(start, pos - start);
 			}
 
 			internal void ParseNested(ref string[] nested)
@@ -317,7 +292,7 @@ namespace IKVM.Reflection
 
 			internal void ParseGenericParameters(ref TypeNameParser[] genericParameters)
 			{
-				int saved = pos;
+				var saved = pos;
 				if (TryConsume('['))
 				{
 					SkipWhiteSpace();
@@ -426,28 +401,26 @@ namespace IKVM.Reflection
 			{
 				SkipWhiteSpace();
 				Check(pos < typeName.Length);
-				char c = typeName[pos];
-				if (c == ']')
+				var c = typeName[pos];
+				switch (c)
 				{
-					return SZARRAY;
-				}
-				else if (c == '*')
-				{
-					pos++;
-					SkipWhiteSpace();
-					return 1;
-				}
-				else
-				{
-					short rank = 1;
-					while (TryConsume(','))
-					{
-						Check(rank < short.MaxValue);
-						rank++;
+					case ']':
+						return SZARRAY;
+					case '*':
+						pos++;
 						SkipWhiteSpace();
-					}
-					return rank;
+						return 1;
 				}
+
+				short rank = 1;
+				while (TryConsume(','))
+				{
+					Check(rank < short.MaxValue);
+					rank++;
+					SkipWhiteSpace();
+				}
+				return rank;
+				
 			}
 
 			private void SkipWhiteSpace()
@@ -470,29 +443,34 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type GetType(Universe universe, Module context, bool throwOnError, string originalName, bool resolve, bool ignoreCase)
+		internal Type GetType(Universe universe, 
+								Module context, 
+								bool throwOnError, 
+								string originalName, 
+								bool resolve, 
+								bool ignoreCase)
 		{
 			Debug.Assert(!resolve || !ignoreCase);
-			TypeName name = TypeName.Split(this.name);
+			var name = TypeName.Split(this.name);
 			Type type;
 			if (assemblyName != null)
 			{
-				Assembly asm = universe.Load(assemblyName, context, throwOnError);
-				if (asm == null)
+				var assembly = universe.Load(assemblyName, context, throwOnError);
+				if (assembly == null)
 				{
 					return null;
 				}
 				if (resolve)
 				{
-					type = asm.ResolveType(context, name);
+					type = assembly.ResolveType(context, name);
 				}
 				else if (ignoreCase)
 				{
-					type = asm.FindTypeIgnoreCase(name.ToLowerInvariant());
+					type = assembly.FindTypeIgnoreCase(name.ToLowerInvariant());
 				}
 				else
 				{
-					type = asm.FindType(name);
+					type = assembly.FindType(name);
 				}
 			}
 			else if (context == null)
@@ -561,18 +539,18 @@ namespace IKVM.Reflection
 			if (nested != null)
 			{
 				Type outer;
-				foreach (string nest in nested)
+				foreach (var nest in nested)
 				{
 					outer = type;
-					TypeName name = TypeName.Split(TypeNameParser.Unescape(nest));
+					var typeName = TypeName.Split(TypeNameParser.Unescape(nest));
 					type = ignoreCase
-						? outer.FindNestedTypeIgnoreCase(name.ToLowerInvariant())
-						: outer.FindNestedType(name);
+						? outer.FindNestedTypeIgnoreCase(typeName.ToLowerInvariant())
+						: outer.FindNestedType(typeName);
 					if (type == null)
 					{
 						if (resolve)
 						{
-							type = outer.Module.universe.GetMissingTypeOrThrow(context, outer.Module, outer, name);
+							type = outer.Module.universe.GetMissingTypeOrThrow(context, outer.Module, outer, typeName);
 						}
 						else if (throwOnError)
 						{
@@ -587,8 +565,8 @@ namespace IKVM.Reflection
 			}
 			if (genericParameters != null)
 			{
-				Type[] typeArgs = new Type[genericParameters.Length];
-				for (int i = 0; i < typeArgs.Length; i++)
+				var typeArgs = new Type[genericParameters.Length];
+				for (var i = 0; i < typeArgs.Length; i++)
 				{
 					typeArgs[i] = genericParameters[i].GetType(type.Assembly.universe, context, throwOnError, originalName, resolve, ignoreCase);
 					if (typeArgs[i] == null)
@@ -600,7 +578,7 @@ namespace IKVM.Reflection
 			}
 			if (modifiers != null)
 			{
-				foreach (short modifier in modifiers)
+				foreach (var modifier in modifiers)
 				{
 					switch (modifier)
 					{

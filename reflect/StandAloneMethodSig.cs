@@ -21,9 +21,7 @@
   jeroen@frijters.net
   
 */
-using System;
 using System.Runtime.InteropServices;
-using IKVM.Reflection.Reader;
 
 namespace IKVM.Reflection
 {
@@ -37,7 +35,13 @@ namespace IKVM.Reflection
 		private readonly Type[] optionalParameterTypes;
 		private readonly PackedCustomModifiers customModifiers;
 
-		internal __StandAloneMethodSig(bool unmanaged, CallingConvention unmanagedCallingConvention, CallingConventions callingConvention, Type returnType, Type[] parameterTypes, Type[] optionalParameterTypes, PackedCustomModifiers customModifiers)
+		internal __StandAloneMethodSig(bool unmanaged, 
+										CallingConvention unmanagedCallingConvention, 
+										CallingConventions callingConvention, 
+										Type returnType, 
+										Type[] parameterTypes, 
+										Type[] optionalParameterTypes, 
+										PackedCustomModifiers customModifiers)
 		{
 			this.unmanaged = unmanaged;
 			this.unmanagedCallingConvention = unmanagedCallingConvention;
@@ -71,60 +75,34 @@ namespace IKVM.Reflection
 				^ Util.GetHashCode(parameterTypes);
 		}
 
-		public bool IsUnmanaged
-		{
-			get { return unmanaged; }
-		}
+		public bool IsUnmanaged => unmanaged;
 
-		public CallingConventions CallingConvention
-		{
-			get { return callingConvention; }
-		}
+		public CallingConventions CallingConvention => callingConvention;
 
-		public CallingConvention UnmanagedCallingConvention
-		{
-			get { return unmanagedCallingConvention; }
-		}
+		public CallingConvention UnmanagedCallingConvention => unmanagedCallingConvention;
 
-		public Type ReturnType
-		{
-			get { return returnType; }
-		}
+		public Type ReturnType => returnType;
 
 		public CustomModifiers GetReturnTypeCustomModifiers()
 		{
 			return customModifiers.GetReturnTypeCustomModifiers();
 		}
 
-		public Type[] ParameterTypes
-		{
-			get { return Util.Copy(parameterTypes); }
-		}
+		public Type[] ParameterTypes => Util.Copy(parameterTypes);
 
-		public Type[] OptionalParameterTypes
-		{
-			get { return Util.Copy(optionalParameterTypes); }
-		}
+		public Type[] OptionalParameterTypes => Util.Copy(optionalParameterTypes);
 
 		public CustomModifiers GetParameterCustomModifiers(int index)
 		{
 			return customModifiers.GetParameterCustomModifiers(index);
 		}
 
-		public bool ContainsMissingType
-		{
-			get
-			{
-				return returnType.__ContainsMissingType
-					|| Type.ContainsMissingType(parameterTypes)
-					|| Type.ContainsMissingType(optionalParameterTypes)
-					|| customModifiers.ContainsMissingType;
-			}
-		}
+		public bool ContainsMissingType =>
+			returnType.__ContainsMissingType
+			|| Type.ContainsMissingType(parameterTypes)
+			|| Type.ContainsMissingType(optionalParameterTypes)
+			|| customModifiers.ContainsMissingType;
 
-		internal int ParameterCount
-		{
-			get { return parameterTypes.Length + optionalParameterTypes.Length; }
-		}
+		internal int ParameterCount => parameterTypes.Length + optionalParameterTypes.Length;
 	}
 }

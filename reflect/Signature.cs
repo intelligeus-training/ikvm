@@ -23,9 +23,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
 using CallingConvention = System.Runtime.InteropServices.CallingConvention;
 using IKVM.Reflection.Reader;
 using IKVM.Reflection.Emit;
@@ -78,30 +75,24 @@ namespace IKVM.Reflection
 		internal const byte ELEMENT_TYPE_CMOD_OPT = 0x20;
 		internal const byte ELEMENT_TYPE_PINNED = 0x45;
 
-		internal abstract void WriteSig(ModuleBuilder module, ByteBuffer bb);
+		internal abstract void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer);
 
 		private static Type ReadGenericInst(ModuleReader module, ByteReader br, IGenericContext context)
 		{
-			Type type;
-			switch (br.ReadByte())
+			Type type = br.ReadByte() switch
 			{
-				case ELEMENT_TYPE_CLASS:
-					type = ReadTypeDefOrRefEncoded(module, br, context).MarkNotValueType();
-					break;
-				case ELEMENT_TYPE_VALUETYPE:
-					type = ReadTypeDefOrRefEncoded(module, br, context).MarkValueType();
-					break;
-				default:
-					throw new BadImageFormatException();
-			}
+				ELEMENT_TYPE_CLASS => ReadTypeDefOrRefEncoded(module, br, context).MarkNotValueType(),
+				ELEMENT_TYPE_VALUETYPE => ReadTypeDefOrRefEncoded(module, br, context).MarkValueType(),
+				_ => throw new BadImageFormatException()
+			};
 			if (!type.__IsMissing && !type.IsGenericTypeDefinition)
 			{
 				throw new BadImageFormatException();
 			}
-			int genArgCount = br.ReadCompressedUInt();
-			Type[] args = new Type[genArgCount];
+			var genArgCount = br.ReadCompressedUInt();
+			var args = new Type[genArgCount];
 			CustomModifiers[] mods = null;
-			for (int i = 0; i < genArgCount; i++)
+			for (var i = 0; i < genArgCount; i++)
 			{
 				// LAMESPEC the Type production (23.2.12) doesn't include CustomMod* for genericinst, but C++ uses it, the verifier allows it and ildasm also supports it
 				CustomModifiers cm = CustomModifiers.Read(module, br, context);
@@ -141,29 +132,29 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static Type[] ReadMethodSpec(ModuleReader module, ByteReader br, IGenericContext context)
+		internal static Type[] ReadMethodSpec(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			if (br.ReadByte() != GENERICINST)
+			if (byteReader.ReadByte() != GENERICINST)
 			{
 				throw new BadImageFormatException();
 			}
-			Type[] args = new Type[br.ReadCompressedUInt()];
-			for (int i = 0; i < args.Length; i++)
+			var args = new Type[byteReader.ReadCompressedUInt()];
+			for (var i = 0; i < args.Length; i++)
 			{
-				CustomModifiers.Skip(br);
-				args[i] = ReadType(module, br, context);
+				CustomModifiers.Skip(byteReader);
+				args[i] = ReadType(module, byteReader, context);
 			}
 			return args;
 		}
 
 		private static int[] ReadArraySizes(ByteReader br)
 		{
-			int num = br.ReadCompressedUInt();
+			var num = br.ReadCompressedUInt();
 			if (num == 0)
 			{
 				return null;
 			}
-			int[] arr = new int[num];
+			var arr = new int[num];
 			for (int i = 0; i < num; i++)
 			{
 				arr[i] = br.ReadCompressedUInt();
@@ -173,12 +164,12 @@ namespace IKVM.Reflection
 
 		private static int[] ReadArrayBounds(ByteReader br)
 		{
-			int num = br.ReadCompressedUInt();
+			var num = br.ReadCompressedUInt();
 			if (num == 0)
 			{
 				return null;
 			}
-			int[] arr = new int[num];
+			var arr = new int[num];
 			for (int i = 0; i < num; i++)
 			{
 				arr[i] = br.ReadCompressedInt();
@@ -186,29 +177,28 @@ namespace IKVM.Reflection
 			return arr;
 		}
 
-		private static Type ReadTypeOrVoid(ModuleReader module, ByteReader br, IGenericContext context)
+		private static Type ReadTypeOrVoid(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			if (br.PeekByte() == ELEMENT_TYPE_VOID)
+			if (byteReader.PeekByte() == ELEMENT_TYPE_VOID)
 			{
-				br.ReadByte();
+				byteReader.ReadByte();
 				return module.universe.System_Void;
 			}
-			else
-			{
-				return ReadType(module, br, context);
-			}
+			
+			return ReadType(module, byteReader, context);
+			
 		}
 
 		// see ECMA 335 CLI spec June 2006 section 23.2.12 for this production
-		protected static Type ReadType(ModuleReader module, ByteReader br, IGenericContext context)
+		protected static Type ReadType(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			CustomModifiers mods;
-			switch (br.ReadByte())
+			switch (byteReader.ReadByte())
 			{
 				case ELEMENT_TYPE_CLASS:
-					return ReadTypeDefOrRefEncoded(module, br, context).MarkNotValueType();
+					return ReadTypeDefOrRefEncoded(module, byteReader, context).MarkNotValueType();
 				case ELEMENT_TYPE_VALUETYPE:
-					return ReadTypeDefOrRefEncoded(module, br, context).MarkValueType();
+					return ReadTypeDefOrRefEncoded(module, byteReader, context).MarkValueType();
 				case ELEMENT_TYPE_BOOLEAN:
 					return module.universe.System_Boolean;
 				case ELEMENT_TYPE_CHAR:
@@ -242,235 +232,241 @@ namespace IKVM.Reflection
 				case ELEMENT_TYPE_OBJECT:
 					return module.universe.System_Object;
 				case ELEMENT_TYPE_VAR:
-					return context.GetGenericTypeArgument(br.ReadCompressedUInt());
+					return context.GetGenericTypeArgument(byteReader.ReadCompressedUInt());
 				case ELEMENT_TYPE_MVAR:
-					return context.GetGenericMethodArgument(br.ReadCompressedUInt());
+					return context.GetGenericMethodArgument(byteReader.ReadCompressedUInt());
 				case ELEMENT_TYPE_GENERICINST:
-					return ReadGenericInst(module, br, context);
+					return ReadGenericInst(module, byteReader, context);
 				case ELEMENT_TYPE_SZARRAY:
-					mods = CustomModifiers.Read(module, br, context);
-					return ReadType(module, br, context).__MakeArrayType(mods);
+					mods = CustomModifiers.Read(module, byteReader, context);
+					return ReadType(module, byteReader, context).__MakeArrayType(mods);
 				case ELEMENT_TYPE_ARRAY:
-					mods = CustomModifiers.Read(module, br, context);
-					return ReadType(module, br, context).__MakeArrayType(br.ReadCompressedUInt(), ReadArraySizes(br), ReadArrayBounds(br), mods);
+					mods = CustomModifiers.Read(module, byteReader, context);
+					return ReadType(module, byteReader, context).__MakeArrayType(byteReader.ReadCompressedUInt(), 
+																				ReadArraySizes(byteReader), 
+																				ReadArrayBounds(byteReader),
+																				mods);
 				case ELEMENT_TYPE_PTR:
-					mods = CustomModifiers.Read(module, br, context);
-					return ReadTypeOrVoid(module, br, context).__MakePointerType(mods);
+					mods = CustomModifiers.Read(module, byteReader, context);
+					return ReadTypeOrVoid(module, byteReader, context).__MakePointerType(mods);
 				case ELEMENT_TYPE_FNPTR:
-					return ReadFunctionPointer(module, br, context);
+					return ReadFunctionPointer(module, byteReader, context);
 				default:
 					throw new BadImageFormatException();
 			}
 		}
 
-		internal static void ReadLocalVarSig(ModuleReader module, ByteReader br, IGenericContext context, List<LocalVariableInfo> list)
+		internal static void ReadLocalVarSig(ModuleReader module, 
+												ByteReader byteReader, 
+												IGenericContext context, 
+												List<LocalVariableInfo> list)
 		{
-			if (br.Length < 2 || br.ReadByte() != LOCAL_SIG)
+			if (byteReader.Length < 2 || byteReader.ReadByte() != LOCAL_SIG)
 			{
 				throw new BadImageFormatException("Invalid local variable signature");
 			}
-			int count = br.ReadCompressedUInt();
-			for (int i = 0; i < count; i++)
+			var count = byteReader.ReadCompressedUInt();
+			for (var i = 0; i < count; i++)
 			{
-				if (br.PeekByte() == ELEMENT_TYPE_TYPEDBYREF)
+				if (byteReader.PeekByte() == ELEMENT_TYPE_TYPEDBYREF)
 				{
-					br.ReadByte();
-					list.Add(new LocalVariableInfo(i, module.universe.System_TypedReference, false, new CustomModifiers()));
+					byteReader.ReadByte();
+					list.Add(new LocalVariableInfo(i, 
+														module.universe.System_TypedReference, 
+														false, 
+														new CustomModifiers()));
 				}
 				else
 				{
-					CustomModifiers mods1 = CustomModifiers.Read(module, br, context);
-					bool pinned = false;
-					if (br.PeekByte() == ELEMENT_TYPE_PINNED)
+					var customModifiers = CustomModifiers.Read(module, byteReader, context);
+					var pinned = false;
+					if (byteReader.PeekByte() == ELEMENT_TYPE_PINNED)
 					{
-						br.ReadByte();
+						byteReader.ReadByte();
 						pinned = true;
 					}
-					CustomModifiers mods2 = CustomModifiers.Read(module, br, context);
-					Type type = ReadTypeOrByRef(module, br, context);
-					list.Add(new LocalVariableInfo(i, type, pinned, CustomModifiers.Combine(mods1, mods2)));
+					var mods2 = CustomModifiers.Read(module, byteReader, context);
+					var type = ReadTypeOrByRef(module, byteReader, context);
+					list.Add(new LocalVariableInfo(i, type, pinned, CustomModifiers.Combine(customModifiers, mods2)));
 				}
 			}
 		}
 
-		private static Type ReadTypeOrByRef(ModuleReader module, ByteReader br, IGenericContext context)
+		private static Type ReadTypeOrByRef(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			if (br.PeekByte() == ELEMENT_TYPE_BYREF)
+			if (byteReader.PeekByte() == ELEMENT_TYPE_BYREF)
 			{
-				br.ReadByte();
+				byteReader.ReadByte();
 				// LAMESPEC it is allowed (by C++/CLI, ilasm and peverify) to have custom modifiers after the BYREF
 				// (which makes sense, as it is analogous to pointers)
-				CustomModifiers mods = CustomModifiers.Read(module, br, context);
+				var mods = CustomModifiers.Read(module, byteReader, context);
 				// C++/CLI generates void& local variables, so we need to use ReadTypeOrVoid here
-				return ReadTypeOrVoid(module, br, context).__MakeByRefType(mods);
+				return ReadTypeOrVoid(module, byteReader, context).__MakeByRefType(mods);
 			}
-			else
-			{
-				return ReadType(module, br, context);
-			}
+	
+			return ReadType(module, byteReader, context);
+			
 		}
 
-		protected static Type ReadRetType(ModuleReader module, ByteReader br, IGenericContext context)
+		protected static Type ReadRetType(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			switch (br.PeekByte())
+			switch (byteReader.PeekByte())
 			{
 				case ELEMENT_TYPE_VOID:
-					br.ReadByte();
+					byteReader.ReadByte();
 					return module.universe.System_Void;
 				case ELEMENT_TYPE_TYPEDBYREF:
-					br.ReadByte();
+					byteReader.ReadByte();
 					return module.universe.System_TypedReference;
 				default:
-					return ReadTypeOrByRef(module, br, context);
+					return ReadTypeOrByRef(module, byteReader, context);
 			}
 		}
 
-		protected static Type ReadParam(ModuleReader module, ByteReader br, IGenericContext context)
+		protected static Type ReadParam(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			switch (br.PeekByte())
+			switch (byteReader.PeekByte())
 			{
 				case ELEMENT_TYPE_TYPEDBYREF:
-					br.ReadByte();
+					byteReader.ReadByte();
 					return module.universe.System_TypedReference;
 				default:
-					return ReadTypeOrByRef(module, br, context);
+					return ReadTypeOrByRef(module, byteReader, context);
 			}
 		}
 
-		protected static void WriteType(ModuleBuilder module, ByteBuffer bb, Type type)
+		protected static void WriteType(ModuleBuilder module, ByteBuffer byteBuffer, Type type)
 		{
 			while (type.HasElementType)
 			{
-				byte sigElementType = type.SigElementType;
-				bb.Write(sigElementType);
+				var sigElementType = type.SigElementType;
+				byteBuffer.Write(sigElementType);
 				if (sigElementType == ELEMENT_TYPE_ARRAY)
 				{
 					// LAMESPEC the Type production (23.2.12) doesn't include CustomMod* for arrays, but the verifier allows it and ildasm also supports it
-					WriteCustomModifiers(module, bb, type.__GetCustomModifiers());
-					WriteType(module, bb, type.GetElementType());
-					bb.WriteCompressedUInt(type.GetArrayRank());
-					int[] sizes = type.__GetArraySizes();
-					bb.WriteCompressedUInt(sizes.Length);
-					for (int i = 0; i < sizes.Length; i++)
+					WriteCustomModifiers(module, byteBuffer, type.__GetCustomModifiers());
+					WriteType(module, byteBuffer, type.GetElementType());
+					byteBuffer.WriteCompressedUInt(type.GetArrayRank());
+					var sizes = type.__GetArraySizes();
+					byteBuffer.WriteCompressedUInt(sizes.Length);
+					for (var i = 0; i < sizes.Length; i++)
 					{
-						bb.WriteCompressedUInt(sizes[i]);
+						byteBuffer.WriteCompressedUInt(sizes[i]);
 					}
-					int[] lobounds = type.__GetArrayLowerBounds();
-					bb.WriteCompressedUInt(lobounds.Length);
-					for (int i = 0; i < lobounds.Length; i++)
+					var lobounds = type.__GetArrayLowerBounds();
+					byteBuffer.WriteCompressedUInt(lobounds.Length);
+					for (var i = 0; i < lobounds.Length; i++)
 					{
-						bb.WriteCompressedInt(lobounds[i]);
+						byteBuffer.WriteCompressedInt(lobounds[i]);
 					}
 					return;
 				}
-				WriteCustomModifiers(module, bb, type.__GetCustomModifiers());
+				WriteCustomModifiers(module, byteBuffer, type.__GetCustomModifiers());
 				type = type.GetElementType();
 			}
 			if (type.__IsBuiltIn)
 			{
-				bb.Write(type.SigElementType);
+				byteBuffer.Write(type.SigElementType);
 			}
 			else if (type.IsGenericParameter)
 			{
-				bb.Write(type.SigElementType);
-				bb.WriteCompressedUInt(type.GenericParameterPosition);
+				byteBuffer.Write(type.SigElementType);
+				byteBuffer.WriteCompressedUInt(type.GenericParameterPosition);
 			}
 			else if (!type.__IsMissing && type.IsGenericType)
 			{
-				WriteGenericSignature(module, bb, type);
+				WriteGenericSignature(module, byteBuffer, type);
 			}
 			else if (type.__IsFunctionPointer)
 			{
-				bb.Write(ELEMENT_TYPE_FNPTR);
-				WriteStandAloneMethodSig(module, bb, type.__MethodSignature);
+				byteBuffer.Write(ELEMENT_TYPE_FNPTR);
+				WriteStandAloneMethodSig(module, byteBuffer, type.__MethodSignature);
 			}
 			else
 			{
 				if (type.IsValueType)
 				{
-					bb.Write(ELEMENT_TYPE_VALUETYPE);
+					byteBuffer.Write(ELEMENT_TYPE_VALUETYPE);
 				}
 				else
 				{
-					bb.Write(ELEMENT_TYPE_CLASS);
+					byteBuffer.Write(ELEMENT_TYPE_CLASS);
 				}
-				bb.WriteTypeDefOrRefEncoded(module.GetTypeToken(type).Token);
+				byteBuffer.WriteTypeDefOrRefEncoded(module.GetTypeToken(type).Token);
 			}
 		}
 
-		private static void WriteGenericSignature(ModuleBuilder module, ByteBuffer bb, Type type)
+		private static void WriteGenericSignature(ModuleBuilder module, ByteBuffer byteBuffer, Type type)
 		{
-			Type[] typeArguments = type.GetGenericArguments();
-			CustomModifiers[] customModifiers = type.__GetGenericArgumentsCustomModifiers();
+			var typeArguments = type.GetGenericArguments();
+			var customModifiers = type.__GetGenericArgumentsCustomModifiers();
 			if (!type.IsGenericTypeDefinition)
 			{
 				type = type.GetGenericTypeDefinition();
 			}
-			bb.Write(ELEMENT_TYPE_GENERICINST);
+			byteBuffer.Write(ELEMENT_TYPE_GENERICINST);
 			if (type.IsValueType)
 			{
-				bb.Write(ELEMENT_TYPE_VALUETYPE);
+				byteBuffer.Write(ELEMENT_TYPE_VALUETYPE);
 			}
 			else
 			{
-				bb.Write(ELEMENT_TYPE_CLASS);
+				byteBuffer.Write(ELEMENT_TYPE_CLASS);
 			}
-			bb.WriteTypeDefOrRefEncoded(module.GetTypeToken(type).Token);
-			bb.WriteCompressedUInt(typeArguments.Length);
-			for (int i = 0; i < typeArguments.Length; i++)
+			byteBuffer.WriteTypeDefOrRefEncoded(module.GetTypeToken(type).Token);
+			byteBuffer.WriteCompressedUInt(typeArguments.Length);
+			for (var i = 0; i < typeArguments.Length; i++)
 			{
-				WriteCustomModifiers(module, bb, customModifiers[i]);
-				WriteType(module, bb, typeArguments[i]);
+				WriteCustomModifiers(module, byteBuffer, customModifiers[i]);
+				WriteType(module, byteBuffer, typeArguments[i]);
 			}
 		}
 
-		protected static void WriteCustomModifiers(ModuleBuilder module, ByteBuffer bb, CustomModifiers modifiers)
+		protected static void WriteCustomModifiers(ModuleBuilder module, ByteBuffer byteBuffer, CustomModifiers modifiers)
 		{
-			foreach (CustomModifiers.Entry entry in modifiers)
+			foreach (var entry in modifiers)
 			{
-				bb.Write(entry.IsRequired ? ELEMENT_TYPE_CMOD_REQD : ELEMENT_TYPE_CMOD_OPT);
-				bb.WriteTypeDefOrRefEncoded(module.GetTypeTokenForMemberRef(entry.Type));
+				byteBuffer.Write(entry.IsRequired ? ELEMENT_TYPE_CMOD_REQD : ELEMENT_TYPE_CMOD_OPT);
+				byteBuffer.WriteTypeDefOrRefEncoded(module.GetTypeTokenForMemberRef(entry.Type));
 			}
 		}
 
 		internal static Type ReadTypeDefOrRefEncoded(ModuleReader module, ByteReader br, IGenericContext context)
 		{
-			int encoded = br.ReadCompressedUInt();
-			switch (encoded & 3)
+			var encoded = br.ReadCompressedUInt();
+			return (encoded & 3) switch
 			{
-				case 0:
-					return module.ResolveType((TypeDefTable.Index << 24) + (encoded >> 2), null, null);
-				case 1:
-					return module.ResolveType((TypeRefTable.Index << 24) + (encoded >> 2), null, null);
-				case 2:
-					return module.ResolveType((TypeSpecTable.Index << 24) + (encoded >> 2), context);
-				default:
-					throw new BadImageFormatException();
-			}
+				0 => module.ResolveType((TypeDefTable.Index << 24) + (encoded >> 2), null, null),
+				1 => module.ResolveType((TypeRefTable.Index << 24) + (encoded >> 2), null, null),
+				2 => module.ResolveType((TypeSpecTable.Index << 24) + (encoded >> 2), context),
+				_ => throw new BadImageFormatException()
+			};
 		}
 
-		internal static void WriteStandAloneMethodSig(ModuleBuilder module, ByteBuffer bb, __StandAloneMethodSig sig)
+		internal static void WriteStandAloneMethodSig(ModuleBuilder module, 
+														ByteBuffer byteBuffer, 
+														__StandAloneMethodSig signature)
 		{
-			if (sig.IsUnmanaged)
+			if (signature.IsUnmanaged)
 			{
-				switch (sig.UnmanagedCallingConvention)
+				switch (signature.UnmanagedCallingConvention)
 				{
 					case CallingConvention.Cdecl:
-						bb.Write((byte)0x01);	// C
+						byteBuffer.Write((byte)0x01);	// C
 						break;
 					case CallingConvention.StdCall:
 					case CallingConvention.Winapi:
-						bb.Write((byte)0x02);	// STDCALL
+						byteBuffer.Write((byte)0x02);	// STDCALL
 						break;
 					case CallingConvention.ThisCall:
-						bb.Write((byte)0x03);	// THISCALL
+						byteBuffer.Write((byte)0x03);	// THISCALL
 						break;
 #if NETSTANDARD
 					case (CallingConvention)5:
 #else
 					case CallingConvention.FastCall:
 #endif
-						bb.Write((byte)0x04);	// FASTCALL
+						byteBuffer.Write((byte)0x04);	// FASTCALL
 						break;
 					default:
 						throw new ArgumentOutOfRangeException("callingConvention");
@@ -478,8 +474,8 @@ namespace IKVM.Reflection
 			}
 			else
 			{
-				CallingConventions callingConvention = sig.CallingConvention;
-				byte flags = 0;
+				var callingConvention = signature.CallingConvention;
+				var flags = 0;
 				if ((callingConvention & CallingConventions.HasThis) != 0)
 				{
 					flags |= HASTHIS;
@@ -492,69 +488,72 @@ namespace IKVM.Reflection
 				{
 					flags |= VARARG;
 				}
-				bb.Write(flags);
+				byteBuffer.Write(flags);
 			}
-			Type[] parameterTypes = sig.ParameterTypes;
-			Type[] optionalParameterTypes = sig.OptionalParameterTypes;
-			bb.WriteCompressedUInt(parameterTypes.Length + optionalParameterTypes.Length);
-			WriteCustomModifiers(module, bb, sig.GetReturnTypeCustomModifiers());
-			WriteType(module, bb, sig.ReturnType);
-			int index = 0;
-			foreach (Type t in parameterTypes)
+			var parameterTypes = signature.ParameterTypes;
+			var optionalParameterTypes = signature.OptionalParameterTypes;
+			byteBuffer.WriteCompressedUInt(parameterTypes.Length + optionalParameterTypes.Length);
+			WriteCustomModifiers(module, byteBuffer, signature.GetReturnTypeCustomModifiers());
+			WriteType(module, byteBuffer, signature.ReturnType);
+			var index = 0;
+			foreach (var type in parameterTypes)
 			{
-				WriteCustomModifiers(module, bb, sig.GetParameterCustomModifiers(index++));
-				WriteType(module, bb, t);
+				WriteCustomModifiers(module, byteBuffer, signature.GetParameterCustomModifiers(index++));
+				WriteType(module, byteBuffer, type);
 			}
 			// note that optional parameters are only allowed for managed signatures (but we don't enforce that)
 			if (optionalParameterTypes.Length > 0)
 			{
-				bb.Write(SENTINEL);
-				foreach (Type t in optionalParameterTypes)
+				byteBuffer.Write(SENTINEL);
+				foreach (var type in optionalParameterTypes)
 				{
-					WriteCustomModifiers(module, bb, sig.GetParameterCustomModifiers(index++));
-					WriteType(module, bb, t);
+					WriteCustomModifiers(module, byteBuffer, signature.GetParameterCustomModifiers(index++));
+					WriteType(module, byteBuffer, type);
 				}
 			}
 		}
 
-		internal static void WriteTypeSpec(ModuleBuilder module, ByteBuffer bb, Type type)
+		internal static void WriteTypeSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type type)
 		{
-			WriteType(module, bb, type);
+			WriteType(module, byteBuffer, type);
 		}
 
-		internal static void WriteMethodSpec(ModuleBuilder module, ByteBuffer bb, Type[] genArgs)
+		internal static void WriteMethodSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type[] genArgs)
 		{
-			bb.Write(GENERICINST);
-			bb.WriteCompressedUInt(genArgs.Length);
-			foreach (Type arg in genArgs)
+			byteBuffer.Write(GENERICINST);
+			byteBuffer.WriteCompressedUInt(genArgs.Length);
+			foreach (var arg in genArgs)
 			{
-				WriteType(module, bb, arg);
+				WriteType(module, byteBuffer, arg);
 			}
 		}
 
 		// this reads just the optional parameter types, from a MethodRefSig
-		internal static Type[] ReadOptionalParameterTypes(ModuleReader module, ByteReader br, IGenericContext context, out CustomModifiers[] customModifiers)
+		internal static Type[] ReadOptionalParameterTypes(ModuleReader module, 
+															ByteReader byteReader, 
+															IGenericContext context, 
+															out CustomModifiers[] customModifiers)
 		{
-			br.ReadByte();
-			int paramCount = br.ReadCompressedUInt();
-			CustomModifiers.Skip(br);
-			ReadRetType(module, br, context);
-			for (int i = 0; i < paramCount; i++)
+			byteReader.ReadByte();
+			var paramCount = byteReader.ReadCompressedUInt();
+			CustomModifiers.Skip(byteReader);
+			ReadRetType(module, byteReader, context);
+			for (var i = 0; i < paramCount; i++)
 			{
-				if (br.PeekByte() == SENTINEL)
+				if (byteReader.PeekByte() == SENTINEL)
 				{
-					br.ReadByte();
-					Type[] types = new Type[paramCount - i];
+					byteReader.ReadByte();
+					var types = new Type[paramCount - i];
 					customModifiers = new CustomModifiers[types.Length];
-					for (int j = 0; j < types.Length; j++)
+					for (var j = 0; j < types.Length; j++)
 					{
-						customModifiers[j] = CustomModifiers.Read(module, br, context);
-						types[j] = ReadType(module, br, context);
+						customModifiers[j] = CustomModifiers.Read(module, byteReader, context);
+						types[j] = ReadType(module, byteReader, context);
 					}
 					return types;
 				}
-				CustomModifiers.Skip(br);
-				ReadType(module, br, context);
+				CustomModifiers.Skip(byteReader);
+				ReadType(module, byteReader, context);
 			}
 			customModifiers = Empty<CustomModifiers>.Array;
 			return Type.EmptyTypes;
@@ -566,34 +565,38 @@ namespace IKVM.Reflection
 			{
 				return Type.EmptyTypes;
 			}
-			Type[] expanded = new Type[types.Length];
-			for (int i = 0; i < types.Length; i++)
+			var expanded = new Type[types.Length];
+			for (var i = 0; i < types.Length; i++)
 			{
 				expanded[i] = types[i].BindTypeParameters(binder);
 			}
 			return expanded;
 		}
 
-		internal static void WriteSignatureHelper(ModuleBuilder module, ByteBuffer bb, byte flags, ushort paramCount, List<Type> args)
+		internal static void WriteSignatureHelper(ModuleBuilder module, 
+													ByteBuffer byteBuffer, 
+													byte flags, 
+													ushort paramCount, 
+													List<Type> args)
 		{
-			bb.Write(flags);
+			byteBuffer.Write(flags);
 			if (flags != FIELD)
 			{
-				bb.WriteCompressedUInt(paramCount);
+				byteBuffer.WriteCompressedUInt(paramCount);
 			}
-			foreach (Type type in args)
+			foreach (var type in args)
 			{
 				if (type == null)
 				{
-					bb.Write(ELEMENT_TYPE_VOID);
+					byteBuffer.Write(ELEMENT_TYPE_VOID);
 				}
 				else if (type is MarkerType)
 				{
-					bb.Write(type.SigElementType);
+					byteBuffer.Write(type.SigElementType);
 				}
 				else
 				{
-					WriteType(module, bb, type);
+					WriteType(module, byteBuffer, type);
 				}
 			}
 		}

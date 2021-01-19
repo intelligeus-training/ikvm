@@ -38,12 +38,21 @@ namespace IKVM.Reflection
 		private readonly Type[] parameterTypes;
 		private readonly PackedCustomModifiers customModifiers;
 
-		internal static PropertySignature Create(CallingConventions callingConvention, Type propertyType, Type[] parameterTypes, PackedCustomModifiers customModifiers)
+		internal static PropertySignature Create(CallingConventions callingConvention, 
+													Type propertyType, 
+													Type[] parameterTypes, 
+													PackedCustomModifiers customModifiers)
 		{
-			return new PropertySignature(callingConvention, propertyType, Util.Copy(parameterTypes), customModifiers);
+			return new PropertySignature(callingConvention, 
+											propertyType, 
+											Util.Copy(parameterTypes), 
+											customModifiers);
 		}
 
-		private PropertySignature(CallingConventions callingConvention, Type propertyType, Type[] parameterTypes, PackedCustomModifiers customModifiers)
+		private PropertySignature(CallingConventions callingConvention, 
+									Type propertyType, 
+									Type[] parameterTypes, 
+									PackedCustomModifiers customModifiers)
 		{
 			this.callingConvention = callingConvention;
 			this.propertyType = propertyType;
@@ -53,7 +62,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			PropertySignature other = obj as PropertySignature;
+			var other = obj as PropertySignature;
 			return other != null
 				&& other.propertyType.Equals(propertyType)
 				&& other.customModifiers.Equals(customModifiers);
@@ -64,10 +73,7 @@ namespace IKVM.Reflection
 			return propertyType.GetHashCode() ^ customModifiers.GetHashCode();
 		}
 
-		internal int ParameterCount
-		{
-			get { return parameterTypes.Length; }
-		}
+		internal int ParameterCount => parameterTypes.Length;
 
 		internal bool HasThis
 		{
@@ -84,10 +90,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type PropertyType
-		{
-			get { return propertyType; }
-		}
+		internal Type PropertyType => propertyType;
 
 		internal CustomModifiers GetCustomModifiers()
 		{
@@ -103,9 +106,9 @@ namespace IKVM.Reflection
 				customModifiers.Bind(declaringType));
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer bb)
+		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
-			byte flags = PROPERTY;
+			var flags = PROPERTY;
 			if ((callingConvention & CallingConventions.HasThis) != 0)
 			{
 				flags |= HASTHIS;
@@ -118,16 +121,16 @@ namespace IKVM.Reflection
 			{
 				flags |= VARARG;
 			}
-			bb.Write(flags);
-			bb.WriteCompressedUInt(parameterTypes == null ? 0 : parameterTypes.Length);
-			WriteCustomModifiers(module, bb, customModifiers.GetReturnTypeCustomModifiers());
-			WriteType(module, bb, propertyType);
+			byteBuffer.Write(flags);
+			byteBuffer.WriteCompressedUInt(parameterTypes == null ? 0 : parameterTypes.Length);
+			WriteCustomModifiers(module, byteBuffer, customModifiers.GetReturnTypeCustomModifiers());
+			WriteType(module, byteBuffer, propertyType);
 			if (parameterTypes != null)
 			{
-				for (int i = 0; i < parameterTypes.Length; i++)
+				for (var i = 0; i < parameterTypes.Length; i++)
 				{
-					WriteCustomModifiers(module, bb, customModifiers.GetParameterCustomModifiers(i));
-					WriteType(module, bb, parameterTypes[i]);
+					WriteCustomModifiers(module, byteBuffer, customModifiers.GetParameterCustomModifiers(i));
+					WriteType(module, byteBuffer, parameterTypes[i]);
 				}
 			}
 		}
@@ -142,24 +145,21 @@ namespace IKVM.Reflection
 			return customModifiers.GetParameterCustomModifiers(parameter);
 		}
 
-		internal CallingConventions CallingConvention
-		{
-			get { return callingConvention; }
-		}
+		internal CallingConventions CallingConvention => callingConvention;
 
 		internal bool MatchParameterTypes(Type[] types)
 		{
 			return Util.ArrayEquals(types, parameterTypes);
 		}
 
-		internal static PropertySignature ReadSig(ModuleReader module, ByteReader br, IGenericContext context)
+		internal static PropertySignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			byte flags = br.ReadByte();
+			var flags = byteReader.ReadByte();
 			if ((flags & PROPERTY) == 0)
 			{
 				throw new BadImageFormatException();
 			}
-			CallingConventions callingConvention = CallingConventions.Standard;
+			var callingConvention = CallingConventions.Standard;
 			if ((flags & HASTHIS) != 0)
 			{
 				callingConvention |= CallingConventions.HasThis;
@@ -170,15 +170,23 @@ namespace IKVM.Reflection
 			}
 			Type returnType;
 			Type[] parameterTypes;
-			int paramCount = br.ReadCompressedUInt();
+			var paramCount = byteReader.ReadCompressedUInt();
 			CustomModifiers[] mods = null;
-			PackedCustomModifiers.Pack(ref mods, 0, CustomModifiers.Read(module, br, context), paramCount + 1);
-			returnType = ReadRetType(module, br, context);
+			PackedCustomModifiers.Pack(ref mods, 
+									0, 
+									CustomModifiers.Read(module, byteReader, context), 
+									paramCount + 1);
+			
+			returnType = ReadRetType(module, byteReader, context);
 			parameterTypes = new Type[paramCount];
-			for (int i = 0; i < parameterTypes.Length; i++)
+			
+			for (var i = 0; i < parameterTypes.Length; i++)
 			{
-				PackedCustomModifiers.Pack(ref mods, i + 1, CustomModifiers.Read(module, br, context), paramCount + 1);
-				parameterTypes[i] = ReadParam(module, br, context);
+				PackedCustomModifiers.Pack(ref mods, 
+										i + 1, 
+										CustomModifiers.Read(module, byteReader, context), 
+										paramCount + 1);
+				parameterTypes[i] = ReadParam(module, byteReader, context);
 			}
 			return new PropertySignature(callingConvention, returnType, parameterTypes, PackedCustomModifiers.Wrap(mods));
 		}

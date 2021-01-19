@@ -23,7 +23,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Text;
 using IKVM.Reflection.Metadata;
 using IKVM.Reflection.Reader;
 
@@ -63,9 +62,9 @@ namespace IKVM.Reflection
 
 			internal Mapping(ProjectionAssembly assembly, string typeNamespace, string typeName)
 			{
-				this.Assembly = assembly;
-				this.TypeNamespace = typeNamespace;
-				this.TypeName = typeName;
+				Assembly = assembly;
+				TypeNamespace = typeNamespace;
+				TypeName = typeName;
 			}
 		}
 
@@ -147,8 +146,8 @@ namespace IKVM.Reflection
 				throw new NotImplementedException("CustomAttribute table must be sorted");
 			}
 
-			bool clr = imageRuntimeVersion.Contains(";");
-			if (clr)
+			var isCLR = imageRuntimeVersion.Contains(";");
+			if (isCLR)
 			{
 				imageRuntimeVersion = imageRuntimeVersion.Substring(imageRuntimeVersion.IndexOf(';') + 1);
 				if (imageRuntimeVersion.StartsWith("CLR", StringComparison.OrdinalIgnoreCase))
@@ -159,52 +158,56 @@ namespace IKVM.Reflection
 			}
 			else
 			{
-				Assembly mscorlib = module.universe.Mscorlib;
+				var mscorlib = module.universe.Mscorlib;
 				imageRuntimeVersion = mscorlib.__IsMissing ? "v4.0.30319" : mscorlib.ImageRuntimeVersion;
 			}
 
-			WindowsRuntimeProjection obj = new WindowsRuntimeProjection(module, strings);
-			obj.PatchAssemblyRef(ref blobHeap);
-			obj.PatchTypeRef();
-			obj.PatchTypes(clr);
-			obj.PatchMethodImpl();
-			obj.PatchCustomAttribute(ref blobHeap);
+			var windowsRuntimeProjection = new WindowsRuntimeProjection(module, strings);
+			windowsRuntimeProjection.PatchAssemblyRef(ref blobHeap);
+			windowsRuntimeProjection.PatchTypeRef();
+			windowsRuntimeProjection.PatchTypes(isCLR);
+			windowsRuntimeProjection.PatchMethodImpl();
+			windowsRuntimeProjection.PatchCustomAttribute(ref blobHeap);
 		}
 
 		private void PatchAssemblyRef(ref byte[] blobHeap)
 		{
-			AssemblyRefTable assemblyRefs = module.AssemblyRef;
-			for (int i = 0; i < assemblyRefs.records.Length; i++)
+			var assemblyRefs = module.AssemblyRef;
+			for (var i = 0; i < assemblyRefs.records.Length; i++)
 			{
 				if (module.GetString(assemblyRefs.records[i].Name) == "mscorlib")
 				{
-					Version ver = GetMscorlibVersion();
-					assemblyRefs.records[i].MajorVersion = (ushort)ver.Major;
-					assemblyRefs.records[i].MinorVersion = (ushort)ver.Minor;
-					assemblyRefs.records[i].BuildNumber = (ushort)ver.Build;
-					assemblyRefs.records[i].RevisionNumber = (ushort)ver.Revision;
+					var version = GetMscorlibVersion();
+					assemblyRefs.records[i].MajorVersion = (ushort)version.Major;
+					assemblyRefs.records[i].MinorVersion = (ushort)version.Minor;
+					assemblyRefs.records[i].BuildNumber = (ushort)version.Build;
+					assemblyRefs.records[i].RevisionNumber = (ushort)version.Revision;
 					break;
 				}
 			}
 
-			int publicKeyTokenMicrosoft = AddBlob(ref blobHeap, new byte[] { 0xB0, 0x3F, 0x5F, 0x7F, 0x11, 0xD5, 0x0A, 0x3A });
-			int publicKeyTokenEcma = AddBlob(ref blobHeap, new byte[] { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 });
-			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime] = AddAssemblyReference("System.Runtime", publicKeyTokenMicrosoft);
-			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_InteropServices_WindowsRuntime] = AddAssemblyReference("System.Runtime.InteropServices.WindowsRuntime", publicKeyTokenMicrosoft);
-			assemblyRefTokens[(int)ProjectionAssembly.System_ObjectModel] = AddAssemblyReference("System.ObjectModel", publicKeyTokenMicrosoft);
-			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_WindowsRuntime] = AddAssemblyReference("System.Runtime.WindowsRuntime", publicKeyTokenEcma);
-			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_WindowsRuntime_UI_Xaml] = AddAssemblyReference("System.Runtime.WindowsRuntime.UI.Xaml", publicKeyTokenEcma);
+			var publicKeyTokenMicrosoft = AddBlob(ref blobHeap, new byte[] { 0xB0, 0x3F, 0x5F, 0x7F, 0x11, 0xD5, 0x0A, 0x3A });
+			var publicKeyTokenEcma = AddBlob(ref blobHeap, new byte[] { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 });
+			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime] 
+				= AddAssemblyReference("System.Runtime", publicKeyTokenMicrosoft);
+			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_InteropServices_WindowsRuntime] 
+				= AddAssemblyReference("System.Runtime.InteropServices.WindowsRuntime", publicKeyTokenMicrosoft);
+			assemblyRefTokens[(int)ProjectionAssembly.System_ObjectModel] 
+				= AddAssemblyReference("System.ObjectModel", publicKeyTokenMicrosoft);
+			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_WindowsRuntime] 
+				= AddAssemblyReference("System.Runtime.WindowsRuntime", publicKeyTokenEcma);
+			assemblyRefTokens[(int)ProjectionAssembly.System_Runtime_WindowsRuntime_UI_Xaml] 
+				= AddAssemblyReference("System.Runtime.WindowsRuntime.UI.Xaml", publicKeyTokenEcma);
 		}
 
 		private void PatchTypeRef()
 		{
-			TypeRefTable.Record[] typeRefs = module.TypeRef.records;
+			var typeRefs = module.TypeRef.records;
 			projectedTypeRefs = new bool[typeRefs.Length];
-			for (int i = 0; i < typeRefs.Length; i++)
+			for (var i = 0; i < typeRefs.Length; i++)
 			{
-				Mapping mapping;
-				TypeName typeName = GetTypeRefName(i);
-				projections.TryGetValue(typeName, out mapping);
+				var typeName = GetTypeRefName(i);
+				projections.TryGetValue(typeName, out var mapping);
 				if (mapping != null)
 				{
 					typeRefs[i].ResolutionScope = assemblyRefTokens[(int)mapping.Assembly];
@@ -229,12 +232,11 @@ namespace IKVM.Reflection
 						}
 						break;
 					case "Windows.Foundation":
-						switch (typeName.Name)
+						typeofSystemIDisposable = typeName.Name switch
 						{
-							case "IClosable":
-								typeofSystemIDisposable = (TypeRefTable.Index << 24) + i + 1;
-								break;
-						}
+							"IClosable" => (TypeRefTable.Index << 24) + i + 1,
+							_ => typeofSystemIDisposable
+						};
 						break;
 					case "Windows.Foundation.Metadata":
 						switch (typeName.Name)
@@ -253,15 +255,19 @@ namespace IKVM.Reflection
 
 		private void PatchTypes(bool clr)
 		{
-			TypeDefTable.Record[] types = module.TypeDef.records;
-			MethodDefTable.Record[] methods = module.MethodDef.records;
-			FieldTable.Record[] fields = module.Field.records;
-			for (int i = 0; i < types.Length; i++)
+			var types = module.TypeDef.records;
+			var methods = module.MethodDef.records;
+			var fields = module.Field.records;
+			
+			for (var i = 0; i < types.Length; i++)
 			{
-				TypeAttributes attr = (TypeAttributes)types[i].Flags;
+				var attr = (TypeAttributes)types[i].Flags;
 				if ((attr & TypeAttributes.WindowsRuntime) != 0)
 				{
-					if (clr && (attr & (TypeAttributes.VisibilityMask | TypeAttributes.WindowsRuntime | TypeAttributes.Interface)) == (TypeAttributes.Public | TypeAttributes.WindowsRuntime))
+					if (clr && (attr & (TypeAttributes.VisibilityMask 
+					                    | TypeAttributes.WindowsRuntime 
+					                    | TypeAttributes.Interface)) 
+										== (TypeAttributes.Public | TypeAttributes.WindowsRuntime))
 					{
 						types[i].TypeName = GetString("<WinRT>" + module.GetString(types[i].TypeName));
 						types[i].Flags &= (int)~TypeAttributes.Public;
@@ -276,8 +282,8 @@ namespace IKVM.Reflection
 						types[i].Flags &= (int)~TypeAttributes.Public;
 					}
 
-					int endOfMethodList = i == types.Length - 1 ? methods.Length : types[i + 1].MethodList - 1;
-					for (int j = types[i].MethodList - 1; j < endOfMethodList; j++)
+					var endOfMethodList = i == types.Length - 1 ? methods.Length : types[i + 1].MethodList - 1;
+					for (var j = types[i].MethodList - 1; j < endOfMethodList; j++)
 					{
 						if (types[i].Extends == typeofSystemMulticastDelegate)
 						{
@@ -289,23 +295,27 @@ namespace IKVM.Reflection
 						}
 						else if (methods[j].RVA == 0)
 						{
-							methods[j].ImplFlags = (int)(MethodImplAttributes.Runtime | MethodImplAttributes.Managed | MethodImplAttributes.InternalCall);
+							methods[j].ImplFlags = (int)(MethodImplAttributes.Runtime 
+							                             | MethodImplAttributes.Managed 
+							                             | MethodImplAttributes.InternalCall);
 						}
 					}
 
 					if (types[i].Extends == typeofSystemEnum)
 					{
-						int endOfFieldList = i == types.Length - 1 ? fields.Length : types[i + 1].FieldList - 1;
-						for (int j = types[i].FieldList - 1; j < endOfFieldList; j++)
+						var endOfFieldList = i == types.Length - 1 ? fields.Length : types[i + 1].FieldList - 1;
+						for (var j = types[i].FieldList - 1; j < endOfFieldList; j++)
 						{
 							fields[j].Flags &= (int)~FieldAttributes.FieldAccessMask;
 							fields[j].Flags |= (int)FieldAttributes.Public;
 						}
 					}
 				}
-				else if (clr && (attr & (TypeAttributes.VisibilityMask | TypeAttributes.SpecialName)) == (TypeAttributes.NotPublic | TypeAttributes.SpecialName))
+				else if (clr && (attr & (TypeAttributes.VisibilityMask 
+				                         | TypeAttributes.SpecialName)) 
+										== (TypeAttributes.NotPublic | TypeAttributes.SpecialName))
 				{
-					string name = module.GetString(types[i].TypeName);
+					var name = module.GetString(types[i].TypeName);
 					if (name.StartsWith("<CLR>", StringComparison.Ordinal))
 					{
 						types[i].TypeName = GetString(name.Substring(5));
@@ -318,16 +328,17 @@ namespace IKVM.Reflection
 
 		private void PatchMethodImpl()
 		{
-			MethodImplTable.Record[] methodImpls = module.MethodImpl.records;
-			MemberRefTable.Record[] memberRefs = module.MemberRef.records;
-			MethodDefTable.Record[] methods = module.MethodDef.records;
+			var methodImpls = module.MethodImpl.records;
+			var memberRefs = module.MemberRef.records;
+			var methods = module.MethodDef.records;
 			int[] typeSpecs = module.TypeSpec.records;
-			for (int i = 0; i < methodImpls.Length; i++)
+			
+			for (var i = 0; i < methodImpls.Length; i++)
 			{
-				int methodDefOrMemberRef = methodImpls[i].MethodDeclaration;
+				var methodDefOrMemberRef = methodImpls[i].MethodDeclaration;
 				if ((methodDefOrMemberRef >> 24) == MemberRefTable.Index)
 				{
-					int typeDefOrRef = memberRefs[(methodDefOrMemberRef & 0xFFFFFF) - 1].Class;
+					var typeDefOrRef = memberRefs[(methodDefOrMemberRef & 0xFFFFFF) - 1].Class;
 					if ((typeDefOrRef >> 24) == TypeSpecTable.Index)
 					{
 						typeDefOrRef = ReadTypeSpec(module.GetBlob(typeSpecs[(typeDefOrRef & 0xFFFFFF) - 1]));
@@ -365,10 +376,11 @@ namespace IKVM.Reflection
 
 		private void PatchCustomAttribute(ref byte[] blobHeap)
 		{
-			MemberRefTable.Record[] memberRefs = module.MemberRef.records;
-			int ctorSystemAttributeUsageAttribute = -1;
-			int ctorWindowsFoundationMetadataAllowMultipleAttribute = -1;
-			for (int i = 0; i < memberRefs.Length; i++)
+			var memberRefs = module.MemberRef.records;
+			var ctorSystemAttributeUsageAttribute = -1;
+			var ctorWindowsFoundationMetadataAllowMultipleAttribute = -1;
+			
+			for (var i = 0; i < memberRefs.Length; i++)
 			{
 				if (memberRefs[i].Class == typeofSystemAttributeUsageAttribute
 					&& module.GetString(memberRefs[i].Name) == ".ctor")
@@ -384,29 +396,37 @@ namespace IKVM.Reflection
 
 			if (ctorSystemAttributeUsageAttribute != -1)
 			{
-				CustomAttributeTable.Record[] customAttributes = module.CustomAttribute.records;
-				Dictionary<int, int> map = new Dictionary<int, int>();
-				for (int i = 0; i < customAttributes.Length; i++)
+				var customAttributes = module.CustomAttribute.records;
+				var map = new Dictionary<int, int>();
+				
+				for (var i = 0; i < customAttributes.Length; i++)
 				{
 					if (customAttributes[i].Type == ctorSystemAttributeUsageAttribute)
 					{
-						ByteReader br = module.GetBlob(customAttributes[i].Value);
-						br.ReadInt16();
-						AttributeTargets targets = MapAttributeTargets(br.ReadInt32());
+						var byteReader = module.GetBlob(customAttributes[i].Value);
+						byteReader.ReadInt16();
+						var targets = MapAttributeTargets(byteReader.ReadInt32());
 						if ((targets & AttributeTargets.Method) != 0)
 						{
 							// apart from the two types special cased below, Method implies Constructor
 							targets |= AttributeTargets.Constructor;
 							if (customAttributes[i].Parent >> 24 == TypeDefTable.Index)
 							{
-								TypeName typeName = GetTypeDefName((customAttributes[i].Parent & 0xFFFFFF) - 1);
-								if (typeName.Namespace == "Windows.Foundation.Metadata" && (typeName.Name == "OverloadAttribute" || typeName.Name == "DefaultOverloadAttribute"))
+								var typeName = GetTypeDefName((customAttributes[i].Parent & 0xFFFFFF) - 1);
+								if (typeName.Namespace == "Windows.Foundation.Metadata" 
+								    && (typeName.Name == "OverloadAttribute" 
+								        || typeName.Name == "DefaultOverloadAttribute"))
 								{
 									targets &= ~AttributeTargets.Constructor;
 								}
 							}
 						}
-						customAttributes[i].Value = GetAttributeUsageAttributeBlob(ref blobHeap, map, targets, HasAllowMultipleAttribute(customAttributes, i, ctorWindowsFoundationMetadataAllowMultipleAttribute));
+						customAttributes[i].Value = GetAttributeUsageAttributeBlob(ref blobHeap, 
+																					map, 
+																					targets, 
+																					HasAllowMultipleAttribute(customAttributes, 
+																						i, 
+																						ctorWindowsFoundationMetadataAllowMultipleAttribute));
 					}
 				}
 			}
@@ -414,30 +434,32 @@ namespace IKVM.Reflection
 
 		private int AddAssemblyReference(string name, int publicKeyToken)
 		{
-			AssemblyRefTable.Record rec;
-			Version ver = GetMscorlibVersion();
-			rec.MajorVersion = (ushort)ver.Major;
-			rec.MinorVersion = (ushort)ver.Minor;
-			rec.BuildNumber = (ushort)ver.Build;
-			rec.RevisionNumber = (ushort)ver.Revision;
-			rec.Flags = 0;
-			rec.PublicKeyOrToken = publicKeyToken;
-			rec.Name = GetString(name);
-			rec.Culture = 0;
-			rec.HashValue = 0;
-			int token = 0x23000000 | module.AssemblyRef.FindOrAddRecord(rec);
+			AssemblyRefTable.Record record;
+			var version = GetMscorlibVersion();
+			record.MajorVersion = (ushort)version.Major;
+			record.MinorVersion = (ushort)version.Minor;
+			record.BuildNumber = (ushort)version.Build;
+			record.RevisionNumber = (ushort)version.Revision;
+			record.Flags = 0;
+			record.PublicKeyOrToken = publicKeyToken;
+			record.Name = GetString(name);
+			record.Culture = 0;
+			record.HashValue = 0;
+			var token = 0x23000000 | module.AssemblyRef.FindOrAddRecord(record);
 			Array.Resize(ref module.AssemblyRef.records, module.AssemblyRef.RowCount);
 			return token;
 		}
 
 		private TypeName GetTypeRefName(int index)
 		{
-			return new TypeName(module.GetString(module.TypeRef.records[index].TypeNamespace), module.GetString(module.TypeRef.records[index].TypeName));
+			return new TypeName(module.GetString(module.TypeRef.records[index].TypeNamespace), 
+								module.GetString(module.TypeRef.records[index].TypeName));
 		}
 
 		private TypeName GetTypeDefName(int index)
 		{
-			return new TypeName(module.GetString(module.TypeDef.records[index].TypeNamespace), module.GetString(module.TypeDef.records[index].TypeName));
+			return new TypeName(module.GetString(module.TypeDef.records[index].TypeNamespace), 
+								module.GetString(module.TypeDef.records[index].TypeName));
 		}
 
 		private int GetString(string str)
@@ -454,14 +476,16 @@ namespace IKVM.Reflection
 
 		private Version GetMscorlibVersion()
 		{
-			Assembly mscorlib = module.universe.Mscorlib;
+			var mscorlib = module.universe.Mscorlib;
 			return mscorlib.__IsMissing ? new Version(4, 0, 0, 0) : mscorlib.GetName().Version;
 		}
 
-		private static bool HasAllowMultipleAttribute(CustomAttributeTable.Record[] customAttributes, int i, int ctorWindowsFoundationMetadataAllowMultipleAttribute)
+		private static bool HasAllowMultipleAttribute(CustomAttributeTable.Record[] customAttributes, 
+														int i, 
+														int ctorWindowsFoundationMetadataAllowMultipleAttribute)
 		{
 			// we can assume that the CustomAttribute table is sorted, because we've checked the Sorted flag earlier
-			int owner = customAttributes[i].Parent;
+			var owner = customAttributes[i].Parent;
 			while (i > 0 && customAttributes[i - 1].Parent == owner)
 			{
 				i--;
@@ -527,9 +551,12 @@ namespace IKVM.Reflection
 			return result;
 		}
 
-		private static int GetAttributeUsageAttributeBlob(ref byte[] blobHeap, Dictionary<int, int> map, AttributeTargets targets, bool allowMultiple)
+		private static int GetAttributeUsageAttributeBlob(ref byte[] bytes, 
+															Dictionary<int, int> map, 
+															AttributeTargets targets, 
+															bool allowMultiple)
 		{
-			int key = (int)targets;
+			var key = (int)targets;
 			if (allowMultiple)
 			{
 				key |= unchecked((int)0x80000000);
@@ -537,20 +564,20 @@ namespace IKVM.Reflection
 			int blob;
 			if (!map.TryGetValue(key, out blob))
 			{
-				blob = AddBlob(ref blobHeap, new byte[] { 0x01, 0x00, (byte)targets, (byte)((int)targets >> 8), (byte)((int)targets >> 16), (byte)((int)targets >> 24),
+				blob = AddBlob(ref bytes, new byte[] { 0x01, 0x00, (byte)targets, (byte)((int)targets >> 8), (byte)((int)targets >> 16), (byte)((int)targets >> 24),
 					0x01, 0x00, 0x54, 0x02, 0x0D, 0x41, 0x6C, 0x6C, 0x6F, 0x77, 0x4D, 0x75, 0x6C, 0x74, 0x69, 0x70, 0x6C, 0x65, allowMultiple ? (byte)0x01 : (byte)0x00 });
 				map.Add(key, blob);
 			}
 			return blob;
 		}
 
-		private static int ReadTypeSpec(ByteReader br)
+		private static int ReadTypeSpec(ByteReader byteReader)
 		{
-			if (br.ReadByte() != Signature.ELEMENT_TYPE_GENERICINST)
+			if (byteReader.ReadByte() != Signature.ELEMENT_TYPE_GENERICINST)
 			{
 				throw new NotImplementedException("Expected ELEMENT_TYPE_GENERICINST");
 			}
-			switch (br.ReadByte())
+			switch (byteReader.ReadByte())
 			{
 				case Signature.ELEMENT_TYPE_CLASS:
 				case Signature.ELEMENT_TYPE_VALUETYPE:
@@ -558,7 +585,7 @@ namespace IKVM.Reflection
 				default:
 					throw new NotImplementedException("Expected ELEMENT_TYPE_CLASS or ELEMENT_TYPE_VALUETYPE");
 			}
-			int encoded = br.ReadCompressedUInt();
+			var encoded = byteReader.ReadCompressedUInt();
 			switch (encoded & 3)
 			{
 				case 0:
@@ -578,7 +605,7 @@ namespace IKVM.Reflection
 			{
 				throw new NotImplementedException();
 			}
-			int offset = blobHeap.Length;
+			var offset = blobHeap.Length;
 			Array.Resize(ref blobHeap, offset + blob.Length + 1);
 			blobHeap[offset] = (byte)blob.Length;
 			Buffer.BlockCopy(blob, 0, blobHeap, offset + 1, blob.Length);

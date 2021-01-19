@@ -67,9 +67,9 @@ namespace IKVM.Reflection
 			{
 				throw new ArgumentNullException("keyPairFile");
 			}
-			byte[] buf = new byte[keyPairFile.Length - keyPairFile.Position];
-			keyPairFile.Read(buf, 0, buf.Length);
-			return buf;
+			var buffer = new byte[keyPairFile.Length - keyPairFile.Position];
+			keyPairFile.Read(buffer, 0, buffer.Length);
+			return buffer;
 		}
 
 		public byte[] PublicKey
@@ -85,8 +85,8 @@ namespace IKVM.Reflection
 #endif
 				using (RSACryptoServiceProvider rsa = CreateRSA())
 				{
-					byte[] cspBlob = rsa.ExportCspBlob(false);
-					byte[] publicKey = new byte[12 + cspBlob.Length];
+					var cspBlob = rsa.ExportCspBlob(false);
+					var publicKey = new byte[12 + cspBlob.Length];
 					Buffer.BlockCopy(cspBlob, 0, publicKey, 12, cspBlob.Length);
 					publicKey[1] = 36;
 					publicKey[4] = 4;
@@ -106,13 +106,13 @@ namespace IKVM.Reflection
 			{
 				if (keyPairArray != null)
 				{
-					RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+					var rsa = new RSACryptoServiceProvider();
 					rsa.ImportCspBlob(keyPairArray);
 					return rsa;
 				}
 				else
 				{
-					CspParameters parm = new CspParameters();
+					var parm = new CspParameters();
 					parm.KeyContainerName = keyPairContainer;
 					// MONOBUG Mono doesn't like it when Flags or KeyNumber are set
 					if (!Universe.MonoRuntime)

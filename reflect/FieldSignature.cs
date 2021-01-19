@@ -84,11 +84,11 @@ namespace IKVM.Reflection
 			return new FieldSignature(fieldType, mods);
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer bb)
+		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
-			bb.Write(FIELD);
-			WriteCustomModifiers(module, bb, mods);
-			WriteType(module, bb, fieldType);
+			byteBuffer.Write(FIELD);
+			WriteCustomModifiers(module, byteBuffer, mods);
+			WriteType(module, byteBuffer, fieldType);
 		}
 	}
 }

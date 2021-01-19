@@ -21,8 +21,9 @@
   jeroen@frijters.net
   
 */
-using System;
+
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IKVM.Reflection
 {
@@ -42,7 +43,11 @@ namespace IKVM.Reflection
 
 	public abstract class TypeInfo : Type, IReflectableType
 	{
-		private const BindingFlags Flags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+		private const BindingFlags Flags = BindingFlags.DeclaredOnly 
+		                                   | BindingFlags.Public 
+		                                   | BindingFlags.NonPublic 
+		                                   | BindingFlags.Instance 
+		                                   | BindingFlags.Static;
 
 		internal TypeInfo()
 		{
@@ -58,38 +63,23 @@ namespace IKVM.Reflection
 		{
 		}
 
-		public IEnumerable<ConstructorInfo> DeclaredConstructors
-		{
-			get { return GetConstructors(Flags); }
-		}
+		public IEnumerable<ConstructorInfo> DeclaredConstructors => GetConstructors(Flags);
 
-		public IEnumerable<EventInfo> DeclaredEvents
-		{
-			get { return GetEvents(Flags); }
-		}
+		public IEnumerable<EventInfo> DeclaredEvents => GetEvents(Flags);
 
-		public IEnumerable<FieldInfo> DeclaredFields
-		{
-			get { return GetFields(Flags); }
-		}
+		public IEnumerable<FieldInfo> DeclaredFields => GetFields(Flags);
 
-		public IEnumerable<MemberInfo> DeclaredMembers
-		{
-			get { return GetMembers(Flags); }
-		}
+		public IEnumerable<MemberInfo> DeclaredMembers => GetMembers(Flags);
 
-		public IEnumerable<MethodInfo> DeclaredMethods
-		{
-			get { return GetMethods(Flags); }
-		}
+		public IEnumerable<MethodInfo> DeclaredMethods => GetMethods(Flags);
 
 		public IEnumerable<TypeInfo> DeclaredNestedTypes
 		{
 			get
 			{
-				Type[] types = GetNestedTypes(Flags);
-				TypeInfo[] typeInfos = new TypeInfo[types.Length];
-				for (int i = 0; i < types.Length; i++)
+				var types = GetNestedTypes(Flags);
+				var typeInfos = new TypeInfo[types.Length];
+				for (var i = 0; i < types.Length; i++)
 				{
 					typeInfos[i] = types[i].GetTypeInfo();
 				}
@@ -97,20 +87,11 @@ namespace IKVM.Reflection
 			}
 		}
 
-		public IEnumerable<PropertyInfo> DeclaredProperties
-		{
-			get { return GetProperties(Flags); }
-		}
+		public IEnumerable<PropertyInfo> DeclaredProperties => GetProperties(Flags);
 
-		public Type[] GenericTypeParameters
-		{
-			get { return IsGenericTypeDefinition ? GetGenericArguments() : Type.EmptyTypes; }
-		}
+		public Type[] GenericTypeParameters => IsGenericTypeDefinition ? GetGenericArguments() : Type.EmptyTypes;
 
-		public IEnumerable<Type> ImplementedInterfaces
-		{
-			get { return __GetDeclaredInterfaces(); }
-		}
+		public IEnumerable<Type> ImplementedInterfaces => __GetDeclaredInterfaces();
 
 		public Type AsType()
 		{
@@ -134,15 +115,7 @@ namespace IKVM.Reflection
 
 		public IEnumerable<MethodInfo> GetDeclaredMethods(string name)
 		{
-			List<MethodInfo> methods = new List<MethodInfo>();
-			foreach (MethodInfo method in GetMethods(Flags))
-			{
-				if (method.Name == name)
-				{
-					methods.Add(method);
-				}
-			}
-			return methods;
+			return GetMethods(Flags).Where(method => method.Name == name).ToList();
 		}
 
 		public TypeInfo GetDeclaredNestedType(string name)

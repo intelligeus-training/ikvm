@@ -21,9 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection
 {
@@ -38,8 +35,8 @@ namespace IKVM.Reflection
 
 		public bool this[int index]
 		{
-			get { return values[index]; }
-			set { values[index] = value; }
+			get => values[index];
+			set => values[index] = value;
 		}
 	}
 }

@@ -100,7 +100,7 @@ namespace IKVM.Reflection
 			{
 				return Empty<int>.Array;
 			}
-			int[] copy = new int[array.Length];
+			var copy = new int[array.Length];
 			Array.Copy(array, copy, array.Length);
 			return copy;
 		}
@@ -111,7 +111,7 @@ namespace IKVM.Reflection
 			{
 				return Type.EmptyTypes;
 			}
-			Type[] copy = new Type[array.Length];
+			var copy = new Type[array.Length];
 			Array.Copy(array, copy, array.Length);
 			return copy;
 		}
@@ -122,8 +122,8 @@ namespace IKVM.Reflection
 			{
 				return empty;
 			}
-			T[] array = new T[list.Count];
-			for (int i = 0; i < array.Length; i++)
+			var array = new T[list.Count];
+			for (var i = 0; i < array.Length; i++)
 			{
 				array[i] = list[i];
 			}
@@ -154,7 +154,7 @@ namespace IKVM.Reflection
 			}
 			if (t1.Length == t2.Length)
 			{
-				for (int i = 0; i < t1.Length; i++)
+				for (var i = 0; i < t1.Length; i++)
 				{
 					if (!TypeEquals(t1[i], t2[i]))
 					{

@@ -34,13 +34,13 @@ namespace IKVM.Reflection
 
 		public sealed override bool Equals(object obj)
 		{
-			ParameterInfo other = obj as ParameterInfo;
-			return other != null && other.Member == this.Member && other.Position == this.Position;
+			var other = obj as ParameterInfo;
+			return other != null && other.Member == Member && other.Position == Position;
 		}
 
 		public sealed override int GetHashCode()
 		{
-			return this.Member.GetHashCode() * 1777 + this.Position;
+			return Member.GetHashCode() * 1777 + Position;
 		}
 
 		public static bool operator ==(ParameterInfo p1, ParameterInfo p2)
@@ -74,35 +74,17 @@ namespace IKVM.Reflection
 			return __GetCustomModifiers().GetRequired();
 		}
 
-		public bool IsIn
-		{
-			get { return (Attributes & ParameterAttributes.In) != 0; }
-		}
+		public bool IsIn => (Attributes & ParameterAttributes.In) != 0;
 
-		public bool IsOut
-		{
-			get { return (Attributes & ParameterAttributes.Out) != 0; }
-		}
+		public bool IsOut => (Attributes & ParameterAttributes.Out) != 0;
 
-		public bool IsLcid
-		{
-			get { return (Attributes & ParameterAttributes.Lcid) != 0; }
-		}
+		public bool IsLcid => (Attributes & ParameterAttributes.Lcid) != 0;
 
-		public bool IsRetval
-		{
-			get { return (Attributes & ParameterAttributes.Retval) != 0; }
-		}
+		public bool IsRetval => (Attributes & ParameterAttributes.Retval) != 0;
 
-		public bool IsOptional
-		{
-			get { return (Attributes & ParameterAttributes.Optional) != 0; }
-		}
+		public bool IsOptional => (Attributes & ParameterAttributes.Optional) != 0;
 
-		public bool HasDefaultValue
-		{
-			get { return (Attributes & ParameterAttributes.HasDefault) != 0; }
-		}
+		public bool HasDefaultValue => (Attributes & ParameterAttributes.HasDefault) != 0;
 
 		public bool IsDefined(Type attributeType, bool inherit)
 		{
@@ -119,10 +101,7 @@ namespace IKVM.Reflection
 			return CustomAttributeData.GetCustomAttributes(this);
 		}
 
-		public IEnumerable<CustomAttributeData> CustomAttributes
-		{
-			get { return GetCustomAttributesData(); }
-		}
+		public IEnumerable<CustomAttributeData> CustomAttributes => GetCustomAttributesData();
 	}
 
 	sealed class ParameterInfoWrapper : ParameterInfo
@@ -136,30 +115,15 @@ namespace IKVM.Reflection
 			this.forward = forward;
 		}
 
-		public override string Name
-		{
-			get { return forward.Name; }
-		}
+		public override string Name => forward.Name;
 
-		public override Type ParameterType
-		{
-			get { return forward.ParameterType; }
-		}
+		public override Type ParameterType => forward.ParameterType;
 
-		public override ParameterAttributes Attributes
-		{
-			get { return forward.Attributes; }
-		}
+		public override ParameterAttributes Attributes => forward.Attributes;
 
-		public override int Position
-		{
-			get { return forward.Position; }
-		}
+		public override int Position => forward.Position;
 
-		public override object RawDefaultValue
-		{
-			get { return forward.RawDefaultValue; }
-		}
+		public override object RawDefaultValue => forward.RawDefaultValue;
 
 		public override CustomModifiers __GetCustomModifiers()
 		{
@@ -171,19 +135,10 @@ namespace IKVM.Reflection
 			return forward.__TryGetFieldMarshal(out fieldMarshal);
 		}
 
-		public override MemberInfo Member
-		{
-			get { return member; }
-		}
+		public override MemberInfo Member => member;
 
-		public override int MetadataToken
-		{
-			get { return forward.MetadataToken; }
-		}
+		public override int MetadataToken => forward.MetadataToken;
 
-		internal override Module Module
-		{
-			get { return member.Module; }
-		}
+		internal override Module Module => member.Module;
 	}
 }

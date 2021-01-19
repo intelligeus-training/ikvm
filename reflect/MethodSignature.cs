@@ -323,9 +323,9 @@ namespace IKVM.Reflection
 			return Util.ArrayEquals(types, parameterTypes);
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer bb)
+		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
-			WriteSigImpl(module, bb, parameterTypes.Length);
+			WriteSigImpl(module, byteBuffer, parameterTypes.Length);
 		}
 
 		internal void WriteMethodRefSig(ModuleBuilder module, 

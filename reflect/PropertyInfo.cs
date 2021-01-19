@@ -61,30 +61,15 @@ namespace IKVM.Reflection
 				this.parameter = parameter;
 			}
 
-			public override string Name
-			{
-				get { return null; }
-			}
+			public override string Name => null;
 
-			public override Type ParameterType
-			{
-				get { return property.PropertySignature.GetParameter(parameter); }
-			}
+			public override Type ParameterType => property.PropertySignature.GetParameter(parameter);
 
-			public override ParameterAttributes Attributes
-			{
-				get { return ParameterAttributes.None; }
-			}
+			public override ParameterAttributes Attributes => ParameterAttributes.None;
 
-			public override int Position
-			{
-				get { return parameter; }
-			}
+			public override int Position => parameter;
 
-			public override object RawDefaultValue
-			{
-				get { throw new InvalidOperationException(); }
-			}
+			public override object RawDefaultValue => throw new InvalidOperationException();
 
 			public override CustomModifiers __GetCustomModifiers()
 			{
@@ -97,40 +82,28 @@ namespace IKVM.Reflection
 				return false;
 			}
 
-			public override MemberInfo Member
-			{
-				get { return property; }
-			}
+			public override MemberInfo Member => property;
 
-			public override int MetadataToken
-			{
-				get { return 0x08000000; }
-			}
+			public override int MetadataToken => 0x08000000;
 
-			internal override Module Module
-			{
-				get { return property.Module; }
-			}
+			internal override Module Module => property.Module;
 		}
 
 		public virtual ParameterInfo[] GetIndexParameters()
 		{
-			ParameterInfo[] parameters = new ParameterInfo[this.PropertySignature.ParameterCount];
-			for (int i = 0; i < parameters.Length; i++)
+			var parameterInfos = new ParameterInfo[this.PropertySignature.ParameterCount];
+			for (var i = 0; i < parameterInfos.Length; i++)
 			{
-				parameters[i] = new ParameterInfoImpl(this, i);
+				parameterInfos[i] = new ParameterInfoImpl(this, i);
 			}
-			return parameters;
+			return parameterInfos;
 		}
 
-		public Type PropertyType
-		{
-			get { return this.PropertySignature.PropertyType; }
-		}
+		public Type PropertyType => this.PropertySignature.PropertyType;
 
 		public CustomModifiers __GetCustomModifiers()
 		{
-			return this.PropertySignature.GetCustomModifiers();
+			return PropertySignature.GetCustomModifiers();
 		}
 
 		public Type[] GetRequiredCustomModifiers()
@@ -143,20 +116,11 @@ namespace IKVM.Reflection
 			return __GetCustomModifiers().GetOptional();
 		}
 
-		public bool IsSpecialName
-		{
-			get { return (Attributes & PropertyAttributes.SpecialName) != 0; }
-		}
+		public bool IsSpecialName => (Attributes & PropertyAttributes.SpecialName) != 0;
 
-		public MethodInfo GetMethod
-		{
-			get { return GetGetMethod(true); }
-		}
+		public MethodInfo GetMethod => GetGetMethod(true);
 
-		public MethodInfo SetMethod
-		{
-			get { return GetSetMethod(true); }
-		}
+		public MethodInfo SetMethod => GetSetMethod(true);
 
 		public MethodInfo GetGetMethod()
 		{
@@ -173,10 +137,7 @@ namespace IKVM.Reflection
 			return GetAccessors(false);
 		}
 
-		public CallingConventions __CallingConvention
-		{
-			get { return this.PropertySignature.CallingConvention; }
-		}
+		public CallingConventions __CallingConvention => PropertySignature.CallingConvention;
 
 		internal virtual PropertyInfo BindTypeParameters(Type type)
 		{
@@ -185,7 +146,7 @@ namespace IKVM.Reflection
 
 		public override string ToString()
 		{
-			return this.DeclaringType.ToString() + " " + Name;
+			return $"{DeclaringType} {Name}" ;
 		}
 
 		internal sealed override bool BindingFlagsMatch(BindingFlags flags)
@@ -198,7 +159,8 @@ namespace IKVM.Reflection
 		{
 			return IsNonPrivate
 				&& BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
-				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static | BindingFlags.FlattenHierarchy, BindingFlags.Instance);
+				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static | BindingFlags.FlattenHierarchy, 
+					BindingFlags.Instance);
 		}
 
 		internal sealed override MemberInfo SetReflectedType(Type type)
@@ -224,20 +186,11 @@ namespace IKVM.Reflection
 			this.property = property;
 		}
 
-		public override PropertyAttributes Attributes
-		{
-			get { return property.Attributes; }
-		}
+		public override PropertyAttributes Attributes => property.Attributes;
 
-		public override bool CanRead
-		{
-			get { return property.CanRead; }
-		}
+		public override bool CanRead => property.CanRead;
 
-		public override bool CanWrite
-		{
-			get { return property.CanWrite; }
-		}
+		public override bool CanWrite => property.CanWrite;
 
 		public override MethodInfo GetGetMethod(bool nonPublic)
 		{
@@ -259,34 +212,22 @@ namespace IKVM.Reflection
 			return property.GetRawConstantValue();
 		}
 
-		internal override bool IsPublic
-		{
-			get { return property.IsPublic; }
-		}
+		internal override bool IsPublic => property.IsPublic;
 
-		internal override bool IsNonPrivate
-		{
-			get { return property.IsNonPrivate; }
-		}
+		internal override bool IsNonPrivate => property.IsNonPrivate;
 
-		internal override bool IsStatic
-		{
-			get { return property.IsStatic; }
-		}
+		internal override bool IsStatic => property.IsStatic;
 
-		internal override PropertySignature PropertySignature
-		{
-			get { return property.PropertySignature; }
-		}
+		internal override PropertySignature PropertySignature => property.PropertySignature;
 
 		public override ParameterInfo[] GetIndexParameters()
 		{
-			ParameterInfo[] parameters = property.GetIndexParameters();
-			for (int i = 0; i < parameters.Length; i++)
+			var parameterInfos = property.GetIndexParameters();
+			for (var i = 0; i < parameterInfos.Length; i++)
 			{
-				parameters[i] = new ParameterInfoWrapper(this, parameters[i]);
+				parameterInfos[i] = new ParameterInfoWrapper(this, parameterInfos[i]);
 			}
-			return parameters;
+			return parameterInfos;
 		}
 
 		internal override PropertyInfo BindTypeParameters(Type type)
@@ -299,24 +240,15 @@ namespace IKVM.Reflection
 			return property.ToString();
 		}
 
-		public override bool __IsMissing
-		{
-			get { return property.__IsMissing; }
-		}
+		public override bool __IsMissing => property.__IsMissing;
 
-		public override Type DeclaringType
-		{
-			get { return property.DeclaringType; }
-		}
+		public override Type DeclaringType => property.DeclaringType;
 
-		public override Type ReflectedType
-		{
-			get { return reflectedType; }
-		}
+		public override Type ReflectedType => reflectedType;
 
 		public override bool Equals(object obj)
 		{
-			PropertyInfoWithReflectedType other = obj as PropertyInfoWithReflectedType;
+			var other = obj as PropertyInfoWithReflectedType;
 			return other != null
 				&& other.reflectedType == reflectedType
 				&& other.property == property;
@@ -327,25 +259,13 @@ namespace IKVM.Reflection
 			return reflectedType.GetHashCode() ^ property.GetHashCode();
 		}
 
-		public override int MetadataToken
-		{
-			get { return property.MetadataToken; }
-		}
+		public override int MetadataToken => property.MetadataToken;
 
-		public override Module Module
-		{
-			get { return property.Module; }
-		}
+		public override Module Module => property.Module;
 
-		public override string Name
-		{
-			get { return property.Name; }
-		}
+		public override string Name => property.Name;
 
-		internal override bool IsBaked
-		{
-			get { return property.IsBaked; }
-		}
+		internal override bool IsBaked => property.IsBaked;
 
 		internal override int GetCurrentToken()
 		{
