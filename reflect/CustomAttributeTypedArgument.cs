@@ -21,9 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection
 {
@@ -48,19 +45,14 @@ namespace IKVM.Reflection
 			return type.GetHashCode() ^ 77 * (value == null ? 0 : value.GetHashCode());
 		}
 
-		public Type ArgumentType
-		{
-			get { return type; }
-		}
+		public Type ArgumentType => type;
 
-		public Object Value
-		{
-			get { return value; }
-		}
+		public object Value => value;
 
 		public static bool operator ==(CustomAttributeTypedArgument arg1, CustomAttributeTypedArgument arg2)
 		{
-			return arg1.type.Equals(arg2.type) && (arg1.value == arg2.value || (arg1.value != null && arg1.value.Equals(arg2.value)));
+			return arg1.type.Equals(arg2.type) 
+			       && (arg1.value == arg2.value || (arg1.value != null && arg1.value.Equals(arg2.value)));
 		}
 
 		public static bool operator !=(CustomAttributeTypedArgument arg1, CustomAttributeTypedArgument arg2)

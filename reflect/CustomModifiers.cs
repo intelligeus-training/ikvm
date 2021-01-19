@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using IKVM.Reflection.Emit;
 using IKVM.Reflection.Reader;
@@ -36,22 +37,19 @@ namespace IKVM.Reflection
 		private static Type Initial { get { return MarkerType.ModOpt; } }
 		private readonly Type[] types;
 
-		internal CustomModifiers(List<CustomModifiersBuilder.Item> list)
+		internal CustomModifiers(List<CustomModifiersBuilder.Item> builderItems)
 		{
-			bool required = Initial == MarkerType.ModReq;
-			int count = list.Count;
-			foreach (CustomModifiersBuilder.Item item in list)
+			var required = Initial == MarkerType.ModReq;
+			var count = builderItems.Count;
+			foreach (var item in builderItems.Where(item => item.required != required))
 			{
-				if (item.required != required)
-				{
-					required = item.required;
-					count++;
-				}
+				required = item.required;
+				count++;
 			}
 			types = new Type[count];
 			required = Initial == MarkerType.ModReq;
-			int index = 0;
-			foreach (CustomModifiersBuilder.Item item in list)
+			var index = 0;
+			foreach(var item in builderItems)
 			{
 				if (item.required != required)
 				{
@@ -77,20 +75,17 @@ namespace IKVM.Reflection
 			internal Enumerator(Type[] types)
 			{
 				this.types = types;
-				this.index = -1;
-				this.required = Initial == MarkerType.ModReq;
+				index = -1;
+				required = Initial == MarkerType.ModReq;
 			}
 
 			void System.Collections.IEnumerator.Reset()
 			{
-				this.index = -1;
-				this.required = Initial == MarkerType.ModReq;
+				index = -1;
+				required = Initial == MarkerType.ModReq;
 			}
 
-			public Entry Current
-			{
-				get { return new Entry(types[index], required); }
-			}
+			public Entry Current => new Entry(types[index], required);
 
 			public bool MoveNext()
 			{
@@ -103,7 +98,7 @@ namespace IKVM.Reflection
 				{
 					return false;
 				}
-				else if (types[index] == MarkerType.ModOpt)
+				if (types[index] == MarkerType.ModOpt)
 				{
 					required = false;
 					index++;
@@ -116,10 +111,7 @@ namespace IKVM.Reflection
 				return true;
 			}
 
-			object System.Collections.IEnumerator.Current
-			{
-				get { return Current; }
-			}
+			object System.Collections.IEnumerator.Current => Current;
 
 			void IDisposable.Dispose()
 			{
@@ -137,15 +129,9 @@ namespace IKVM.Reflection
 				this.required = required;
 			}
 
-			public Type Type
-			{
-				get { return type; }
-			}
+			public Type Type => type;
 
-			public bool IsRequired
-			{
-				get { return required; }
-			}
+			public bool IsRequired => required;
 		}
 
 		public Enumerator GetEnumerator()
@@ -163,10 +149,7 @@ namespace IKVM.Reflection
 			return GetEnumerator();
 		}
 
-		public bool IsEmpty
-		{
-			get { return types == null; }
-		}
+		public bool IsEmpty => types == null;
 
 		public bool Equals(CustomModifiers other)
 		{
@@ -190,20 +173,20 @@ namespace IKVM.Reflection
 			{
 				return string.Empty;
 			}
-			StringBuilder sb = new StringBuilder();
-			string sep = "";
-			foreach (Entry e in this)
+			var stringBuilder = new StringBuilder();
+			var separator = "";
+			foreach (var entry in this)
 			{
-				sb.Append(sep).Append(e.IsRequired ? "modreq(" : "modopt(").Append(e.Type.FullName).Append(')');
-				sep = " ";
+				stringBuilder.Append(separator)
+								.Append(entry.IsRequired ? "modreq(" : "modopt(")
+								.Append(entry.Type.FullName)
+								.Append(')');
+				separator = " ";
 			}
-			return sb.ToString();
+			return stringBuilder.ToString();
 		}
 
-		public bool ContainsMissingType
-		{
-			get { return Type.ContainsMissingType(types); }
-		}
+		public bool ContainsMissingType => Type.ContainsMissingType(types);
 
 		private Type[] GetRequiredOrOptional(bool required)
 		{
@@ -211,22 +194,22 @@ namespace IKVM.Reflection
 			{
 				return Type.EmptyTypes;
 			}
-			int count = 0;
-			foreach (Entry e in this)
+			var count = 0;
+			foreach (var entry in this)
 			{
-				if (e.IsRequired == required)
+				if (entry.IsRequired == required)
 				{
 					count++;
 				}
 			}
-			Type[] result = new Type[count];
-			foreach (Entry e in this)
+			var result = new Type[count];
+			foreach (var entry in this)
 			{
-				if (e.IsRequired == required)
+				if (entry.IsRequired == required)
 				{
 					// FXBUG reflection (and ildasm) return custom modifiers in reverse order
 					// while SRE writes them in the specified order
-					result[--count] = e.Type;
+					result[--count] = entry.Type;
 				}
 			}
 			return result;
@@ -248,24 +231,24 @@ namespace IKVM.Reflection
 			{
 				return this;
 			}
-			Type[] result = types;
-			for (int i = 0; i < types.Length; i++)
+			var results = types;
+			for (var i = 0; i < types.Length; i++)
 			{
 				if (types[i] == MarkerType.ModOpt || types[i] == MarkerType.ModReq)
 				{
 					continue;
 				}
-				Type type = types[i].BindTypeParameters(binder);
+				var type = types[i].BindTypeParameters(binder);
 				if (!ReferenceEquals(type, types[i]))
 				{
-					if (result == types)
+					if (results == types)
 					{
-						result = (Type[])types.Clone();
+						results = (Type[])types.Clone();
 					}
-					result[i] = type;
+					results[i] = type;
 				}
 			}
-			return new CustomModifiers(result);
+			return new CustomModifiers(results);
 		}
 
 		internal static CustomModifiers Read(ModuleReader module, ByteReader br, IGenericContext context)
@@ -275,59 +258,59 @@ namespace IKVM.Reflection
 			{
 				return new CustomModifiers();
 			}
-			List<Type> list = new List<Type>();
-			Type mode = Initial;
+			var types = new List<Type>();
+			var mode = Initial;
 			do
 			{
-				Type cmod = br.ReadByte() == Signature.ELEMENT_TYPE_CMOD_REQD ? MarkerType.ModReq : MarkerType.ModOpt;
+				var cmod = br.ReadByte() == Signature.ELEMENT_TYPE_CMOD_REQD 
+													? MarkerType.ModReq : MarkerType.ModOpt;
 				if (mode != cmod)
 				{
 					mode = cmod;
-					list.Add(mode);
+					types.Add(mode);
 				}
-				list.Add(Signature.ReadTypeDefOrRefEncoded(module, br, context));
+				types.Add(Signature.ReadTypeDefOrRefEncoded(module, br, context));
 				b = br.PeekByte();
 			}
 			while (IsCustomModifier(b));
-			return new CustomModifiers(list.ToArray());
+			return new CustomModifiers(types.ToArray());
 		}
 
-		internal static void Skip(ByteReader br)
+		internal static void Skip(ByteReader byteReader)
 		{
-			byte b = br.PeekByte();
+			byte b = byteReader.PeekByte();
 			while (IsCustomModifier(b))
 			{
-				br.ReadByte();
-				br.ReadCompressedUInt();
-				b = br.PeekByte();
+				byteReader.ReadByte();
+				byteReader.ReadCompressedUInt();
+				b = byteReader.PeekByte();
 			}
 		}
 
 		internal static CustomModifiers FromReqOpt(Type[] req, Type[] opt)
 		{
-			List<Type> list = null;
+			List<Type> types = null;
 			if (opt != null && opt.Length != 0)
 			{
 				Debug.Assert(Initial == MarkerType.ModOpt);
-				list = new List<Type>(opt);
+				types = new List<Type>(opt);
 			}
 			if (req != null && req.Length != 0)
 			{
-				if (list == null)
+				if (types == null)
 				{
-					list = new List<Type>();
+					types = new List<Type>();
 				}
-				list.Add(MarkerType.ModReq);
-				list.AddRange(req);
+				types.Add(MarkerType.ModReq);
+				types.AddRange(req);
 			}
-			if (list == null)
+			if (types == null)
 			{
 				return new CustomModifiers();
 			}
-			else
-			{
-				return new CustomModifiers(list.ToArray());
-			}
+
+			return new CustomModifiers(types.ToArray());
+
 		}
 
 		private static bool IsCustomModifier(byte b)
@@ -341,17 +324,16 @@ namespace IKVM.Reflection
 			{
 				return mods2;
 			}
-			else if (mods2.IsEmpty)
+			if (mods2.IsEmpty)
 			{
 				return mods1;
 			}
-			else
-			{
-				Type[] combo = new Type[mods1.types.Length + mods2.types.Length];
-				Array.Copy(mods1.types, combo, mods1.types.Length);
-				Array.Copy(mods2.types, 0, combo, mods1.types.Length, mods2.types.Length);
-				return new CustomModifiers(combo);
-			}
+	
+			var combo = new Type[mods1.types.Length + mods2.types.Length];
+			Array.Copy(mods1.types, combo, mods1.types.Length);
+			Array.Copy(mods2.types, 0, combo, mods1.types.Length, mods2.types.Length);
+			return new CustomModifiers(combo);
+			
 		}
 	}
 }

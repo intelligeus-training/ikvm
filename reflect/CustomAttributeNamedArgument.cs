@@ -21,9 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection
 {
@@ -48,25 +45,13 @@ namespace IKVM.Reflection
 			return member.GetHashCode() ^ 53 * value.GetHashCode();
 		}
 
-		public MemberInfo MemberInfo
-		{
-			get { return member; }
-		}
+		public MemberInfo MemberInfo => member;
 
-		public CustomAttributeTypedArgument TypedValue
-		{
-			get { return value; }
-		}
+		public CustomAttributeTypedArgument TypedValue => value;
 
-		public bool IsField
-		{
-			get { return member.MemberType == MemberTypes.Field; }
-		}
+		public bool IsField => member.MemberType == MemberTypes.Field;
 
-		public string MemberName
-		{
-			get { return member.Name; }
-		}
+		public string MemberName => member.Name;
 
 		public static bool operator ==(CustomAttributeNamedArgument arg1, CustomAttributeNamedArgument arg2)
 		{
