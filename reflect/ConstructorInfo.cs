@@ -54,45 +54,27 @@ namespace IKVM.Reflection
 			return new ConstructorInfoImpl((MethodInfo)GetMethodInfo().__GetMethodOnTypeDefinition());
 		}
 
-		public sealed override MemberTypes MemberType
-		{
-			get { return MemberTypes.Constructor; }
-		}
+		public sealed override MemberTypes MemberType => MemberTypes.Constructor;
 
-		public sealed override int __MethodRVA
-		{
-			get { return GetMethodInfo().__MethodRVA; }
-		}
+		public sealed override int __MethodRVA => GetMethodInfo().__MethodRVA;
 
-		public sealed override bool ContainsGenericParameters
-		{
-			get { return GetMethodInfo().ContainsGenericParameters; }
-		}
+		public sealed override bool ContainsGenericParameters => GetMethodInfo().ContainsGenericParameters;
 
-		public ParameterInfo __ReturnParameter
-		{
-			get { return new ParameterInfoWrapper(this, GetMethodInfo().ReturnParameter); }
-		}
+		public ParameterInfo __ReturnParameter => new ParameterInfoWrapper(this, GetMethodInfo().ReturnParameter);
 
 		public sealed override ParameterInfo[] GetParameters()
 		{
-			ParameterInfo[] parameters = GetMethodInfo().GetParameters();
-			for (int i = 0; i < parameters.Length; i++)
+			var parameters = GetMethodInfo().GetParameters();
+			for (var i = 0; i < parameters.Length; i++)
 			{
 				parameters[i] = new ParameterInfoWrapper(this, parameters[i]);
 			}
 			return parameters;
 		}
 
-		public sealed override CallingConventions CallingConvention
-		{
-			get { return GetMethodInfo().CallingConvention; }
-		}
+		public sealed override CallingConventions CallingConvention => GetMethodInfo().CallingConvention;
 
-		public sealed override MethodAttributes Attributes
-		{
-			get { return GetMethodInfo().Attributes; }
-		}
+		public sealed override MethodAttributes Attributes => GetMethodInfo().Attributes;
 
 		public sealed override MethodImplAttributes GetMethodImplementationFlags()
 		{
@@ -104,35 +86,20 @@ namespace IKVM.Reflection
 			get { return GetMethodInfo().DeclaringType; }
 		}
 
-		public sealed override string Name
-		{
-			get { return GetMethodInfo().Name; }
-		}
+		public sealed override string Name => GetMethodInfo().Name;
 
-		public sealed override int MetadataToken
-		{
-			get { return GetMethodInfo().MetadataToken; }
-		}
+		public sealed override int MetadataToken => GetMethodInfo().MetadataToken;
 
-		public sealed override Module Module
-		{
-			get { return GetMethodInfo().Module; }
-		}
+		public sealed override Module Module => GetMethodInfo().Module;
 
 		public sealed override MethodBody GetMethodBody()
 		{
 			return GetMethodInfo().GetMethodBody();
 		}
 
-		public sealed override bool __IsMissing
-		{
-			get { return GetMethodInfo().__IsMissing; }
-		}
+		public sealed override bool __IsMissing => GetMethodInfo().__IsMissing;
 
-		internal sealed override int ParameterCount
-		{
-			get { return GetMethodInfo().ParameterCount; }
-		}
+		internal sealed override int ParameterCount => GetMethodInfo().ParameterCount;
 
 		internal sealed override MemberInfo SetReflectedType(Type type)
 		{
@@ -149,15 +116,9 @@ namespace IKVM.Reflection
 			return GetMethodInfo().GetPseudoCustomAttributes(attributeType);
 		}
 
-		internal sealed override bool IsBaked
-		{
-			get { return GetMethodInfo().IsBaked; }
-		}
+		internal sealed override bool IsBaked => GetMethodInfo().IsBaked;
 
-		internal sealed override MethodSignature MethodSignature
-		{
-			get { return GetMethodInfo().MethodSignature; }
-		}
+		internal sealed override MethodSignature MethodSignature => GetMethodInfo().MethodSignature;
 
 		internal sealed override int ImportTo(Emit.ModuleBuilder module)
 		{
@@ -176,7 +137,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			ConstructorInfoImpl other = obj as ConstructorInfoImpl;
+			var other = obj as ConstructorInfoImpl;
 			return other != null && other.method.Equals(method);
 		}
 
@@ -210,7 +171,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			ConstructorInfoWithReflectedType other = obj as ConstructorInfoWithReflectedType;
+			var other = obj as ConstructorInfoWithReflectedType;
 			return other != null
 				&& other.reflectedType == reflectedType
 				&& other.ctor == ctor;
@@ -221,10 +182,7 @@ namespace IKVM.Reflection
 			return reflectedType.GetHashCode() ^ ctor.GetHashCode();
 		}
 
-		public override Type ReflectedType
-		{
-			get { return reflectedType; }
-		}
+		public override Type ReflectedType => reflectedType;
 
 		internal override MethodInfo GetMethodInfo()
 		{

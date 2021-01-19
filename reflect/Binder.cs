@@ -61,7 +61,7 @@ namespace IKVM.Reflection
 		public override MethodBase SelectMethod(BindingFlags bindingAttr, MethodBase[] match, Type[] types, ParameterModifier[] modifiers)
 		{
 			int matchCount = 0;
-			foreach (MethodBase method in match)
+			foreach (var method in match)
 			{
 				if (MatchParameterTypes(method.GetParameters(), types))
 				{
@@ -74,9 +74,9 @@ namespace IKVM.Reflection
 				return null;
 			}
 
-			MethodBase bestMatch = match[0];
-			bool ambiguous = false;
-			for (int i = 1; i < matchCount; i++)
+			var bestMatch = match[0];
+			var ambiguous = false;
+			for (var i = 1; i < matchCount; i++)
 			{
 				SelectBestMatch(match[i], types, ref bestMatch, ref ambiguous);
 			}
@@ -93,10 +93,10 @@ namespace IKVM.Reflection
 			{
 				return false;
 			}
-			for (int i = 0; i < parameters.Length; i++)
+			for (var i = 0; i < parameters.Length; i++)
 			{
-				Type sourceType = types[i];
-				Type targetType = parameters[i].ParameterType;
+				var sourceType = types[i];
+				var targetType = parameters[i].ParameterType;
 				if (sourceType != targetType
 					&& !targetType.IsAssignableFrom(sourceType)
 					&& !IsAllowedPrimitiveConversion(sourceType, targetType))
@@ -121,13 +121,13 @@ namespace IKVM.Reflection
 
 			if (currentBest.MethodSignature.MatchParameterTypes(candidate.MethodSignature))
 			{
-				int depth1 = GetInheritanceDepth(currentBest.DeclaringType);
-				int depth2 = GetInheritanceDepth(candidate.DeclaringType);
+				var depth1 = GetInheritanceDepth(currentBest.DeclaringType);
+				var depth2 = GetInheritanceDepth(candidate.DeclaringType);
 				if (depth1 > depth2)
 				{
 					return;
 				}
-				else if (depth1 < depth2)
+				if (depth1 < depth2)
 				{
 					ambiguous = false;
 					currentBest = candidate;
@@ -151,14 +151,14 @@ namespace IKVM.Reflection
 
 		private static int MatchSignatures(MethodBase mb1, MethodBase mb2, Type[] types)
 		{
-			MethodSignature sig1 = mb1.MethodSignature;
-			MethodSignature sig2 = mb2.MethodSignature;
-			IGenericBinder gb1 = mb1 as IGenericBinder ?? mb1.DeclaringType;
-			IGenericBinder gb2 = mb2 as IGenericBinder ?? mb2.DeclaringType;
+			var sig1 = mb1.MethodSignature;
+			var sig2 = mb2.MethodSignature;
+			var gb1 = mb1 as IGenericBinder ?? mb1.DeclaringType;
+			var gb2 = mb2 as IGenericBinder ?? mb2.DeclaringType;
 			for (int i = 0; i < sig1.GetParameterCount(); i++)
 			{
-				Type type1 = sig1.GetParameterType(gb1, i);
-				Type type2 = sig2.GetParameterType(gb2, i);
+				var type1 = sig1.GetParameterType(gb1, i);
+				var type2 = sig2.GetParameterType(gb2, i);
 				if (type1 != type2)
 				{
 					return MatchTypes(type1, type2, types[i]);
@@ -169,10 +169,10 @@ namespace IKVM.Reflection
 
 		private static int MatchSignatures(PropertySignature sig1, PropertySignature sig2, Type[] types)
 		{
-			for (int i = 0; i < sig1.ParameterCount; i++)
+			for (var i = 0; i < sig1.ParameterCount; i++)
 			{
-				Type type1 = sig1.GetParameter(i);
-				Type type2 = sig2.GetParameter(i);
+				var type1 = sig1.GetParameter(i);
+				var type2 = sig2.GetParameter(i);
 				if (type1 != type2)
 				{
 					return MatchTypes(type1, type2, types[i]);
