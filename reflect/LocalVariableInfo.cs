@@ -45,20 +45,11 @@ namespace IKVM.Reflection
 			this.customModifiers = customModifiers;
 		}
 
-		public bool IsPinned
-		{
-			get { return pinned; }
-		}
+		public bool IsPinned => pinned;
 
-		public int LocalIndex
-		{
-			get { return index; }
-		}
+		public int LocalIndex => index;
 
-		public Type LocalType
-		{
-			get { return type; }
-		}
+		public Type LocalType => type;
 
 		public CustomModifiers __GetCustomModifiers()
 		{
@@ -67,7 +58,7 @@ namespace IKVM.Reflection
 
 		public override string ToString()
 		{
-			return String.Format(pinned ? "{0} ({1}) (pinned)" : "{0} ({1})", type, index);
+			return string.Format(pinned ? "{0} ({1}) (pinned)" : "{0} ({1})", type, index);
 		}
 	}
 }

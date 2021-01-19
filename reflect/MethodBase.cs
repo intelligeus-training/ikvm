@@ -21,7 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
 
 namespace IKVM.Reflection
 {
@@ -45,99 +44,51 @@ namespace IKVM.Reflection
 		{
 			get
 			{
-				if ((this.Attributes & MethodAttributes.RTSpecialName) != 0)
+				if ((Attributes & MethodAttributes.RTSpecialName) != 0)
 				{
-					string name = this.Name;
+					var name = Name;
 					return name == ConstructorInfo.ConstructorName || name == ConstructorInfo.TypeConstructorName;
 				}
 				return false;
 			}
 		}
 
-		public bool IsStatic
-		{
-			get { return (Attributes & MethodAttributes.Static) != 0; }
-		}
+		public bool IsStatic => (Attributes & MethodAttributes.Static) != 0;
 
-		public bool IsVirtual
-		{
-			get { return (Attributes & MethodAttributes.Virtual) != 0; }
-		}
+		public bool IsVirtual => (Attributes & MethodAttributes.Virtual) != 0;
 
-		public bool IsAbstract
-		{
-			get { return (Attributes & MethodAttributes.Abstract) != 0; }
-		}
+		public bool IsAbstract => (Attributes & MethodAttributes.Abstract) != 0;
 
-		public bool IsFinal
-		{
-			get { return (Attributes & MethodAttributes.Final) != 0; }
-		}
+		public bool IsFinal => (Attributes & MethodAttributes.Final) != 0;
 
-		public bool IsPublic
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public; }
-		}
+		public bool IsPublic => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Public;
 
-		public bool IsFamily
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Family; }
-		}
+		public bool IsFamily => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Family;
 
-		public bool IsFamilyOrAssembly
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.FamORAssem; }
-		}
+		public bool IsFamilyOrAssembly => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.FamORAssem;
 
-		public bool IsAssembly
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly; }
-		}
+		public bool IsAssembly => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Assembly;
 
-		public bool IsFamilyAndAssembly
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.FamANDAssem; }
-		}
+		public bool IsFamilyAndAssembly => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.FamANDAssem;
 
-		public bool IsPrivate
-		{
-			get { return (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Private; }
-		}
+		public bool IsPrivate => (Attributes & MethodAttributes.MemberAccessMask) == MethodAttributes.Private;
 
-		public bool IsSpecialName
-		{
-			get { return (Attributes & MethodAttributes.SpecialName) != 0; }
-		}
+		public bool IsSpecialName => (Attributes & MethodAttributes.SpecialName) != 0;
 
-		public bool IsHideBySig
-		{
-			get { return (Attributes & MethodAttributes.HideBySig) != 0; }
-		}
+		public bool IsHideBySig => (Attributes & MethodAttributes.HideBySig) != 0;
 
-		public MethodImplAttributes MethodImplementationFlags
-		{
-			get { return GetMethodImplementationFlags(); }
-		}
+		public MethodImplAttributes MethodImplementationFlags => GetMethodImplementationFlags();
 
 		public virtual Type[] GetGenericArguments()
 		{
 			return Type.EmptyTypes;
 		}
 
-		public virtual bool IsGenericMethod
-		{
-			get { return false; }
-		}
+		public virtual bool IsGenericMethod => false;
 
-		public virtual bool IsGenericMethodDefinition
-		{
-			get { return false; }
-		}
+		public virtual bool IsGenericMethodDefinition => false;
 
-		public virtual bool ContainsGenericParameters
-		{
-			get { return IsGenericMethodDefinition; }
-		}
+		public virtual bool ContainsGenericParameters => IsGenericMethodDefinition;
 
 		public virtual MethodBase __GetMethodOnTypeDefinition()
 		{

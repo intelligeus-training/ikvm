@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection
 {
@@ -42,27 +41,18 @@ namespace IKVM.Reflection
 		public abstract Type DeclaringType { get; }
 		public abstract MemberTypes MemberType { get; }
 
-		public virtual Type ReflectedType
-		{
-			get { return DeclaringType; }
-		}
+		public virtual Type ReflectedType => DeclaringType;
 
 		internal abstract MemberInfo SetReflectedType(Type type);
 
-		public virtual int MetadataToken
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public virtual int MetadataToken => throw new NotSupportedException();
 
 		public abstract Module Module
 		{
 			get;
 		}
 
-		public virtual bool __IsMissing
-		{
-			get { return false; }
-		}
+		public virtual bool __IsMissing => false;
 
 		public bool IsDefined(Type attributeType, bool inherit)
 		{
@@ -79,10 +69,7 @@ namespace IKVM.Reflection
 			return CustomAttributeData.GetCustomAttributes(this);
 		}
 
-		public IEnumerable<CustomAttributeData> CustomAttributes
-		{
-			get { return GetCustomAttributesData(); }
-		}
+		public IEnumerable<CustomAttributeData> CustomAttributes => GetCustomAttributesData();
 
 		public static bool operator ==(MemberInfo m1, MemberInfo m2)
 		{
@@ -110,7 +97,10 @@ namespace IKVM.Reflection
 			throw new InvalidOperationException();
 		}
 
-		protected static bool BindingFlagsMatch(bool state, BindingFlags flags, BindingFlags trueFlag, BindingFlags falseFlag)
+		protected static bool BindingFlagsMatch(bool state, 
+												BindingFlags flags, 
+												BindingFlags trueFlag, 
+												BindingFlags falseFlag)
 		{
 			return (state && (flags & trueFlag) == trueFlag)
 				|| (!state && (flags & falseFlag) == falseFlag);
@@ -125,7 +115,7 @@ namespace IKVM.Reflection
 		protected static T[] SetReflectedType<T>(T[] members, Type type)
 			where T : MemberInfo
 		{
-			for (int i = 0; i < members.Length; i++)
+			for (var i = 0; i < members.Length; i++)
 			{
 				members[i] = SetReflectedType(members[i], type);
 			}

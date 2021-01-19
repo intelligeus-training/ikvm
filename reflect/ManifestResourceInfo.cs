@@ -38,31 +38,27 @@ namespace IKVM.Reflection
 			this.index = index;
 		}
 
-		public ResourceAttributes __ResourceAttributes
-		{
-			get { return (ResourceAttributes)module.ManifestResource.records[index].Flags; }
-		}
+		public ResourceAttributes __ResourceAttributes => (ResourceAttributes)module.ManifestResource.records[index].Flags;
 
-		public int __Offset
-		{
-			get { return module.ManifestResource.records[index].Offset; }
-		}
+		public int __Offset => module.ManifestResource.records[index].Offset;
 
 		public ResourceLocation ResourceLocation
 		{
 			get
 			{
-				int implementation = module.ManifestResource.records[index].Implementation;
+				var implementation = module.ManifestResource.records[index].Implementation;
 				if ((implementation >> 24) == AssemblyRefTable.Index)
 				{
-					Assembly asm = ReferencedAssembly;
-					if (asm == null || asm.__IsMissing)
+					var assembly = ReferencedAssembly;
+					if (assembly == null || assembly.__IsMissing)
 					{
 						return ResourceLocation.ContainedInAnotherAssembly;
 					}
-					return asm.GetManifestResourceInfo(module.GetString(module.ManifestResource.records[index].Name)).ResourceLocation | ResourceLocation.ContainedInAnotherAssembly;
+					return assembly.GetManifestResourceInfo(
+						module.GetString(module.ManifestResource.records[index].Name)).ResourceLocation 
+					       | ResourceLocation.ContainedInAnotherAssembly;
 				}
-				else if ((implementation >> 24) == FileTable.Index)
+				if ((implementation >> 24) == FileTable.Index)
 				{
 					if ((implementation & 0xFFFFFF) == 0)
 					{
@@ -70,10 +66,9 @@ namespace IKVM.Reflection
 					}
 					return 0;
 				}
-				else
-				{
-					throw new BadImageFormatException();
-				}
+				
+				throw new BadImageFormatException();
+				
 			}
 		}
 
@@ -81,7 +76,7 @@ namespace IKVM.Reflection
 		{
 			get
 			{
-				int implementation = module.ManifestResource.records[index].Implementation;
+				var implementation = module.ManifestResource.records[index].Implementation;
 				if ((implementation >> 24) == AssemblyRefTable.Index)
 				{
 					return module.ResolveAssemblyRef((implementation & 0xFFFFFF) - 1);
@@ -94,17 +89,16 @@ namespace IKVM.Reflection
 		{
 			get
 			{
-				int implementation = module.ManifestResource.records[index].Implementation;
-				if ((implementation >> 24) == FileTable.Index)
+				var implementation = module.ManifestResource.records[index].Implementation;
+				if (implementation >> 24 == FileTable.Index)
 				{
 					if ((implementation & 0xFFFFFF) == 0)
 					{
 						return null;
 					}
-					else
-					{
-						return module.GetString(module.File.records[(implementation & 0xFFFFFF) - 1].Name);
-					}
+					
+					return module.GetString(module.File.records[(implementation & 0xFFFFFF) - 1].Name);
+					
 				}
 				return null;
 			}

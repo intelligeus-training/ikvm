@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using IKVM.Reflection.Reader;
 using IKVM.Reflection.Writer;
 using IKVM.Reflection.Emit;
@@ -49,7 +50,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			MethodSignature other = obj as MethodSignature;
+			var other = obj as MethodSignature;
 			return other != null
 				&& other.callingConvention == callingConvention
 				&& other.genericParamCount == genericParamCount
@@ -86,24 +87,19 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static MethodSignature ReadSig(ModuleReader module, ByteReader br, IGenericContext context)
+		internal static MethodSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			CallingConventions callingConvention;
 			int genericParamCount;
 			Type returnType;
 			Type[] parameterTypes;
-			byte flags = br.ReadByte();
-			switch (flags & 7)
+			byte flags = byteReader.ReadByte();
+			callingConvention = (flags & 7) switch
 			{
-				case DEFAULT:
-					callingConvention = CallingConventions.Standard;
-					break;
-				case VARARG:
-					callingConvention = CallingConventions.VarArgs;
-					break;
-				default:
-					throw new BadImageFormatException();
-			}
+				DEFAULT => CallingConventions.Standard,
+				VARARG => CallingConventions.VarArgs,
+				_ => throw new BadImageFormatException()
+			};
 			if ((flags & HASTHIS) != 0)
 			{
 				callingConvention |= CallingConventions.HasThis;
@@ -115,17 +111,17 @@ namespace IKVM.Reflection
 			genericParamCount = 0;
 			if ((flags & GENERIC) != 0)
 			{
-				genericParamCount = br.ReadCompressedUInt();
+				genericParamCount = byteReader.ReadCompressedUInt();
 				context = new UnboundGenericMethodContext(context);
 			}
-			int paramCount = br.ReadCompressedUInt();
+			var paramCount = byteReader.ReadCompressedUInt();
 			CustomModifiers[] modifiers = null;
-			PackedCustomModifiers.Pack(ref modifiers, 0, CustomModifiers.Read(module, br, context), paramCount + 1);
-			returnType = ReadRetType(module, br, context);
+			PackedCustomModifiers.Pack(ref modifiers, 0, CustomModifiers.Read(module, byteReader, context), paramCount + 1);
+			returnType = ReadRetType(module, byteReader, context);
 			parameterTypes = new Type[paramCount];
-			for (int i = 0; i < parameterTypes.Length; i++)
+			for (var i = 0; i < parameterTypes.Length; i++)
 			{
-				if ((callingConvention & CallingConventions.VarArgs) != 0 && br.PeekByte() == SENTINEL)
+				if ((callingConvention & CallingConventions.VarArgs) != 0 && byteReader.PeekByte() == SENTINEL)
 				{
 					Array.Resize(ref parameterTypes, i);
 					if (modifiers != null)
@@ -134,8 +130,8 @@ namespace IKVM.Reflection
 					}
 					break;
 				}
-				PackedCustomModifiers.Pack(ref modifiers, i + 1, CustomModifiers.Read(module, br, context), paramCount + 1);
-				parameterTypes[i] = ReadParam(module, br, context);
+				PackedCustomModifiers.Pack(ref modifiers, i + 1, CustomModifiers.Read(module, byteReader, context), paramCount + 1);
+				parameterTypes[i] = ReadParam(module, byteReader, context);
 			}
 			return new MethodSignature(returnType, parameterTypes, PackedCustomModifiers.Wrap(modifiers), callingConvention, genericParamCount);
 		}
@@ -191,13 +187,15 @@ namespace IKVM.Reflection
 			{
 				throw new BadImageFormatException();
 			}
+			
 			int paramCount = br.ReadCompressedUInt();
 			CustomModifiers[] customModifiers = null;
 			PackedCustomModifiers.Pack(ref customModifiers, 0, CustomModifiers.Read(module, br, context), paramCount + 1);
-			Type returnType = ReadRetType(module, br, context);
-			List<Type> parameterTypes = new List<Type>();
-			List<Type> optionalParameterTypes = new List<Type>();
-			List<Type> curr = parameterTypes;
+			var returnType = ReadRetType(module, br, context);
+			var parameterTypes = new List<Type>();
+			var optionalParameterTypes = new List<Type>();
+			var curr = parameterTypes;
+			
 			for (int i = 0; i < paramCount; i++)
 			{
 				if (br.PeekByte() == SENTINEL)
@@ -241,15 +239,9 @@ namespace IKVM.Reflection
 			return modifiers.GetParameterCustomModifiers(index).Bind(binder);
 		}
 
-		internal CallingConventions CallingConvention
-		{
-			get { return callingConvention; }
-		}
+		internal CallingConventions CallingConvention => callingConvention;
 
-		internal int GenericParameterCount
-		{
-			get { return genericParamCount; }
-		}
+		internal int GenericParameterCount => genericParamCount;
 
 		private sealed class Binder : IGenericBinder
 		{
@@ -279,11 +271,12 @@ namespace IKVM.Reflection
 
 		internal MethodSignature Bind(Type type, Type[] methodArgs)
 		{
-			Binder binder = new Binder(type, methodArgs);
+			var binder = new Binder(type, methodArgs);
 			return new MethodSignature(returnType.BindTypeParameters(binder),
-				BindTypeParameters(binder, parameterTypes),
-				modifiers.Bind(binder),
-				callingConvention, genericParamCount);
+										BindTypeParameters(binder, parameterTypes),
+													modifiers.Bind(binder),
+													callingConvention, 
+													genericParamCount);
 		}
 
 		private sealed class Unbinder : IGenericBinder
@@ -305,7 +298,11 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static MethodSignature MakeFromBuilder(Type returnType, Type[] parameterTypes, PackedCustomModifiers modifiers, CallingConventions callingConvention, int genericParamCount)
+		internal static MethodSignature MakeFromBuilder(Type returnType, 
+															Type[] parameterTypes, 
+															PackedCustomModifiers modifiers, 
+															CallingConventions callingConvention, 
+															int genericParamCount)
 		{
 			if (genericParamCount > 0)
 			{
@@ -331,21 +328,24 @@ namespace IKVM.Reflection
 			WriteSigImpl(module, bb, parameterTypes.Length);
 		}
 
-		internal void WriteMethodRefSig(ModuleBuilder module, ByteBuffer bb, Type[] optionalParameterTypes, CustomModifiers[] customModifiers)
+		internal void WriteMethodRefSig(ModuleBuilder module, 
+										ByteBuffer byteBuffer, 
+										Type[] optionalParameterTypes, 
+										CustomModifiers[] customModifiers)
 		{
-			WriteSigImpl(module, bb, parameterTypes.Length + optionalParameterTypes.Length);
+			WriteSigImpl(module, byteBuffer, parameterTypes.Length + optionalParameterTypes.Length);
 			if (optionalParameterTypes.Length > 0)
 			{
-				bb.Write(SENTINEL);
-				for (int i = 0; i < optionalParameterTypes.Length; i++)
+				byteBuffer.Write(SENTINEL);
+				for (var i = 0; i < optionalParameterTypes.Length; i++)
 				{
-					WriteCustomModifiers(module, bb, Util.NullSafeElementAt(customModifiers, i));
-					WriteType(module, bb, optionalParameterTypes[i]);
+					WriteCustomModifiers(module, byteBuffer, Util.NullSafeElementAt(customModifiers, i));
+					WriteType(module, byteBuffer, optionalParameterTypes[i]);
 				}
 			}
 		}
 
-		private void WriteSigImpl(ModuleBuilder module, ByteBuffer bb, int parameterCount)
+		private void WriteSigImpl(ModuleBuilder module, ByteBuffer byteBuffer, int parameterCount)
 		{
 			byte first;
 			if ((callingConvention & CallingConventions.Any) == CallingConventions.VarArgs)
@@ -369,20 +369,20 @@ namespace IKVM.Reflection
 			{
 				first |= EXPLICITTHIS;
 			}
-			bb.Write(first);
+			byteBuffer.Write(first);
 			if (genericParamCount > 0)
 			{
-				bb.WriteCompressedUInt(genericParamCount);
+				byteBuffer.WriteCompressedUInt(genericParamCount);
 			}
-			bb.WriteCompressedUInt(parameterCount);
+			byteBuffer.WriteCompressedUInt(parameterCount);
 			// RetType
-			WriteCustomModifiers(module, bb, modifiers.GetReturnTypeCustomModifiers());
-			WriteType(module, bb, returnType);
+			WriteCustomModifiers(module, byteBuffer, modifiers.GetReturnTypeCustomModifiers());
+			WriteType(module, byteBuffer, returnType);
 			// Param
 			for (int i = 0; i < parameterTypes.Length; i++)
 			{
-				WriteCustomModifiers(module, bb, modifiers.GetParameterCustomModifiers(i));
-				WriteType(module, bb, parameterTypes[i]);
+				WriteCustomModifiers(module, byteBuffer, modifiers.GetParameterCustomModifiers(i));
+				WriteType(module, byteBuffer, parameterTypes[i]);
 			}
 		}
 	}
@@ -451,13 +451,7 @@ namespace IKVM.Reflection
 			{
 				if (customModifiers != null)
 				{
-					for (int i = 0; i < customModifiers.Length; i++)
-					{
-						if (customModifiers[i].ContainsMissingType)
-						{
-							return true;
-						}
-					}
+					return customModifiers.Any(t => t.ContainsMissingType);
 				}
 				return false;
 			}
@@ -468,7 +462,7 @@ namespace IKVM.Reflection
 		{
 			CustomModifiers[] modifiers = null;
 			Pack(ref modifiers, 0, CustomModifiers.FromReqOpt(returnRequired, returnOptional), parameterCount + 1);
-			for (int i = 0; i < parameterCount; i++)
+			for (var i = 0; i < parameterCount; i++)
 			{
 				Pack(ref modifiers, i + 1, CustomModifiers.FromReqOpt(Util.NullSafeElementAt(parameterRequired, i), Util.NullSafeElementAt(parameterOptional, i)), parameterCount + 1);
 			}
@@ -481,7 +475,7 @@ namespace IKVM.Reflection
 			Pack(ref customModifiers, 0, returnTypeCustomModifiers, parameterCount + 1);
 			if (parameterTypeCustomModifiers != null)
 			{
-				for (int i = 0; i < parameterCount; i++)
+				for (var i = 0; i < parameterCount; i++)
 				{
 					Pack(ref customModifiers, i + 1, parameterTypeCustomModifiers[i], parameterCount + 1);
 				}

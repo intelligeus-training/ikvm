@@ -47,50 +47,57 @@ namespace IKVM.Reflection
 			const byte CorILMethod_Sect_FatFormat = 0x40;
 			const byte CorILMethod_Sect_MoreSects = 0x80;
 
-			List<ExceptionHandlingClause> exceptionClauses = new List<ExceptionHandlingClause>();
-			List<LocalVariableInfo> locals = new List<LocalVariableInfo>();
-			Stream stream = module.GetStream();
+			var exceptionClauses = new List<ExceptionHandlingClause>();
+			var localVariableInfos = new List<LocalVariableInfo>();
+			using var stream = module.GetStream();
 			module.SeekRVA(rva);
-			BinaryReader br = new BinaryReader(stream);
-			byte b = br.ReadByte();
+			var binaryReader = new BinaryReader(stream);
+			byte b = binaryReader.ReadByte();
 			if ((b & 3) == CorILMethod_TinyFormat)
 			{
 				initLocals = true;
-				body = br.ReadBytes(b >> 2);
+				body = binaryReader.ReadBytes(b >> 2);
 				maxStack = 8;
 			}
 			else if ((b & 3) == CorILMethod_FatFormat)
 			{
 				initLocals = (b & CorILMethod_InitLocals) != 0;
-				short flagsAndSize = (short)(b | (br.ReadByte() << 8));
+				var flagsAndSize = (short)(b | (binaryReader.ReadByte() << 8));
 				if ((flagsAndSize >> 12) != 3)
 				{
 					throw new BadImageFormatException("Fat format method header size should be 3");
 				}
-				maxStack = br.ReadUInt16();
-				int codeLength = br.ReadInt32();
-				localVarSigTok = br.ReadInt32();
-				body = br.ReadBytes(codeLength);
+				maxStack = binaryReader.ReadUInt16();
+				var codeLength = binaryReader.ReadInt32();
+				localVarSigTok = binaryReader.ReadInt32();
+				body = binaryReader.ReadBytes(codeLength);
 				if ((b & CorILMethod_MoreSects) != 0)
 				{
 					stream.Position = (stream.Position + 3) & ~3;
-					int hdr = br.ReadInt32();
+					var hdr = binaryReader.ReadInt32();
 					if ((hdr & CorILMethod_Sect_MoreSects) != 0 || (hdr & CorILMethod_Sect_EHTable) == 0)
 					{
 						throw new NotImplementedException();
 					}
-					else if ((hdr & CorILMethod_Sect_FatFormat) != 0)
+					if ((hdr & CorILMethod_Sect_FatFormat) != 0)
 					{
-						int count = ComputeExceptionCount((hdr >> 8) & 0xFFFFFF, 24);
+						var count = ComputeExceptionCount((hdr >> 8) & 0xFFFFFF, 24);
 						for (int i = 0; i < count; i++)
 						{
-							int flags = br.ReadInt32();
-							int tryOffset = br.ReadInt32();
-							int tryLength = br.ReadInt32();
-							int handlerOffset = br.ReadInt32();
-							int handlerLength = br.ReadInt32();
-							int classTokenOrFilterOffset = br.ReadInt32();
-							exceptionClauses.Add(new ExceptionHandlingClause(module, flags, tryOffset, tryLength, handlerOffset, handlerLength, classTokenOrFilterOffset, context));
+							var flags = binaryReader.ReadInt32();
+							var tryOffset = binaryReader.ReadInt32();
+							var tryLength = binaryReader.ReadInt32();
+							var handlerOffset = binaryReader.ReadInt32();
+							var handlerLength = binaryReader.ReadInt32();
+							var classTokenOrFilterOffset = binaryReader.ReadInt32();
+							exceptionClauses.Add(new ExceptionHandlingClause(module, 
+																					flags, 
+																					tryOffset, 
+																					tryLength, 
+																					handlerOffset, 
+																					handlerLength, 
+																					classTokenOrFilterOffset, 
+																					context));
 						}
 					}
 					else
@@ -98,20 +105,27 @@ namespace IKVM.Reflection
 						int count = ComputeExceptionCount((hdr >> 8) & 0xFF, 12);
 						for (int i = 0; i < count; i++)
 						{
-							int flags = br.ReadUInt16();
-							int tryOffset = br.ReadUInt16();
-							int tryLength = br.ReadByte();
-							int handlerOffset = br.ReadUInt16();
-							int handlerLength = br.ReadByte();
-							int classTokenOrFilterOffset = br.ReadInt32();
-							exceptionClauses.Add(new ExceptionHandlingClause(module, flags, tryOffset, tryLength, handlerOffset, handlerLength, classTokenOrFilterOffset, context));
+							var flags = binaryReader.ReadUInt16();
+							var tryOffset = binaryReader.ReadUInt16();
+							var tryLength = binaryReader.ReadByte();
+							var handlerOffset = binaryReader.ReadUInt16();
+							int handlerLength = binaryReader.ReadByte();
+							var classTokenOrFilterOffset = binaryReader.ReadInt32();
+							exceptionClauses.Add(new ExceptionHandlingClause(module, 
+																					flags, 
+																					tryOffset, 
+																					tryLength, 
+																					handlerOffset, 
+																					handlerLength, 
+																					classTokenOrFilterOffset, 
+																					context));
 						}
 					}
 				}
 				if (localVarSigTok != 0)
 				{
-					ByteReader sig = module.GetStandAloneSig((localVarSigTok & 0xFFFFFF) - 1);
-					Signature.ReadLocalVarSig(module, sig, context, locals);
+					var byteReader = module.GetStandAloneSig((localVarSigTok & 0xFFFFFF) - 1);
+					Signature.ReadLocalVarSig(module, byteReader, context, localVariableInfos);
 				}
 			}
 			else
@@ -119,7 +133,7 @@ namespace IKVM.Reflection
 				throw new BadImageFormatException();
 			}
 			this.exceptionClauses = exceptionClauses.AsReadOnly();
-			this.locals = locals.AsReadOnly();
+			locals = localVariableInfos.AsReadOnly();
 		}
 
 		private static int ComputeExceptionCount(int size, int itemLength)
@@ -130,34 +144,19 @@ namespace IKVM.Reflection
 			return size / itemLength;
 		}
 
-		public IList<ExceptionHandlingClause> ExceptionHandlingClauses
-		{
-			get { return exceptionClauses; }
-		}
+		public IList<ExceptionHandlingClause> ExceptionHandlingClauses => exceptionClauses;
 
-		public bool InitLocals
-		{
-			get { return initLocals; }
-		}
+		public bool InitLocals => initLocals;
 
-		public IList<LocalVariableInfo> LocalVariables
-		{
-			get { return locals; }
-		}
+		public IList<LocalVariableInfo> LocalVariables => locals;
 
 		public byte[] GetILAsByteArray()
 		{
 			return body;
 		}
 
-		public int LocalSignatureMetadataToken
-		{
-			get { return localVarSigTok; }
-		}
+		public int LocalSignatureMetadataToken => localVarSigTok;
 
-		public int MaxStackSize
-		{
-			get { return maxStack; }
-		}
+		public int MaxStackSize => maxStack;
 	}
 }

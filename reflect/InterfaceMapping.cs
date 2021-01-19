@@ -21,7 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
 
 namespace IKVM.Reflection
 {

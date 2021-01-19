@@ -37,33 +37,18 @@ namespace IKVM.Reflection
 		internal RawModule(ModuleReader module)
 		{
 			this.module = module;
-			this.isManifestModule = module.Assembly != null;
+			isManifestModule = module.Assembly != null;
 		}
 
-		public string Location
-		{
-			get { return module.FullyQualifiedName; }
-		}
+		public string Location => module.FullyQualifiedName;
 
-		public bool IsManifestModule
-		{
-			get { return isManifestModule; }
-		}
+		public bool IsManifestModule => isManifestModule;
 
-		public Guid ModuleVersionId
-		{
-			get { return module.ModuleVersionId; }
-		}
+		public Guid ModuleVersionId => module.ModuleVersionId;
 
-		public string ImageRuntimeVersion
-		{
-			get { return module.__ImageRuntimeVersion; }
-		}
+		public string ImageRuntimeVersion => module.__ImageRuntimeVersion;
 
-		public int MDStreamVersion
-		{
-			get { return module.MDStreamVersion; }
-		}
+		public int MDStreamVersion => module.MDStreamVersion;
 
 		private void CheckManifestModule()
 		{
@@ -248,89 +233,125 @@ namespace IKVM.Reflection
 
 		public FieldInfo GetField(string name)
 		{
-			return GetField(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			return GetField(name, BindingFlags.Public 
+											| BindingFlags.Static 
+											| BindingFlags.Instance 
+											| BindingFlags.DeclaredOnly);
 		}
 
 		public FieldInfo GetField(string name, BindingFlags bindingFlags)
 		{
-			return IsResource() ? null : GetModuleType().GetField(name, bindingFlags | BindingFlags.DeclaredOnly);
+			return IsResource() ? null : GetModuleType().GetField(name, bindingFlags 
+			                                                            | BindingFlags.DeclaredOnly);
 		}
 
 		public FieldInfo[] GetFields()
 		{
-			return GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			return GetFields(BindingFlags.Public 
+										| BindingFlags.Static 
+										| BindingFlags.Instance 
+										| BindingFlags.DeclaredOnly);
 		}
 
 		public FieldInfo[] GetFields(BindingFlags bindingFlags)
 		{
-			return IsResource() ? Empty<FieldInfo>.Array : GetModuleType().GetFields(bindingFlags | BindingFlags.DeclaredOnly);
+			return IsResource() ? Empty<FieldInfo>.Array : GetModuleType().GetFields(bindingFlags 
+																						| BindingFlags.DeclaredOnly);
 		}
 
 		public MethodInfo GetMethod(string name)
 		{
-			return IsResource() ? null : GetModuleType().GetMethod(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			return IsResource() ? null : GetModuleType().GetMethod(name, BindingFlags.Public 
+																				| BindingFlags.Static 
+																				| BindingFlags.Instance 
+																				| BindingFlags.DeclaredOnly);
 		}
 
 		public MethodInfo GetMethod(string name, Type[] types)
 		{
-			return IsResource() ? null : GetModuleType().GetMethod(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly, null, types, null);
+			return IsResource() ? null : GetModuleType().GetMethod(name, BindingFlags.Public 
+																				| BindingFlags.Static 
+																				| BindingFlags.Instance 
+																				| BindingFlags.DeclaredOnly, 
+																	null, 
+																	types, 
+																	null);
 		}
 
-		public MethodInfo GetMethod(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConv, Type[] types, ParameterModifier[] modifiers)
+		public MethodInfo GetMethod(string name, 
+									BindingFlags bindingAttr, 
+									Binder binder, 
+									CallingConventions callConv, 
+									Type[] types, 
+									ParameterModifier[] modifiers)
 		{
-			return IsResource() ? null : GetModuleType().GetMethod(name, bindingAttr | BindingFlags.DeclaredOnly, binder, callConv, types, modifiers);
+			return IsResource() ? null : GetModuleType().GetMethod(name, 
+																	bindingAttr | BindingFlags.DeclaredOnly, 
+																	binder, 
+																	callConv, 
+																	types, 
+																	modifiers);
 		}
 
 		public MethodInfo[] GetMethods()
 		{
-			return GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			return GetMethods(BindingFlags.Public 
+										| BindingFlags.Static 
+										| BindingFlags.Instance 
+										| BindingFlags.DeclaredOnly);
 		}
 
 		public MethodInfo[] GetMethods(BindingFlags bindingFlags)
 		{
-			return IsResource() ? Empty<MethodInfo>.Array : GetModuleType().GetMethods(bindingFlags | BindingFlags.DeclaredOnly);
+			return IsResource() ? Empty<MethodInfo>.Array : GetModuleType().GetMethods(bindingFlags 
+																						| BindingFlags.DeclaredOnly);
 		}
 
-		public ConstructorInfo __ModuleInitializer
-		{
-			get { return IsResource() ? null : GetModuleType().TypeInitializer; }
-		}
+		public ConstructorInfo __ModuleInitializer => IsResource() ? null : GetModuleType().TypeInitializer;
 
 		public virtual byte[] ResolveSignature(int metadataToken)
 		{
 			throw new NotSupportedException();
 		}
 
-		public virtual __StandAloneMethodSig __ResolveStandAloneMethodSig(int metadataToken, Type[] genericTypeArguments, Type[] genericMethodArguments)
+		public virtual __StandAloneMethodSig __ResolveStandAloneMethodSig(int metadataToken, 
+																			Type[] genericTypeArguments, 
+																			Type[] genericMethodArguments)
 		{
 			throw new NotSupportedException();
 		}
 
-		public virtual CustomModifiers __ResolveTypeSpecCustomModifiers(int typeSpecToken, Type[] genericTypeArguments, Type[] genericMethodArguments)
+		public virtual CustomModifiers __ResolveTypeSpecCustomModifiers(int typeSpecToken, 
+																		Type[] genericTypeArguments, 
+																		Type[] genericMethodArguments)
 		{
 			throw new NotSupportedException();
 		}
 
-		public int MetadataToken
-		{
-			get { return IsResource() ? 0 : 1; }
-		}
+		public int MetadataToken => IsResource() ? 0 : 1;
 
 		public abstract int MDStreamVersion { get ;}
 		public abstract Assembly Assembly { get; }
 		public abstract string FullyQualifiedName { get; }
 		public abstract string Name { get; }
 		public abstract Guid ModuleVersionId { get; }
-		public abstract MethodBase ResolveMethod(int metadataToken, Type[] genericTypeArguments, Type[] genericMethodArguments);
-		public abstract FieldInfo ResolveField(int metadataToken, Type[] genericTypeArguments, Type[] genericMethodArguments);
-		public abstract MemberInfo ResolveMember(int metadataToken, Type[] genericTypeArguments, Type[] genericMethodArguments);
+		public abstract MethodBase ResolveMethod(int metadataToken, 
+												Type[] genericTypeArguments, 
+												Type[] genericMethodArguments);
+		public abstract FieldInfo ResolveField(int metadataToken, 
+												Type[] genericTypeArguments, 
+												Type[] genericMethodArguments);
+		public abstract MemberInfo ResolveMember(int metadataToken, 
+													Type[] genericTypeArguments, 
+													Type[] genericMethodArguments);
 
 		public abstract string ResolveString(int metadataToken);
-		public abstract Type[] __ResolveOptionalParameterTypes(int metadataToken, Type[] genericTypeArguments, Type[] genericMethodArguments, out CustomModifiers[] customModifiers);
+		public abstract Type[] __ResolveOptionalParameterTypes(int metadataToken, 
+																Type[] genericTypeArguments, 
+																Type[] genericMethodArguments, 
+																out CustomModifiers[] customModifiers);
 		public abstract string ScopeName { get; }
-
 		internal abstract void GetTypesImpl(List<Type> list);
-
 		internal abstract Type FindType(TypeName name);
 		internal abstract Type FindTypeIgnoreCase(TypeName lowerCaseName);
 
@@ -339,7 +360,10 @@ namespace IKVM.Reflection
 		public Type[] __ResolveOptionalParameterTypes(int metadataToken)
 		{
 			CustomModifiers[] dummy;
-			return __ResolveOptionalParameterTypes(metadataToken, null, null, out dummy);
+			return __ResolveOptionalParameterTypes(metadataToken, 
+													null,
+													null,
+														out dummy);
 		}
 #endif
 
@@ -355,51 +379,50 @@ namespace IKVM.Reflection
 
 		public Type GetType(string className, bool throwOnError, bool ignoreCase)
 		{
-			TypeNameParser parser = TypeNameParser.Parse(className, throwOnError);
-			if (parser.Error)
+			var typeNameParser = TypeNameParser.Parse(className, throwOnError);
+			if (typeNameParser.Error)
 			{
 				return null;
 			}
-			if (parser.AssemblyName != null)
+			if (typeNameParser.AssemblyName != null)
 			{
 				if (throwOnError)
 				{
 					throw new ArgumentException("Type names passed to Module.GetType() must not specify an assembly.");
 				}
-				else
-				{
-					return null;
-				}
+				
+				return null;
+				
 			}
-			TypeName typeName = TypeName.Split(TypeNameParser.Unescape(parser.FirstNamePart));
-			Type type = ignoreCase
+			var typeName = TypeName.Split(TypeNameParser.Unescape(typeNameParser.FirstNamePart));
+			var type = ignoreCase
 				? FindTypeIgnoreCase(typeName.ToLowerInvariant())
 				: FindType(typeName);
 			if (type == null && __IsMissing)
 			{
 				throw new MissingModuleException((MissingModule)this);
 			}
-			return parser.Expand(type, this, throwOnError, className, false, ignoreCase);
+			return typeNameParser.Expand(type, this, throwOnError, className, false, ignoreCase);
 		}
 
 		public Type[] GetTypes()
 		{
-			List<Type> list = new List<Type>();
-			GetTypesImpl(list);
-			return list.ToArray();
+			var types = new List<Type>();
+			GetTypesImpl(types);
+			return types.ToArray();
 		}
 
 		public Type[] FindTypes(TypeFilter filter, object filterCriteria)
 		{
-			List<Type> list = new List<Type>();
-			foreach (Type type in GetTypes())
+			var types = new List<Type>();
+			foreach (var type in GetTypes())
 			{
 				if (filter(type, filterCriteria))
 				{
-					list.Add(type);
+					types.Add(type);
 				}
 			}
-			return list.ToArray();
+			return types.ToArray();
 		}
 
 		public virtual bool IsResource()
@@ -440,10 +463,9 @@ namespace IKVM.Reflection
 			{
 				return ResolveType(metadataToken, new GenericContext(genericTypeArguments, genericMethodArguments));
 			}
-			else
-			{
-				return ResolveType(metadataToken, null);
-			}
+		
+			return ResolveType(metadataToken, null);
+			
 		}
 
 		internal abstract Type ResolveType(int metadataToken, IGenericContext context);
@@ -478,10 +500,7 @@ namespace IKVM.Reflection
 			return CustomAttributeData.GetCustomAttributes(this);
 		}
 
-		public IEnumerable<CustomAttributeData> CustomAttributes
-		{
-			get { return GetCustomAttributesData(); }
-		}
+		public IEnumerable<CustomAttributeData> CustomAttributes => GetCustomAttributesData();
 
 		public virtual IList<CustomAttributeData> __GetPlaceholderAssemblyCustomAttributes(bool multiple, bool security)
 		{
@@ -501,78 +520,57 @@ namespace IKVM.Reflection
 
 		public abstract Type[] __GetExportedTypes();
 
-		public virtual bool __IsMissing
-		{
-			get { return false; }
-		}
+		public virtual bool __IsMissing => false;
 
-		public long __ImageBase
-		{
-			get { return GetImageBaseImpl(); }
-		}
+		public long __ImageBase => GetImageBaseImpl();
 
 		protected abstract long GetImageBaseImpl();
 
-		public long __StackReserve
-		{
-			get { return GetStackReserveImpl(); }
-		}
+		public long __StackReserve => GetStackReserveImpl();
 
 		protected abstract long GetStackReserveImpl();
 
-		public int __FileAlignment
-		{
-			get { return GetFileAlignmentImpl(); }
-		}
+		public int __FileAlignment => GetFileAlignmentImpl();
 
 		protected abstract int GetFileAlignmentImpl();
 
-		public DllCharacteristics __DllCharacteristics
-		{
-			get { return GetDllCharacteristicsImpl(); }
-		}
+		public DllCharacteristics __DllCharacteristics => GetDllCharacteristicsImpl();
 
 		protected abstract DllCharacteristics GetDllCharacteristicsImpl();
 
-		public virtual byte[] __ModuleHash
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public virtual byte[] __ModuleHash => throw new NotSupportedException();
 
-		public virtual int __EntryPointRVA
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public virtual int __EntryPointRVA => throw new NotSupportedException();
 
-		public virtual int __EntryPointToken
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public virtual int __EntryPointToken => throw new NotSupportedException();
 
-		public virtual string __ImageRuntimeVersion
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public virtual string __ImageRuntimeVersion => throw new NotSupportedException();
 
 		public IEnumerable<CustomAttributeData> __EnumerateCustomAttributeTable()
 		{
-			List<CustomAttributeData> list = new List<CustomAttributeData>(CustomAttribute.RowCount);
-			for (int i = 0; i < CustomAttribute.RowCount; i++)
+			var customAttributeDatas = new List<CustomAttributeData>(CustomAttribute.RowCount);
+			for (var i = 0; i < CustomAttribute.RowCount; i++)
 			{
-				list.Add(new CustomAttributeData(this, i));
+				customAttributeDatas.Add(new CustomAttributeData(this, i));
 			}
-			return list;
+			return customAttributeDatas;
 		}
 
 #if !NETSTANDARD
 		[Obsolete]
 		public List<CustomAttributeData> __GetCustomAttributesFor(int token)
 		{
-			return CustomAttributeData.GetCustomAttributesImpl(new List<CustomAttributeData>(), this, token, null);
+			return CustomAttributeData.GetCustomAttributesImpl(new List<CustomAttributeData>(),
+																	this,
+																	token,
+																	null);
 		}
 #endif
 
-		public bool __TryGetImplMap(int token, out ImplMapFlags mappingFlags, out string importName, out string importScope)
+		public bool __TryGetImplMap(int token, 
+									out ImplMapFlags mappingFlags, 
+									out string importName, 
+									out string importScope)
 		{
 			foreach (int i in ImplMap.Filter(token))
 			{
@@ -600,12 +598,12 @@ namespace IKVM.Reflection
 
 		internal IList<CustomAttributeData> GetDeclarativeSecurity(int metadataToken)
 		{
-			List<CustomAttributeData> list = new List<CustomAttributeData>();
-			foreach (int i in DeclSecurity.Filter(metadataToken))
+			var customAttributeDatas = new List<CustomAttributeData>();
+			foreach (var i in DeclSecurity.Filter(metadataToken))
 			{
-				CustomAttributeData.ReadDeclarativeSecurity(this, i, list);
+				CustomAttributeData.ReadDeclarativeSecurity(this, i, customAttributeDatas);
 			}
-			return list;
+			return customAttributeDatas;
 		}
 
 		internal virtual void Dispose()

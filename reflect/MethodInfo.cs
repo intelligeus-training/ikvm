@@ -35,10 +35,7 @@ namespace IKVM.Reflection
 		{
 		}
 
-		public sealed override MemberTypes MemberType
-		{
-			get { return MemberTypes.Method; }
-		}
+		public sealed override MemberTypes MemberType => MemberTypes.Method;
 
 		public abstract Type ReturnType { get; }
 		public abstract ParameterInfo ReturnParameter { get; }
@@ -50,52 +47,49 @@ namespace IKVM.Reflection
 
 		public virtual MethodInfo GetGenericMethodDefinition()
 		{
-			throw new NotSupportedException(this.GetType().FullName);
+			throw new NotSupportedException(GetType().FullName);
 		}
 
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-			sb.Append(this.ReturnType.Name).Append(' ').Append(this.Name);
+			var stringBuilder = new StringBuilder();
+			stringBuilder.Append(ReturnType.Name).Append(' ').Append(Name);
 			string sep;
-			if (this.IsGenericMethod)
+			if (IsGenericMethod)
 			{
-				sb.Append('[');
+				stringBuilder.Append('[');
 				sep = "";
 				foreach (Type arg in GetGenericArguments())
 				{
-					sb.Append(sep).Append(arg);
+					stringBuilder.Append(sep).Append(arg);
 					sep = ", ";
 				}
-				sb.Append(']');
+				stringBuilder.Append(']');
 			}
-			sb.Append('(');
+			stringBuilder.Append('(');
 			sep = "";
-			foreach (ParameterInfo arg in GetParameters())
+			foreach (var parameterInfo in GetParameters())
 			{
-				sb.Append(sep).Append(arg.ParameterType);
+				stringBuilder.Append(sep).Append(parameterInfo.ParameterType);
 				sep = ", ";
 			}
-			sb.Append(')');
-			return sb.ToString();
+			stringBuilder.Append(')');
+			return stringBuilder.ToString();
 		}
 
-		internal bool IsNewSlot
-		{
-			get { return (this.Attributes & MethodAttributes.NewSlot) != 0; }
-		}
+		internal bool IsNewSlot => (Attributes & MethodAttributes.NewSlot) != 0;
 
 		public MethodInfo GetBaseDefinition()
 		{
 			MethodInfo match = this;
 			if (match.IsVirtual)
 			{
-				for (Type type = this.DeclaringType.BaseType; type != null && !match.IsNewSlot; type = type.BaseType)
-				{
-					MethodInfo method = type.FindMethod(this.Name, this.MethodSignature) as MethodInfo;
-					if (method != null && method.IsVirtual)
+				for (var type = DeclaringType.BaseType; type != null && !match.IsNewSlot; type = type.BaseType)
+				{ 
+					var methodInfo = type.FindMethod(Name, MethodSignature) as MethodInfo;
+					if (methodInfo != null && methodInfo.IsVirtual)
 					{
-						match = method;
+						match = methodInfo;
 					}
 				}
 			}
@@ -119,7 +113,7 @@ namespace IKVM.Reflection
 
 		Type IGenericContext.GetGenericTypeArgument(int index)
 		{
-			return this.DeclaringType.GetGenericTypeArgument(index);
+			return DeclaringType.GetGenericTypeArgument(index);
 		}
 
 		Type IGenericContext.GetGenericMethodArgument(int index)
@@ -160,10 +154,7 @@ namespace IKVM.Reflection
 		// This method is used by ILGenerator and exists to allow ArrayMethod to override it,
 		// because ArrayMethod doesn't have a working MethodAttributes property, so it needs
 		// to base the result of this on the CallingConvention.
-		internal virtual bool HasThis
-		{
-			get { return !IsStatic; }
-		}
+		internal virtual bool HasThis => !IsStatic;
 
 		internal sealed override MemberInfo SetReflectedType(Type type)
 		{
@@ -172,25 +163,29 @@ namespace IKVM.Reflection
 
 		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
-			Module module = this.Module;
-			List<CustomAttributeData> list = new List<CustomAttributeData>();
-			if ((this.Attributes & MethodAttributes.PinvokeImpl) != 0
-				&& (attributeType == null || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_DllImportAttribute)))
+			var module = Module;
+			var customAttributeDatas = new List<CustomAttributeData>();
+			if ((Attributes & MethodAttributes.PinvokeImpl) != 0
+				&& (attributeType == null 
+				    || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_DllImportAttribute)))
 			{
 				ImplMapFlags flags;
-				string importName;
-				string importScope;
-				if (__TryGetImplMap(out flags, out importName, out importScope))
+				if (__TryGetImplMap(out flags, out var importName, out var importScope))
 				{
-					list.Add(CustomAttributeData.CreateDllImportPseudoCustomAttribute(module, flags, importName, importScope, GetMethodImplementationFlags()));
+					customAttributeDatas.Add(CustomAttributeData.CreateDllImportPseudoCustomAttribute(module, 
+																										flags, 
+																										importName, 
+																										importScope, 
+																										GetMethodImplementationFlags()));
 				}
 			}
 			if ((GetMethodImplementationFlags() & MethodImplAttributes.PreserveSig) != 0
-				&& (attributeType == null || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_PreserveSigAttribute)))
+				&& (attributeType == null 
+				    || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_PreserveSigAttribute)))
 			{
-				list.Add(CustomAttributeData.CreatePreserveSigPseudoCustomAttribute(module));
+				customAttributeDatas.Add(CustomAttributeData.CreatePreserveSigPseudoCustomAttribute(module));
 			}
-			return list;
+			return customAttributeDatas;
 		}
 	}
 
@@ -208,7 +203,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			MethodInfoWithReflectedType other = obj as MethodInfoWithReflectedType;
+			var other = obj as MethodInfoWithReflectedType;
 			return other != null
 				&& other.reflectedType == reflectedType
 				&& other.method == method;
@@ -219,30 +214,21 @@ namespace IKVM.Reflection
 			return reflectedType.GetHashCode() ^ method.GetHashCode();
 		}
 
-		internal override MethodSignature MethodSignature
-		{
-			get { return method.MethodSignature; }
-		}
+		internal override MethodSignature MethodSignature => method.MethodSignature;
 
-		internal override int ParameterCount
-		{
-			get { return method.ParameterCount; }
-		}
+		internal override int ParameterCount => method.ParameterCount;
 
 		public override ParameterInfo[] GetParameters()
 		{
-			ParameterInfo[] parameters = method.GetParameters();
-			for (int i = 0; i < parameters.Length; i++)
+			var parameterInfos = method.GetParameters();
+			for (var i = 0; i < parameterInfos.Length; i++)
 			{
-				parameters[i] = new ParameterInfoWrapper(this, parameters[i]);
+				parameterInfos[i] = new ParameterInfoWrapper(this, parameterInfos[i]);
 			}
-			return parameters;
+			return parameterInfos;
 		}
 
-		public override MethodAttributes Attributes
-		{
-			get { return method.Attributes; }
-		}
+		public override MethodAttributes Attributes => method.Attributes;
 
 		public override MethodImplAttributes GetMethodImplementationFlags()
 		{
@@ -254,25 +240,13 @@ namespace IKVM.Reflection
 			return method.GetMethodBody();
 		}
 
-		public override CallingConventions CallingConvention
-		{
-			get { return method.CallingConvention; }
-		}
+		public override CallingConventions CallingConvention => method.CallingConvention;
 
-		public override int __MethodRVA
-		{
-			get { return method.__MethodRVA; }
-		}
+		public override int __MethodRVA => method.__MethodRVA;
 
-		public override Type ReturnType
-		{
-			get { return method.ReturnType; }
-		}
+		public override Type ReturnType => method.ReturnType;
 
-		public override ParameterInfo ReturnParameter
-		{
-			get { return new ParameterInfoWrapper(this, method.ReturnParameter); }
-		}
+		public override ParameterInfo ReturnParameter => new ParameterInfoWrapper(this, method.ReturnParameter);
 
 		public override MethodInfo MakeGenericMethod(params Type[] typeArguments)
 		{
@@ -309,30 +283,15 @@ namespace IKVM.Reflection
 			return method.GetMethodOnTypeDefinition();
 		}
 
-		internal override bool HasThis
-		{
-			get { return method.HasThis; }
-		}
+		internal override bool HasThis => method.HasThis;
 
-		public override Module Module
-		{
-			get { return method.Module; }
-		}
+		public override Module Module => method.Module;
 
-		public override Type DeclaringType
-		{
-			get { return method.DeclaringType; }
-		}
+		public override Type DeclaringType => method.DeclaringType;
 
-		public override Type ReflectedType
-		{
-			get { return reflectedType; }
-		}
+		public override Type ReflectedType => reflectedType;
 
-		public override string Name
-		{
-			get { return method.Name; }
-		}
+		public override string Name => method.Name;
 
 		internal override int ImportTo(IKVM.Reflection.Emit.ModuleBuilder module)
 		{
@@ -344,49 +303,31 @@ namespace IKVM.Reflection
 			return method.__GetMethodOnTypeDefinition();
 		}
 
-		public override bool __IsMissing
-		{
-			get { return method.__IsMissing; }
-		}
+		public override bool __IsMissing => method.__IsMissing;
 
 		internal override MethodBase BindTypeParameters(Type type)
 		{
 			return method.BindTypeParameters(type);
 		}
 
-		public override bool ContainsGenericParameters
-		{
-			get { return method.ContainsGenericParameters; }
-		}
+		public override bool ContainsGenericParameters => method.ContainsGenericParameters;
 
 		public override Type[] GetGenericArguments()
 		{
 			return method.GetGenericArguments();
 		}
 
-		public override bool IsGenericMethod
-		{
-			get { return method.IsGenericMethod; }
-		}
+		public override bool IsGenericMethod => method.IsGenericMethod;
 
-		public override bool IsGenericMethodDefinition
-		{
-			get { return method.IsGenericMethodDefinition; }
-		}
+		public override bool IsGenericMethodDefinition => method.IsGenericMethodDefinition;
 
-		public override int MetadataToken
-		{
-			get { return method.MetadataToken; }
-		}
+		public override int MetadataToken => method.MetadataToken;
 
 		internal override int GetCurrentToken()
 		{
 			return method.GetCurrentToken();
 		}
 
-		internal override bool IsBaked
-		{
-			get { return method.IsBaked; }
-		}
+		internal override bool IsBaked => method.IsBaked;
 	}
 }

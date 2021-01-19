@@ -21,9 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection
 {
