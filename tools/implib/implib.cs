@@ -31,119 +31,124 @@ using Type = IKVM.Reflection.Type;
 
 static class ImpLib
 {
-    static readonly Regex definition = new Regex(@"^\s*(.+)=\[([^\]]+)\](.+)::([^\s]+)\s+@(\d+)$");
-    static readonly Universe universe = new Universe();
+    static readonly Regex Definition = new Regex(@"^\s*(.+)=\[([^\]]+)\](.+)::([^\s]+)\s+@(\d+)$");
+    static readonly Universe Universe = new Universe();
 
     static int Main(string[] args)
     {
-        Options options = new Options();
-        List<Export> exports = new List<Export>();
-        if (!ParseArgs(args, options) || !ParseDefFile(options.deffile, exports))
+        var options = new Options();
+        var exports = new List<Export>();
+        if (!ParseArgs(args, options) || !ParseDefFile(options.DefinitionFile, exports))
         {
             return 1;
         }
-        AssemblyName name = new AssemblyName(Path.GetFileNameWithoutExtension(options.outputFile));
-        name.Version = options.version;
-        name.KeyPair = options.key;
-        AssemblyBuilder ab = universe.DefineDynamicAssembly(name, AssemblyBuilderAccess.Save);
-        ModuleBuilder modb = ab.DefineDynamicModule(name.Name, options.outputFile);
-        foreach (Export exp in exports)
+        var assemblyName = new AssemblyName(Path.GetFileNameWithoutExtension(options.OutputFile));
+        assemblyName.Version = options.Version;
+        assemblyName.KeyPair = options.KeyPair;
+        var assemblyBuilder = Universe.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, options.OutputFile);
+        foreach (var export in exports)
         {
-            ExportMethod(modb, exp);
+            ExportMethod(moduleBuilder, export);
         }
-        modb.CreateGlobalFunctions();
-        if (options.win32res != null)
+        moduleBuilder.CreateGlobalFunctions();
+        if (options.Win32Res != null)
         {
-            ab.DefineUnmanagedResource(options.win32res);
+            assemblyBuilder.DefineUnmanagedResource(options.Win32Res);
         }
         else
         {
-            if (options.description != null)
+            if (options.Description != null)
             {
-                ab.SetCustomAttribute(new CustomAttributeBuilder(universe.Import(typeof(System.Reflection.AssemblyTitleAttribute)).GetConstructor(new Type[] { universe.Import(typeof(string)) }), new object[] { options.description }));
+                assemblyBuilder.SetCustomAttribute(new CustomAttributeBuilder(Universe.Import(typeof(System.Reflection.AssemblyTitleAttribute)).GetConstructor(new Type[] { Universe.Import(typeof(string)) }), new object[] { options.Description }));
             }
-            ab.DefineVersionInfoResource(options.product, options.version.ToString(), options.company, options.copyright, null);
+            assemblyBuilder.DefineVersionInfoResource(options.Product, options.Version.ToString(), options.Company, options.Copyright, null);
         }
-        ab.Save(options.outputFile, options.peKind, options.machine);
+        assemblyBuilder.Save(options.OutputFile, options.PortableExecutableKind, options.Machine);
         return 0;
     }
 
     static bool ParseArgs(string[] args, Options options)
     {
-        options.peKind = PortableExecutableKinds.Required32Bit;
-        options.machine = ImageFileMachine.I386;
-        foreach (string arg in args)
+        options.PortableExecutableKind = PortableExecutableKinds.Required32Bit;
+        options.Machine = ImageFileMachine.I386;
+        foreach (var arg in args)
         {
             if (arg.StartsWith("-r:", StringComparison.Ordinal) || arg.StartsWith("-reference:", StringComparison.Ordinal))
             {
-                universe.LoadFile(arg.Substring(arg.IndexOf(':') + 1));
+                Universe.LoadFile(arg.Substring(arg.IndexOf(':') + 1));
             }
             else if (arg.StartsWith("-out:", StringComparison.Ordinal))
             {
-                options.outputFile = arg.Substring(5);
+                options.OutputFile = arg.Substring(5);
             }
-            else if (arg == "-platform:x86")
+            else switch (arg)
             {
-                options.peKind = PortableExecutableKinds.Required32Bit;
-                options.machine = ImageFileMachine.I386;
-            }
-            else if (arg == "-platform:x64")
-            {
-                options.peKind = PortableExecutableKinds.PE32Plus;
-                options.machine = ImageFileMachine.AMD64;
-            }
-            else if (arg == "-platform:arm")
-            {
-                options.peKind = PortableExecutableKinds.Unmanaged32Bit;
-                options.machine = ImageFileMachine.ARM;
-            }
-            else if (arg.StartsWith("-win32res:", StringComparison.Ordinal))
-            {
-                options.win32res = arg.Substring(10);
-            }
-            else if (arg.StartsWith("-key:", StringComparison.Ordinal))
-            {
-                options.key = new StrongNameKeyPair(arg.Substring(5));
-            }
-            else if (arg.StartsWith("-keyfile:", StringComparison.Ordinal))
-            {
-                using (FileStream fs = File.OpenRead(arg.Substring(9)))
+                case "-platform:x86":
+                    options.PortableExecutableKind = PortableExecutableKinds.Required32Bit;
+                    options.Machine = ImageFileMachine.I386;
+                    break;
+                case "-platform:x64":
+                    options.PortableExecutableKind = PortableExecutableKinds.PE32Plus;
+                    options.Machine = ImageFileMachine.AMD64;
+                    break;
+                case "-platform:arm":
+                    options.PortableExecutableKind = PortableExecutableKinds.Unmanaged32Bit;
+                    options.Machine = ImageFileMachine.ARM;
+                    break;
+                default:
                 {
-                    options.key = new StrongNameKeyPair(fs);
+                    if (arg.StartsWith("-win32res:", StringComparison.Ordinal))
+                    {
+                        options.Win32Res = arg.Substring(10);
+                    }
+                    else if (arg.StartsWith("-key:", StringComparison.Ordinal))
+                    {
+                        options.KeyPair = new StrongNameKeyPair(arg.Substring(5));
+                    }
+                    else if (arg.StartsWith("-keyfile:", StringComparison.Ordinal))
+                    {
+                        using (FileStream fs = File.OpenRead(arg.Substring(9)))
+                        {
+                            options.KeyPair = new StrongNameKeyPair(fs);
+                        }
+                    }
+                    else if (arg.StartsWith("-version:", StringComparison.Ordinal))
+                    {
+                        options.Version = new Version(arg.Substring(9));
+                    }
+                    else if (arg.StartsWith("-product:", StringComparison.Ordinal))
+                    {
+                        options.Product = arg.Substring(9);
+                    }
+                    else if (arg.StartsWith("-company:", StringComparison.Ordinal))
+                    {
+                        options.Company = arg.Substring(9);
+                    }
+                    else if (arg.StartsWith("-copyright:", StringComparison.Ordinal))
+                    {
+                        options.Copyright = arg.Substring(11);
+                    }
+                    else if (arg.StartsWith("-description:", StringComparison.Ordinal))
+                    {
+                        options.Description = arg.Substring(13);
+                    }
+                    else if (options.DefinitionFile == null)
+                    {
+                        options.DefinitionFile = arg;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Unknown option: {arg}");
+                        return false;
+                    }
+
+                    break;
                 }
-            }
-            else if (arg.StartsWith("-version:", StringComparison.Ordinal))
-            {
-                options.version = new Version(arg.Substring(9));
-            }
-            else if (arg.StartsWith("-product:", StringComparison.Ordinal))
-            {
-                options.product = arg.Substring(9);
-            }
-            else if (arg.StartsWith("-company:", StringComparison.Ordinal))
-            {
-                options.company = arg.Substring(9);
-            }
-            else if (arg.StartsWith("-copyright:", StringComparison.Ordinal))
-            {
-                options.copyright = arg.Substring(11);
-            }
-            else if (arg.StartsWith("-description:", StringComparison.Ordinal))
-            {
-                options.description = arg.Substring(13);
-            }
-            else if (options.deffile == null)
-            {
-                options.deffile = arg;
-            }
-            else
-            {
-                Console.WriteLine("Unknown option: {0}", arg);
-                return false;
             }
         }
 
-        if (options.deffile == null || options.outputFile == null)
+        if (options.DefinitionFile == null || options.OutputFile == null)
         {
             Console.WriteLine("Usage: implib <exports.def> -out:<outputAssembly.dll> -r:<inputAssembly.dll> [-platform:<x86|x64|arm>] [-win32res:<file>] [-key:<keycontainer>] [-version:<M.m.b.r>]");
             return false;
@@ -154,37 +159,36 @@ static class ImpLib
 
     static bool ParseDefFile(string fileName, List<Export> exports)
     {
-        using (StreamReader sr = new StreamReader(fileName))
+        using var streamReader = new StreamReader(fileName);
+        string line;
+        while ((line = streamReader.ReadLine()) != null)
         {
-            string line;
-            while ((line = sr.ReadLine()) != null)
+            var match = Definition.Match(line);
+            if (match.Groups.Count == 6)
             {
-                Match m = definition.Match(line);
-                if (m.Groups.Count == 6)
+                Export exp;
+                exp.Name = match.Groups[1].Value;
+                exp.Ordinal = Int32.Parse(match.Groups[5].Value);
+                exp.MethodInfo = GetMethod(match.Groups[2].Value, match.Groups[3].Value, match.Groups[4].Value);
+                if (exp.MethodInfo == null)
                 {
-                    Export exp;
-                    exp.name = m.Groups[1].Value;
-                    exp.ordinal = Int32.Parse(m.Groups[5].Value);
-                    exp.method = GetMethod(m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
-                    if (exp.method == null)
-                    {
-                        Console.WriteLine("Unable to find {0}", exp.name);
-                        return false;
-                    }
-                    exports.Add(exp);
+                    Console.WriteLine($"Unable to find {exp.Name}");
+                    return false;
                 }
+                exports.Add(exp);
             }
         }
+
         return true;
     }
 
-    static MethodInfo GetMethod(string assembly, string typeName, string method)
+    static MethodInfo GetMethod(string assemblyName, string typeName, string method)
     {
-        foreach (Assembly asm in universe.GetAssemblies())
+        foreach (var assembly in Universe.GetAssemblies())
         {
-            if (asm.GetName().Name.Equals(assembly, StringComparison.OrdinalIgnoreCase))
+            if (assembly.GetName().Name.Equals(assemblyName, StringComparison.OrdinalIgnoreCase))
             {
-                Type type = asm.GetType(typeName);
+                var type = assembly.GetType(typeName);
                 if (type != null)
                 {
                     return type.GetMethod(method, BindingFlags.Public | BindingFlags.Static);
@@ -196,42 +200,45 @@ static class ImpLib
 
     static void ExportMethod(ModuleBuilder modb, Export exp)
     {
-        ParameterInfo[] parameters = exp.method.GetParameters();
-        Type[] types = new Type[parameters.Length];
-        for (int i = 0; i < types.Length; i++)
+        var parameters = exp.MethodInfo.GetParameters();
+        var types = new Type[parameters.Length];
+        for (var i = 0; i < types.Length; i++)
         {
             types[i] = parameters[i].ParameterType;
         }
-        MethodBuilder mb = modb.DefineGlobalMethod(exp.name, MethodAttributes.Public | MethodAttributes.Static, exp.method.ReturnType, types);
-        ILGenerator ilgen = mb.GetILGenerator();
-        for (int i = 0; i < types.Length; i++)
+        var methodBuilder = modb.DefineGlobalMethod(exp.Name, 
+                                                MethodAttributes.Public | MethodAttributes.Static, 
+                                                exp.MethodInfo.ReturnType, 
+                                                types);
+        var ilGenerator = methodBuilder.GetILGenerator();
+        for (var i = 0; i < types.Length; i++)
         {
-            ilgen.Emit(OpCodes.Ldarg_S, (byte)i);
+            ilGenerator.Emit(OpCodes.Ldarg_S, (byte)i);
         }
-        ilgen.Emit(OpCodes.Call, exp.method);
-        ilgen.Emit(OpCodes.Ret);
-        mb.__AddUnmanagedExport(mb.Name, exp.ordinal);
+        ilGenerator.Emit(OpCodes.Call, exp.MethodInfo);
+        ilGenerator.Emit(OpCodes.Ret);
+        methodBuilder.__AddUnmanagedExport(methodBuilder.Name, exp.Ordinal);
     }
 
     sealed class Options
     {
-        internal PortableExecutableKinds peKind;
-        internal ImageFileMachine machine;
-        internal string deffile;
-        internal string outputFile;
-        internal string win32res;
-        internal StrongNameKeyPair key;
-        internal Version version;
-        internal string product;
-        internal string company;
-        internal string copyright;
-        internal string description;
+        internal PortableExecutableKinds PortableExecutableKind;
+        internal ImageFileMachine Machine;
+        internal string DefinitionFile;
+        internal string OutputFile;
+        internal string Win32Res;
+        internal StrongNameKeyPair KeyPair;
+        internal Version Version;
+        internal string Product;
+        internal string Company;
+        internal string Copyright;
+        internal string Description;
     }
 
     struct Export
     {
-        internal string name;
-        internal int ordinal;
-        internal MethodInfo method;
+        internal string Name;
+        internal int Ordinal;
+        internal MethodInfo MethodInfo;
     }
 }
