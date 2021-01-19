@@ -32,26 +32,26 @@ namespace SourceLicenseAnalyzer
 	class Years
 	{
 		internal static Years Dummy = new Years();
-		internal int min = Int32.MaxValue;
-		internal int max = Int32.MinValue;
-		internal string name;
+		internal int Min = int.MaxValue;
+		internal int Max = int.MinValue;
+		internal string Name;
 	}
 
 	class Program
 	{
-		static Dictionary<string, string> aliases = new Dictionary<string, string>();
-		static Dictionary<string, Years> copyrights = new Dictionary<string, Years>();
+		static Dictionary<string, string> Aliases = new Dictionary<string, string>();
+		static Dictionary<string, Years> Copyrights = new Dictionary<string, Years>();
 		static int errorCount;
 
 		static void Def(string name, params string[] aliasesList)
 		{
 			Years y = new Years();
-			y.name = name;
-			copyrights.Add(name, y);
-			aliases.Add(name, name);
+			y.Name = name;
+			Copyrights.Add(name, y);
+			Aliases.Add(name, name);
 			foreach (string s in aliasesList)
 			{
-				aliases.Add(s, name);
+				Aliases.Add(s, name);
 			}
 		}
 
@@ -86,18 +86,18 @@ namespace SourceLicenseAnalyzer
 
 
 			// these are false positives
-			copyrights.Add("dummy", Years.Dummy);
-			aliases.Add("icSigCopyrightTag", "dummy");
-			aliases.Add("Copyright notice to stick into built-in-profile files.", "dummy");
-			aliases.Add("AssemblyCopyrightAttribute", "dummy");
-			aliases.Add("getVersionAndCopyrightInfo()", "dummy");
-			aliases.Add("Copyright by IBM and others and distributed under the * distributed under MIT/X", "dummy");
-			aliases.Add("*  Copyright Office. *", "dummy");
-			aliases.Add("* Copyright office. *", "dummy");
-			aliases.Add("Your Corporation", "dummy");
-			aliases.Add("but I wrote that code so I co-own the copyright", "dummy");
-			aliases.Add("identifying information: \"Portions Copyrighted [year] * [name of copyright owner]\"", "dummy");
-			aliases.Add("* \"Portions Copyright [year] [name of copyright owner]\" *", "dummy");
+			Copyrights.Add("dummy", Years.Dummy);
+			Aliases.Add("icSigCopyrightTag", "dummy");
+			Aliases.Add("Copyright notice to stick into built-in-profile files.", "dummy");
+			Aliases.Add("AssemblyCopyrightAttribute", "dummy");
+			Aliases.Add("getVersionAndCopyrightInfo()", "dummy");
+			Aliases.Add("Copyright by IBM and others and distributed under the * distributed under MIT/X", "dummy");
+			Aliases.Add("*  Copyright Office. *", "dummy");
+			Aliases.Add("* Copyright office. *", "dummy");
+			Aliases.Add("Your Corporation", "dummy");
+			Aliases.Add("but I wrote that code so I co-own the copyright", "dummy");
+			Aliases.Add("identifying information: \"Portions Copyrighted [year] * [name of copyright owner]\"", "dummy");
+			Aliases.Add("* \"Portions Copyright [year] [name of copyright owner]\" *", "dummy");
 
 			using (StreamReader rdr = new StreamReader("allsources.gen.lst"))
 			{
@@ -111,15 +111,15 @@ namespace SourceLicenseAnalyzer
 				}
 			}
 
-			Years[] years = new Years[copyrights.Count];
-			copyrights.Values.CopyTo(years, 0);
+			var years = new Years[Copyrights.Count];
+			Copyrights.Values.CopyTo(years, 0);
 
-			Array.Sort(years, delegate(Years x, Years y) { return x.name == null ? 0 : x.name.CompareTo(y.name); });
+			Array.Sort(years, (x, y) => x.Name?.CompareTo(y.Name) ?? 0);
 
-			bool first = true;
-			foreach (Years y in years)
+			var first = true;
+			foreach (var year in years)
 			{
-				if (y != Years.Dummy)
+				if (year != Years.Dummy)
 				{
 					if (!first)
 					{
@@ -127,13 +127,13 @@ namespace SourceLicenseAnalyzer
 					}
 					first = false;
 					Console.Write("    \"");
-					if (y.min != y.max)
+					if (year.Min != year.Max)
 					{
-						Console.Write("{0}-{1}  {2}", y.min, y.max, y.name);
+						Console.Write($"{{year.Min}}-{year.Max}  {{{year.Name}}}");
 					}
 					else
 					{
-						Console.Write("{0}       {1}", y.min, y.name);
+						Console.Write($"{year.Min}       {year.Name}");
 					}
 				}
 			}
@@ -144,69 +144,69 @@ namespace SourceLicenseAnalyzer
 
 		static void ProcessFile(string filePath)
 		{
-			bool gpl = false;
-			bool classpathException = false;
+			var gpl = false;
+			var classpathException = false;
 			if (!File.Exists(filePath) && File.Exists(filePath + ".in"))
 			{
 				filePath += ".in";
 			}
-			using (StreamReader rdr = new StreamReader(filePath))
+
+			using var rdr = new StreamReader(filePath);
+			string line;
+			string nextline = null;
+			while ((line = rdr.ReadLine()) != null)
 			{
-				string line;
-				string nextline = null;
-				while ((line = rdr.ReadLine()) != null)
+				gpl |= line.Contains("GNU General Public License");
+				classpathException |= line.Contains("subject to the \"Classpath\" exception") || line.Contains("permission to link this library with independent modules");
+				while (line != null && line.IndexOf("Copyright") != -1)
 				{
-					gpl |= line.Contains("GNU General Public License");
-					classpathException |= line.Contains("subject to the \"Classpath\" exception") || line.Contains("permission to link this library with independent modules");
-					while (line != null && line.IndexOf("Copyright") != -1)
+					Years y = null;
+					foreach (KeyValuePair<string, string> kv in Aliases)
 					{
-						Years y = null;
-						foreach (KeyValuePair<string, string> kv in aliases)
+						if (line.IndexOf(kv.Key) != -1)
 						{
-							if (line.IndexOf(kv.Key) != -1)
+							y = Copyrights[kv.Value];
+							break;
+						}
+					}
+					if (y == null)
+					{
+						if (nextline == null)
+						{
+							nextline = rdr.ReadLine();
+							if (nextline.IndexOf("Copyright") == -1)
 							{
-								y = copyrights[kv.Value];
-								break;
+								line += nextline;
+								continue;
 							}
 						}
-						if (y == null)
+						if (filePath.Contains("/jaxws/src/share/jaxws_classes/com/sun/xml/internal/rngom/")
+						    && (line.Contains("* Copyright (C) 2004-2011 *") || line.Contains("* Copyright (C) 2004-2012 *")))
 						{
-							if (nextline == null)
-							{
-								nextline = rdr.ReadLine();
-								if (nextline.IndexOf("Copyright") == -1)
-								{
-									line += nextline;
-									continue;
-								}
-							}
-							if (filePath.Contains("/jaxws/src/share/jaxws_classes/com/sun/xml/internal/rngom/")
-								&& (line.Contains("* Copyright (C) 2004-2011 *") || line.Contains("* Copyright (C) 2004-2012 *")))
-							{
-								// HACK ignore bogus copyright line
-							}
-							else
-							{
-								Error(filePath + ":" + Environment.NewLine + line);
-							}
+							// HACK ignore bogus copyright line
 						}
 						else
 						{
-							foreach (Match m in Regex.Matches(line, "[^0-9]((19|20)[0-9][0-9]+)"))
+							Error(filePath + ":" + Environment.NewLine + line);
+						}
+					}
+					else
+					{
+						foreach (Match m in Regex.Matches(line, "[^0-9]((19|20)[0-9][0-9]+)"))
+						{
+							if (m.Groups[1].Value.Length == 4)
 							{
-								if (m.Groups[1].Value.Length == 4)
-								{
-									int v = Int32.Parse(m.Groups[1].Value);
-									y.min = Math.Min(y.min, v);
-									y.max = Math.Max(y.max, v);
-								}
+								var v = int.Parse(m.Groups[1].Value);
+								y.Min = Math.Min(y.Min, v);
+								y.Max = Math.Max(y.Max, v);
 							}
 						}
-						line = nextline;
-						nextline = null;
 					}
+					line = nextline;
+					nextline = null;
 				}
 			}
+
 			if (gpl && !classpathException)
 			{
 				Error("GPL without Classpath exception: {0}", filePath);
