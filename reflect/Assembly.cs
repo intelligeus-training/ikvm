@@ -23,6 +23,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IKVM.Reflection
 {
@@ -31,7 +32,7 @@ namespace IKVM.Reflection
 	public abstract class Assembly : ICustomAttributeProvider
 	{
 		internal readonly Universe universe;
-		protected string fullName;	// AssemblyBuilder needs access to this field to clear it when the name changes
+		private string fullName;	// AssemblyBuilder needs access to this field to clear it when the name changes
 		protected List<ModuleResolveEventHandler> resolvers;
 
 		internal Assembly(Universe universe)
@@ -82,23 +83,18 @@ namespace IKVM.Reflection
 		// - ResolveType can return a MissingType
 		internal Type ResolveType(Module requester, TypeName typeName)
 		{
-			return FindType(typeName) ?? universe.GetMissingTypeOrThrow(requester, this.ManifestModule, null, typeName);
+			return FindType(typeName) ?? 
+			       universe.GetMissingTypeOrThrow(requester, ManifestModule, null, typeName);
 		}
 
-		public string FullName
-		{
-			get { return fullName ?? (fullName = GetName().FullName); }
-		}
+		public string FullName => fullName ??= GetName().FullName;
 
 		public Module[] GetModules()
 		{
 			return GetModules(true);
 		}
 
-		public IEnumerable<Module> Modules
-		{
-			get { return GetLoadedModules(); }
-		}
+		public IEnumerable<Module> Modules => GetLoadedModules();
 
 		public Module[] GetLoadedModules()
 		{
@@ -110,36 +106,22 @@ namespace IKVM.Reflection
 			return GetName();
 		}
 
-		public bool ReflectionOnly
-		{
-			get { return true; }
-		}
+		public bool ReflectionOnly => true;
 
 		public Type[] GetExportedTypes()
 		{
-			List<Type> list = new List<Type>();
-			foreach (Type type in GetTypes())
-			{
-				if (type.IsVisible)
-				{
-					list.Add(type);
-				}
-			}
-			return list.ToArray();
+			return GetTypes().Where(type => type.IsVisible).ToArray();
 		}
 
-		public IEnumerable<Type> ExportedTypes
-		{
-			get { return GetExportedTypes(); }
-		}
-
+		public IEnumerable<Type> ExportedTypes => GetExportedTypes();
+	
 		public IEnumerable<TypeInfo> DefinedTypes
 		{
 			get
 			{
-				Type[] types = GetTypes();
-				TypeInfo[] typeInfos = new TypeInfo[types.Length];
-				for (int i = 0; i < types.Length; i++)
+				var types = GetTypes();
+				var typeInfos = new TypeInfo[types.Length];
+				for (var i = 0; i < types.Length; i++)
 				{
 					typeInfos[i] = types[i].GetTypeInfo();
 				}
@@ -159,31 +141,30 @@ namespace IKVM.Reflection
 
 		public Type GetType(string name, bool throwOnError, bool ignoreCase)
 		{
-			TypeNameParser parser = TypeNameParser.Parse(name, throwOnError);
-			if (parser.Error)
+			var typeNameParser = TypeNameParser.Parse(name, throwOnError);
+			if (typeNameParser.Error)
 			{
 				return null;
 			}
-			if (parser.AssemblyName != null)
+			if (typeNameParser.AssemblyName != null)
 			{
 				if (throwOnError)
 				{
 					throw new ArgumentException("Type names passed to Assembly.GetType() must not specify an assembly.");
 				}
-				else
-				{
-					return null;
-				}
+				
+				return null;
+				
 			}
-			TypeName typeName = TypeName.Split(TypeNameParser.Unescape(parser.FirstNamePart));
-			Type type = ignoreCase
+			var typeName = TypeName.Split(TypeNameParser.Unescape(typeNameParser.FirstNamePart));
+			var type = ignoreCase
 				? FindTypeIgnoreCase(typeName.ToLowerInvariant())
 				: FindType(typeName);
 			if (type == null && __IsMissing)
 			{
 				throw new MissingAssemblyException((MissingAssembly)this);
 			}
-			return parser.Expand(type, this.ManifestModule, throwOnError, name, false, ignoreCase);
+			return typeNameParser.Expand(type, ManifestModule, throwOnError, name, false, ignoreCase);
 		}
 
 		public virtual Module LoadModule(string moduleName, byte[] rawModule)
@@ -230,7 +211,7 @@ namespace IKVM.Reflection
 		{
 			get
 			{
-				string path = this.Location.Replace(System.IO.Path.DirectorySeparatorChar, '/');
+				var path = Location.Replace(System.IO.Path.DirectorySeparatorChar, '/');
 				if (!path.StartsWith("/"))
 				{
 					path = "/" + path;
@@ -239,20 +220,11 @@ namespace IKVM.Reflection
 			}
 		}
 
-		public virtual bool IsDynamic
-		{
-			get { return false; }
-		}
+		public virtual bool IsDynamic => false;
 
-		public virtual bool __IsMissing
-		{
-			get { return false; }
-		}
+		public virtual bool __IsMissing => false;
 
-		public AssemblyNameFlags __AssemblyFlags
-		{
-			get { return GetAssemblyFlags(); }
-		}
+		public AssemblyNameFlags __AssemblyFlags => GetAssemblyFlags();
 
 		protected virtual AssemblyNameFlags GetAssemblyFlags()
 		{
