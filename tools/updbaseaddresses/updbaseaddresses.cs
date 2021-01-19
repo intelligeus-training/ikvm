@@ -36,28 +36,28 @@ class UpdateBaseAddresses
 {
 	static void Main(string[] args)
 	{
-		string[] input = File.ReadAllLines(args[0]);
-		List<string> output = new List<string>();
-		int baseAddress = 0x56000000;
-		string dir = Path.GetDirectoryName(args[0]);
-		bool dirty = false;
-		for (int i = 0; i < input.Length; i++)
+		var input = File.ReadAllLines(args[0]);
+		var output = new List<string>();
+		var baseAddress = 0x56000000;
+		var directoryName = Path.GetDirectoryName(args[0]);
+		var dirty = false;
+		for (var i = 0; i < input.Length; i++)
 		{
-			string line = input[i];
+			var line = input[i];
 			if (!line.Contains("-baseaddress:"))
 			{
 				output.Add(line);
 			}
 			if (line.Trim().StartsWith("-out:"))
 			{
-				string str = String.Format("    -baseaddress:0x{0:X}", baseAddress);
+				var str = String.Format("    -baseaddress:0x{0:X}", baseAddress);
 				output.Add(str);
 				if (str != input[i + 1])
 				{
 					dirty = true;
 				}
-				string file = line.Trim().Substring(5);
-				FileInfo fileInfo = new FileInfo(Path.Combine(dir, file));
+				var file = line.Trim().Substring(5);
+				var fileInfo = new FileInfo(Path.Combine(directoryName, file));
 				baseAddress += 3 * (((int)fileInfo.Length + 65535) / 65536) * 65536;
 			}
 		}
