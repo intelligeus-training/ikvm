@@ -29,12 +29,13 @@ using IKVM.Internal;
 using ikvm.runtime;
 using java.lang.reflect;
 
+
 public static class Starter
 {
 	private class Timer
 	{
 		private static Timer t;
-		private DateTime now = DateTime.Now;
+		private DateTime start = DateTime.Now;
 
 		internal Timer()
 		{
@@ -43,7 +44,7 @@ public static class Starter
 
 		~Timer()
 		{
-			Console.WriteLine(DateTime.Now - now);
+			Console.WriteLine(DateTime.Now - start);
 		}
 	}
 
@@ -96,26 +97,26 @@ public static class Starter
 	{
 		Tracer.EnableTraceConsoleListener();
 		Tracer.EnableTraceForDebug();
-		System.Collections.Hashtable props = new System.Collections.Hashtable();
-		string classpath = Environment.GetEnvironmentVariable("CLASSPATH");
-		if(classpath == null || classpath == "")
+		var props = new System.Collections.Hashtable();
+		var classpath = Environment.GetEnvironmentVariable("CLASSPATH");
+		if(string.IsNullOrEmpty(classpath))
 		{
 			classpath = ".";
 		}
 		props["java.class.path"] = classpath;
-		bool jar = false;
-		bool saveAssembly = false;
-		bool saveAssemblyX = false;
-		bool waitOnExit = false;
-		bool showVersion = false;
+		var jar = false;
+		var saveAssembly = false;
+		var saveAssemblyX = false;
+		var waitOnExit = false;
+		var showVersion = false;
 		string mainClass = null;
-		int vmargsIndex = -1;
-        bool debug = false;
-        String debugArg = null;
-		bool noglobbing = false;
-		for(int i = 0; i < args.Length; i++)
+		var vmargsIndex = -1;
+        var debug = false;
+        string debugArg = null;
+		var noglobbing = false;
+		for(var i = 0; i < args.Length; i++)
 		{
-            String arg = args[i];
+            var arg = args[i];
 			if(arg[0] == '-')
 			{
 				if(arg == "-help" || arg == "-?")
@@ -123,12 +124,12 @@ public static class Starter
 					PrintHelp();
 					return 1;
 				}
-				else if(arg == "-X")
+				if(arg == "-X")
 				{
 					PrintXHelp();
 					return 1;
 				}
-				else if(arg == "-Xsave")
+				if(arg == "-Xsave")
 				{
 					saveAssembly = true;
 					IKVM.Internal.Starter.PrepareForSaveDebugImage();
@@ -166,20 +167,20 @@ public static class Starter
 				{
 					Console.WriteLine(Startup.getVersionAndCopyrightInfo());
 					Console.WriteLine();
-					Console.WriteLine("CLR version: {0} ({1} bit)", Environment.Version, IntPtr.Size * 8);
-					System.Type type = System.Type.GetType("Mono.Runtime");
+					Console.WriteLine($"CLR version: {Environment.Version} ({IntPtr.Size * 8} bit)");
+					var type = System.Type.GetType("Mono.Runtime");
 					if(type != null)
 					{
 						Console.WriteLine("Mono version: {0}", type.InvokeMember("GetDisplayName", BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic, null, null, new object[0]));
 					}
-					foreach(Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+					foreach(var assembly in AppDomain.CurrentDomain.GetAssemblies())
 					{
-						Console.WriteLine("{0}: {1}", asm.GetName().Name, asm.GetName().Version);
+						Console.WriteLine("{0}: {1}", assembly.GetName().Name, assembly.GetName().Version);
 					}
-					string ver = java.lang.System.getProperty("openjdk.version");
-					if(ver != null)
+					var version = java.lang.System.getProperty("openjdk.version");
+					if(version != null)
 					{
-						Console.WriteLine("OpenJDK version: {0}", ver);
+						Console.WriteLine($"OpenJDK version: {version}");
 					}
 					return 0;
 				}
@@ -190,21 +191,21 @@ public static class Starter
 				else if(arg.StartsWith("-D"))
 				{
 				    arg = arg.Substring(2);
-                    string[] keyvalue = arg.Split('=');
-				    string value;
-					if(keyvalue.Length == 2) // -Dabc=x
+                    var keyValue = arg.Split('=');
+				    var value;
+					if(keyValue.Length == 2) // -Dabc=x
 					{
-                        value = keyvalue[1];
+                        value = keyValue[1];
 					} 
-                    else if (keyvalue.Length == 1) // -Dabc
+                    else if (keyValue.Length == 1) // -Dabc
                     {
                         value = "";
                     } 
                     else // -Dabc=x=y
 					{
-                        value = arg.Substring(keyvalue[0].Length + 1);
+                        value = arg.Substring(keyValue[0].Length + 1);
 					}
-                    props[keyvalue[0]] = value;
+                    props[keyValue[0]] = value;
 				}
 				else if(arg == "-ea" || arg == "-enableassertions")
 				{
@@ -314,21 +315,21 @@ public static class Starter
             if (debug)
             {
                 // Starting the debugger
-                Assembly asm = Assembly.GetExecutingAssembly();
-                String arguments = debugArg + " -pid:" + System.Diagnostics.Process.GetCurrentProcess().Id;
-                String program = new FileInfo(asm.Location).DirectoryName + "\\debugger.exe";
+                var assembly = Assembly.GetExecutingAssembly();
+                var arguments = debugArg + " -pid:" + System.Diagnostics.Process.GetCurrentProcess().Id;
+                var program = new FileInfo(assembly.Location).DirectoryName + "\\debugger.exe";
                 try
                 {
-                    ProcessStartInfo info = new ProcessStartInfo(program, arguments);
-                    info.UseShellExecute = false;
-                    Process debugger = new Process();
-                    debugger.StartInfo = info;
+                    var processStartInfo = new ProcessStartInfo(program, arguments);
+                    processStartInfo.UseShellExecute = false;
+                    var debugger = new Process();
+                    debugger.StartInfo = processStartInfo;
                     debugger.Start();
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine(program + " " + arguments);
-                    throw ex;
+                    Console.Error.WriteLine($"{ex.Message} in {program} Args: {arguments}");
+                    throw;
                 }
             }
 			if(jar)
@@ -355,7 +356,7 @@ public static class Starter
 			{
 				java.lang.Class clazz = sun.launcher.LauncherHelper.checkAndLoadMain(true, jar ? 2 : 1, mainClass);
 				// we don't need to do any checking on the main method, as that was already done by checkAndLoadMain
-				Method method = clazz.getMethod("main", typeof(string[]));
+				var method = clazz.getMethod("main", typeof(string[]));
 				// if clazz isn't public, we can still call main
 				method.setAccessible(true);
 				if(saveAssembly)
@@ -408,7 +409,7 @@ public static class Starter
 		Console.Error.WriteLine("    -X                Display non-standard options");
 		Console.Error.WriteLine("    -version          Display IKVM and runtime version");
 		Console.Error.WriteLine("    -showversion      Display version and continue running");
-		Console.Error.WriteLine("    -cp -classpath <directories and zip/jar files separated by {0}>", Path.PathSeparator);
+		Console.Error.WriteLine("    -cp -classpath <directories and zip/jar files separated by { Path.PathSeparator}>");
 		Console.Error.WriteLine("                      Set search path for application classes and resources");
 		Console.Error.WriteLine("    -D<name>=<value>  Set a system property");
 		Console.Error.WriteLine("    -ea[:<packagename>...|:<classname>]");
