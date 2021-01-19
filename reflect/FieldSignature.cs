@@ -49,10 +49,9 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			FieldSignature other = obj as FieldSignature;
-			return other != null
-				&& other.fieldType.Equals(fieldType)
-				&& other.mods.Equals(mods);
+			return obj is FieldSignature other
+			       && other.fieldType.Equals(fieldType)
+			       && other.mods.Equals(mods);
 		}
 
 		public override int GetHashCode()
@@ -60,10 +59,7 @@ namespace IKVM.Reflection
 			return fieldType.GetHashCode() ^ mods.GetHashCode();
 		}
 
-		internal Type FieldType
-		{
-			get { return fieldType; }
-		}
+		internal Type FieldType => fieldType;
 
 		internal CustomModifiers GetCustomModifiers()
 		{
@@ -77,14 +73,14 @@ namespace IKVM.Reflection
 				mods.Bind(declaringType));
 		}
 
-		internal static FieldSignature ReadSig(ModuleReader module, ByteReader br, IGenericContext context)
+		internal static FieldSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
-			if (br.ReadByte() != FIELD)
+			if (byteReader.ReadByte() != FIELD)
 			{
 				throw new BadImageFormatException();
 			}
-			CustomModifiers mods = CustomModifiers.Read(module, br, context);
-			Type fieldType = ReadType(module, br, context);
+			var mods = CustomModifiers.Read(module, byteReader, context);
+			var fieldType = ReadType(module, byteReader, context);
 			return new FieldSignature(fieldType, mods);
 		}
 

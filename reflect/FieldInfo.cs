@@ -34,10 +34,7 @@ namespace IKVM.Reflection
 		{
 		}
 
-		public sealed override MemberTypes MemberType
-		{
-			get { return MemberTypes.Field; }
-		}
+		public sealed override MemberTypes MemberType => MemberTypes.Field;
 
 		public abstract FieldAttributes Attributes { get; }
 		public abstract void __GetDataFromRVA(byte[] data, int offset, int length);
@@ -45,14 +42,11 @@ namespace IKVM.Reflection
 		public abstract Object GetRawConstantValue();
 		internal abstract FieldSignature FieldSignature { get; }
 
-		public Type FieldType
-		{
-			get { return this.FieldSignature.FieldType; }
-		}
+		public Type FieldType => this.FieldSignature.FieldType;
 
 		public CustomModifiers __GetCustomModifiers()
 		{
-			return this.FieldSignature.GetCustomModifiers();
+			return FieldSignature.GetCustomModifiers();
 		}
 
 		public Type[] GetOptionalCustomModifiers()
@@ -65,65 +59,32 @@ namespace IKVM.Reflection
 			return __GetCustomModifiers().GetRequired();
 		}
 
-		public bool IsStatic
-		{
-			get { return (Attributes & FieldAttributes.Static) != 0; }
-		}
+		public bool IsStatic => (Attributes & FieldAttributes.Static) != 0;
 
 		public bool IsLiteral
 		{
 			get { return (Attributes & FieldAttributes.Literal) != 0; }
 		}
 
-		public bool IsInitOnly
-		{
-			get { return (Attributes & FieldAttributes.InitOnly) != 0; }
-		}
+		public bool IsInitOnly => (Attributes & FieldAttributes.InitOnly) != 0;
 
-		public bool IsNotSerialized
-		{
-			get { return (Attributes & FieldAttributes.NotSerialized) != 0; }
-		}
+		public bool IsNotSerialized => (Attributes & FieldAttributes.NotSerialized) != 0;
 
-		public bool IsSpecialName
-		{
-			get { return (Attributes & FieldAttributes.SpecialName) != 0; }
-		}
+		public bool IsSpecialName => (Attributes & FieldAttributes.SpecialName) != 0;
 
-		public bool IsPublic
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Public; }
-		}
+		public bool IsPublic => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Public;
 
-		public bool IsPrivate
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Private; }
-		}
+		public bool IsPrivate => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Private;
 
-		public bool IsFamily
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Family; }
-		}
+		public bool IsFamily => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Family;
 
-		public bool IsFamilyOrAssembly
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.FamORAssem; }
-		}
+		public bool IsFamilyOrAssembly => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.FamORAssem;
 
-		public bool IsAssembly
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Assembly; }
-		}
+		public bool IsAssembly => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.Assembly;
 
-		public bool IsFamilyAndAssembly
-		{
-			get { return (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.FamANDAssem; }
-		}
+		public bool IsFamilyAndAssembly => (Attributes & FieldAttributes.FieldAccessMask) == FieldAttributes.FamANDAssem;
 
-		public bool IsPinvokeImpl
-		{
-			get { return (Attributes & FieldAttributes.PinvokeImpl) != 0; }
-		}
+		public bool IsPinvokeImpl => (Attributes & FieldAttributes.PinvokeImpl) != 0;
 
 		public virtual FieldInfo __GetFieldOnTypeDefinition()
 		{
@@ -164,25 +125,28 @@ namespace IKVM.Reflection
 
 		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
-			Module module = this.Module;
-			List<CustomAttributeData> list = new List<CustomAttributeData>();
-			if (attributeType == null || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_MarshalAsAttribute))
+			var module = this.Module;
+			var customAttributeDatas = new List<CustomAttributeData>();
+			if (attributeType == null 
+			    || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_MarshalAsAttribute))
 			{
 				FieldMarshal spec;
 				if (__TryGetFieldMarshal(out spec))
 				{
-					list.Add(CustomAttributeData.CreateMarshalAsPseudoCustomAttribute(module, spec));
+					customAttributeDatas.Add(CustomAttributeData.CreateMarshalAsPseudoCustomAttribute(module, spec));
 				}
 			}
-			if (attributeType == null || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_FieldOffsetAttribute))
+			if (attributeType == null 
+			    || attributeType.IsAssignableFrom(module.universe.System_Runtime_InteropServices_FieldOffsetAttribute))
 			{
 				int offset;
 				if (__TryGetFieldOffset(out offset))
 				{
-					list.Add(CustomAttributeData.CreateFieldOffsetPseudoCustomAttribute(module, offset));
+					customAttributeDatas.Add(
+						CustomAttributeData.CreateFieldOffsetPseudoCustomAttribute(module, offset));
 				}
 			}
-			return list;
+			return customAttributeDatas;
 		}
 	}
 
@@ -198,20 +162,14 @@ namespace IKVM.Reflection
 			this.field = field;
 		}
 
-		public override FieldAttributes Attributes
-		{
-			get { return field.Attributes; }
-		}
+		public override FieldAttributes Attributes => field.Attributes;
 
 		public override void __GetDataFromRVA(byte[] data, int offset, int length)
 		{
 			field.__GetDataFromRVA(data, offset, length);
 		}
 
-		public override int __FieldRVA
-		{
-			get { return field.__FieldRVA; }
-		}
+		public override int __FieldRVA => field.__FieldRVA;
 
 		public override bool __TryGetFieldOffset(out int offset)
 		{
@@ -243,24 +201,15 @@ namespace IKVM.Reflection
 			return field.BindTypeParameters(type);
 		}
 
-		public override bool __IsMissing
-		{
-			get { return field.__IsMissing; }
-		}
+		public override bool __IsMissing => field.__IsMissing;
 
-		public override Type DeclaringType
-		{
-			get { return field.DeclaringType; }
-		}
+		public override Type DeclaringType => field.DeclaringType;
 
-		public override Type ReflectedType
-		{
-			get { return reflectedType; }
-		}
+		public override Type ReflectedType => reflectedType;
 
 		public override bool Equals(object obj)
 		{
-			FieldInfoWithReflectedType other = obj as FieldInfoWithReflectedType;
+			var other = obj as FieldInfoWithReflectedType;
 			return other != null
 				&& other.reflectedType == reflectedType
 				&& other.field == field;
@@ -271,20 +220,14 @@ namespace IKVM.Reflection
 			return reflectedType.GetHashCode() ^ field.GetHashCode();
 		}
 
-		public override int MetadataToken
-		{
-			get { return field.MetadataToken; }
-		}
+		public override int MetadataToken => field.MetadataToken;
 
 		public override Module Module
 		{
 			get { return field.Module; }
 		}
 
-		public override string Name
-		{
-			get { return field.Name; }
-		}
+		public override string Name => field.Name;
 
 		public override string ToString()
 		{
@@ -296,9 +239,6 @@ namespace IKVM.Reflection
 			return field.GetCurrentToken();
 		}
 
-		internal override bool IsBaked
-		{
-			get { return field.IsBaked; }
-		}
+		internal override bool IsBaked => field.IsBaked;
 	}
 }

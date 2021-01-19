@@ -45,50 +45,38 @@ namespace IKVM.Reflection
 		private readonly Type catchType;
 		private readonly int filterOffset;
 
-		internal ExceptionHandlingClause(ModuleReader module, int flags, int tryOffset, int tryLength, int handlerOffset, int handlerLength, int classTokenOrfilterOffset, IGenericContext context)
+		internal ExceptionHandlingClause(ModuleReader module, 
+											int flags, 
+											int tryOffset, 
+											int tryLength, 
+											int handlerOffset, 
+											int handlerLength, 
+											int classTokenOrfilterOffset, 
+											IGenericContext context)
 		{
 			this.flags = flags;
 			this.tryOffset = tryOffset;
 			this.tryLength = tryLength;
 			this.handlerOffset = handlerOffset;
 			this.handlerLength = handlerLength;
-			this.catchType = flags == (int)ExceptionHandlingClauseOptions.Clause && classTokenOrfilterOffset != 0 ? module.ResolveType(classTokenOrfilterOffset, context) : null;
-			this.filterOffset = flags == (int)ExceptionHandlingClauseOptions.Filter ? classTokenOrfilterOffset : 0;
+			catchType = flags == (int)ExceptionHandlingClauseOptions.Clause && classTokenOrfilterOffset != 0 
+													? module.ResolveType(classTokenOrfilterOffset, context) : null;
+			
+			filterOffset = flags == (int)ExceptionHandlingClauseOptions.Filter ? classTokenOrfilterOffset : 0;
 		}
 
-		public Type CatchType
-		{
-			get { return catchType; }
-		}
+		public Type CatchType => catchType;
 
-		public int FilterOffset
-		{
-			get { return filterOffset; }
-		}
+		public int FilterOffset => filterOffset;
 
-		public ExceptionHandlingClauseOptions Flags
-		{
-			get { return (ExceptionHandlingClauseOptions)flags; }
-		}
+		public ExceptionHandlingClauseOptions Flags => (ExceptionHandlingClauseOptions)flags;
 
-		public int HandlerLength
-		{
-			get { return handlerLength; }
-		}
+		public int HandlerLength => handlerLength;
 
-		public int HandlerOffset
-		{
-			get { return handlerOffset; }
-		}
+		public int HandlerOffset => handlerOffset;
 
-		public int TryLength
-		{
-			get { return tryLength; }
-		}
+		public int TryLength => tryLength;
 
-		public int TryOffset
-		{
-			get { return tryOffset; }
-		}
+		public int TryOffset => tryOffset;
 	}
 }
