@@ -38,16 +38,9 @@ namespace IKVM.Reflection
 		: ICloneable
 #endif
 	{
-		private string name;
-		private string culture;
 		private Version version;
 		private byte[] publicKeyToken;
 		private byte[] publicKey;
-		private StrongNameKeyPair keyPair;
-		private AssemblyNameFlags flags;
-		private AssemblyHashAlgorithm hashAlgorithm;
-		private AssemblyVersionCompatibility versionCompatibility = AssemblyVersionCompatibility.SameMachine;
-		private string codeBase;
 		internal byte[] hash;
 
 		public AssemblyName()
@@ -56,31 +49,35 @@ namespace IKVM.Reflection
 
 		public AssemblyName(string assemblyName)
 		{
-			if (assemblyName == null)
+			switch (assemblyName)
 			{
-				throw new ArgumentNullException("assemblyName");
+				case null:
+					throw new ArgumentNullException("assemblyName");
+				case "":
+					throw new ArgumentException();
 			}
-			if (assemblyName == "")
-			{
-				throw new ArgumentException();
-			}
+
 			ParsedAssemblyName parsed;
 			switch (Fusion.ParseAssemblyName(assemblyName, out parsed))
 			{
 				case ParseAssemblyResult.GenericError:
 				case ParseAssemblyResult.DuplicateKey:
 					throw new FileLoadException();
+				case ParseAssemblyResult.OK:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 			if (!ParseVersion(parsed.Version, parsed.Retargetable.HasValue, out version))
 			{
 				throw new FileLoadException();
 			}
-			name = parsed.Name;
+			Name = parsed.Name;
 			if (parsed.Culture != null)
 			{
 				if (parsed.Culture.Equals("neutral", StringComparison.OrdinalIgnoreCase))
 				{
-					culture = "";
+					CultureName = "";
 				}
 				else if (parsed.Culture == "")
 				{
@@ -88,7 +85,7 @@ namespace IKVM.Reflection
 				}
 				else
 				{
-					culture = new CultureInfo(parsed.Culture).Name;
+					CultureName = new CultureInfo(parsed.Culture).Name;
 				}
 			}
 			if (parsed.PublicKeyToken != null)
@@ -114,7 +111,7 @@ namespace IKVM.Reflection
 				}
 				if (parsed.Retargetable.Value)
 				{
-					flags |= AssemblyNameFlags.Retargetable;
+					RawFlags |= AssemblyNameFlags.Retargetable;
 				}
 			}
 			ProcessorArchitecture = parsed.ProcessorArchitecture;
@@ -144,18 +141,15 @@ namespace IKVM.Reflection
 			{
 				return digit - '0';
 			}
-			else
+		
+			digit |= (char)0x20;
+			if (digit >= 'a' && digit <= 'f')
 			{
-				digit |= (char)0x20;
-				if (digit >= 'a' && digit <= 'f')
-				{
-					return 10 + digit - 'a';
-				}
-				else
-				{
-					throw new FileLoadException();
-				}
+				return 10 + digit - 'a';
 			}
+
+			throw new FileLoadException();
+			
 		}
 
 		public override string ToString()
@@ -163,41 +157,25 @@ namespace IKVM.Reflection
 			return FullName;
 		}
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		public CultureInfo CultureInfo
 		{
-			get { return culture == null ? null : new CultureInfo(culture); }
-			set { culture = value == null ? null : value.Name; }
+			get => CultureName == null ? null : new CultureInfo(CultureName);
+			set => CultureName = value?.Name;
 		}
 
-		public string CultureName
-		{
-			get { return culture; }
-			set { culture = value; }
-		}
+		public string CultureName { get; set; }
 
 		public Version Version
 		{
-			get { return version; }
-			set { version = value; }
+			get => version;
+			set => version = value;
 		}
 
-		public StrongNameKeyPair KeyPair
-		{
-			get { return keyPair; }
-			set { keyPair = value; }
-		}
+		public StrongNameKeyPair KeyPair { get; set; }
 
-		public string CodeBase
-		{
-			get { return codeBase; }
-			set { codeBase = value; }
-		}
+		public string CodeBase { get; set; }
 
 #if !NETSTANDARD
 		public string EscapedCodeBase
@@ -206,7 +184,7 @@ namespace IKVM.Reflection
 			{
 				// HACK use the real AssemblyName to escape the codebase
 				System.Reflection.AssemblyName tmp = new System.Reflection.AssemblyName();
-				tmp.CodeBase = codeBase;
+				tmp.CodeBase = CodeBase;
 				return tmp.EscapedCodeBase;
 			}
 		}
@@ -214,36 +192,32 @@ namespace IKVM.Reflection
 
 		public ProcessorArchitecture ProcessorArchitecture
 		{
-			get { return (ProcessorArchitecture)(((int)flags & 0x70) >> 4); }
+			get => (ProcessorArchitecture)(((int)RawFlags & 0x70) >> 4);
 			set
 			{
 				if (value >= ProcessorArchitecture.None && value <= ProcessorArchitecture.Arm)
 				{
-					flags = (flags & ~(AssemblyNameFlags)0x70) | (AssemblyNameFlags)((int)value << 4);
+					RawFlags = (RawFlags & ~(AssemblyNameFlags)0x70) | (AssemblyNameFlags)((int)value << 4);
 				}
 			}
 		}
 
 		public AssemblyNameFlags Flags
 		{
-			get { return flags & (AssemblyNameFlags)~0xEF0; }
-			set { flags = (flags & (AssemblyNameFlags)0xEF0) | (value & (AssemblyNameFlags)~0xEF0); }
+			get => RawFlags & (AssemblyNameFlags)~0xEF0;
+			set => RawFlags = (RawFlags & (AssemblyNameFlags)0xEF0) | (value & (AssemblyNameFlags)~0xEF0);
 		}
 
-		public AssemblyVersionCompatibility VersionCompatibility
-		{
-			get { return versionCompatibility; }
-			set { versionCompatibility = value; }
-		}
+		public AssemblyVersionCompatibility VersionCompatibility { get; set; } = AssemblyVersionCompatibility.SameMachine;
 
 		public AssemblyContentType ContentType
 		{
-			get { return (AssemblyContentType)(((int)flags & 0xE00) >> 9); }
+			get => (AssemblyContentType)(((int)RawFlags & 0xE00) >> 9);
 			set
 			{
 				if (value >= AssemblyContentType.Default && value <= AssemblyContentType.WindowsRuntime)
 				{
-					flags = (flags & ~(AssemblyNameFlags)0xE00) | (AssemblyNameFlags)((int)value << 9);
+					RawFlags = (RawFlags & ~(AssemblyNameFlags)0xE00) | (AssemblyNameFlags)((int)value << 9);
 				}
 			}
 		}
@@ -256,7 +230,7 @@ namespace IKVM.Reflection
 		public void SetPublicKey(byte[] publicKey)
 		{
 			this.publicKey = publicKey;
-			flags = (flags & ~AssemblyNameFlags.PublicKey) | (publicKey == null ? 0 : AssemblyNameFlags.PublicKey);
+			RawFlags = (RawFlags & ~AssemblyNameFlags.PublicKey) | (publicKey == null ? 0 : AssemblyNameFlags.PublicKey);
 		}
 
 		public byte[] GetPublicKeyToken()
@@ -274,22 +248,15 @@ namespace IKVM.Reflection
 			this.publicKeyToken = publicKeyToken;
 		}
 
-		public AssemblyHashAlgorithm HashAlgorithm
-		{
-			get { return hashAlgorithm; }
-			set { hashAlgorithm = value; }
-		}
+		public AssemblyHashAlgorithm HashAlgorithm { get; set; }
 
-		public byte[] __Hash
-		{
-			get { return hash; }
-		}
+		public byte[] __Hash => hash;
 
 		public string FullName
 		{
 			get
 			{
-				if (name == null)
+				if (Name == null)
 				{
 					return "";
 				}
@@ -304,93 +271,93 @@ namespace IKVM.Reflection
 					versionBuild = (ushort)version.Build;
 					versionRevision = (ushort)version.Revision;
 				}
-				byte[] publicKeyToken = this.publicKeyToken;
+				var publicKeyToken = this.publicKeyToken;
 				if ((publicKeyToken == null || publicKeyToken.Length == 0) && publicKey != null)
 				{
 					publicKeyToken = ComputePublicKeyToken(publicKey);
 				}
-				return GetFullName(name, versionMajor, versionMinor, versionBuild, versionRevision, culture, publicKeyToken, (int)flags);
+				return GetFullName(Name, versionMajor, versionMinor, versionBuild, versionRevision, CultureName, publicKeyToken, (int)RawFlags);
 			}
 		}
 
 		internal static string GetFullName(string name, ushort versionMajor, ushort versionMinor, ushort versionBuild, ushort versionRevision, string culture, byte[] publicKeyToken, int flags)
 		{
-			StringBuilder sb = new StringBuilder();
-			bool doubleQuotes = name.StartsWith(" ") || name.EndsWith(" ") || name.IndexOf('\'') != -1;
-			bool singleQuotes = name.IndexOf('"') != -1;
+			var stringBuilder = new StringBuilder();
+			var doubleQuotes = name.StartsWith(" ") || name.EndsWith(" ") || name.IndexOf('\'') != -1;
+			var singleQuotes = name.IndexOf('"') != -1;
 			if (singleQuotes)
 			{
-				sb.Append('\'');
+				stringBuilder.Append('\'');
 			}
 			else if (doubleQuotes)
 			{
-				sb.Append('"');
+				stringBuilder.Append('"');
 			}
 			if (name.IndexOf(',') != -1 || name.IndexOf('\\') != -1 || name.IndexOf('=') != -1 || (singleQuotes && name.IndexOf('\'') != -1))
 			{
-				for (int i = 0; i < name.Length; i++)
+				for (var i = 0; i < name.Length; i++)
 				{
-					char c = name[i];
+					var c = name[i];
 					if (c == ',' || c == '\\' || c == '=' || (singleQuotes && c == '\''))
 					{
-						sb.Append('\\');
+						stringBuilder.Append('\\');
 					}
-					sb.Append(c);
+					stringBuilder.Append(c);
 				}
 			}
 			else
 			{
-				sb.Append(name);
+				stringBuilder.Append(name);
 			}
 			if (singleQuotes)
 			{
-				sb.Append('\'');
+				stringBuilder.Append('\'');
 			}
 			else if (doubleQuotes)
 			{
-				sb.Append('"');
+				stringBuilder.Append('"');
 			}
 			if (versionMajor != 0xFFFF)
 			{
-				sb.Append(", Version=").Append(versionMajor);
+				stringBuilder.Append(", Version=").Append(versionMajor);
 				if (versionMinor != 0xFFFF)
 				{
-					sb.Append('.').Append(versionMinor);
+					stringBuilder.Append('.').Append(versionMinor);
 					if (versionBuild != 0xFFFF)
 					{
-						sb.Append('.').Append(versionBuild);
+						stringBuilder.Append('.').Append(versionBuild);
 						if (versionRevision != 0xFFFF)
 						{
-							sb.Append('.').Append(versionRevision);
+							stringBuilder.Append('.').Append(versionRevision);
 						}
 					}
 				}
 			}
 			if (culture != null)
 			{
-				sb.Append(", Culture=").Append(culture == "" ? "neutral" : culture);
+				stringBuilder.Append(", Culture=").Append(culture == "" ? "neutral" : culture);
 			}
 			if (publicKeyToken != null)
 			{
-				sb.Append(", PublicKeyToken=");
+				stringBuilder.Append(", PublicKeyToken=");
 				if (publicKeyToken.Length == 0)
 				{
-					sb.Append("null");
+					stringBuilder.Append("null");
 				}
 				else
 				{
-					AppendPublicKey(sb, publicKeyToken);
+					AppendPublicKey(stringBuilder, publicKeyToken);
 				}
 			}
 			if ((flags & (int)AssemblyNameFlags.Retargetable) != 0)
 			{
-				sb.Append(", Retargetable=Yes");
+				stringBuilder.Append(", Retargetable=Yes");
 			}
 			if ((AssemblyContentType)((flags & 0xE00) >> 9) == AssemblyContentType.WindowsRuntime)
 			{
-				sb.Append(", ContentType=WindowsRuntime");
+				stringBuilder.Append(", ContentType=WindowsRuntime");
 			}
-			return sb.ToString();
+			return stringBuilder.ToString();
 		}
 
 		internal static byte[] ComputePublicKeyToken(byte[] publicKey)
@@ -400,12 +367,10 @@ namespace IKVM.Reflection
 				return publicKey;
 			}
 			byte[] hash;
-			using (SHA1 sha1 = SHA1.Create())
-			{
-				hash = sha1.ComputeHash(publicKey);
-			}
-			byte[] token = new byte[8];
-			for (int i = 0; i < token.Length; i++)
+			using var sha1 = SHA1.Create();
+			hash = sha1.ComputeHash(publicKey);
+			var token = new byte[8];
+			for (var i = 0; i < token.Length; i++)
 			{
 				token[i] = hash[hash.Length - 1 - i];
 			}
@@ -414,14 +379,14 @@ namespace IKVM.Reflection
 
 		internal static string ComputePublicKeyToken(string publicKey)
 		{
-			StringBuilder sb = new StringBuilder(16);
-			AppendPublicKey(sb, ComputePublicKeyToken(ParseKey(publicKey)));
-			return sb.ToString();
+			var stringBuilder = new StringBuilder(16);
+			AppendPublicKey(stringBuilder, ComputePublicKeyToken(ParseKey(publicKey)));
+			return stringBuilder.ToString();
 		}
 
 		private static void AppendPublicKey(StringBuilder sb, byte[] publicKey)
 		{
-			for (int i = 0; i < publicKey.Length; i++)
+			for (var i = 0; i < publicKey.Length; i++)
 			{
 				sb.Append("0123456789abcdef"[publicKey[i] >> 4]);
 				sb.Append("0123456789abcdef"[publicKey[i] & 0x0F]);
@@ -430,8 +395,7 @@ namespace IKVM.Reflection
 
 		public override bool Equals(object obj)
 		{
-			AssemblyName other = obj as AssemblyName;
-			return other != null && other.FullName == this.FullName;
+			return obj is AssemblyName other && other.FullName == FullName;
 		}
 
 		public override int GetHashCode()
@@ -441,7 +405,7 @@ namespace IKVM.Reflection
 
 		public object Clone()
 		{
-			AssemblyName copy = (AssemblyName)MemberwiseClone();
+			var copy = (AssemblyName)MemberwiseClone();
 			copy.publicKey = Copy(publicKey);
 			copy.publicKeyToken = Copy(publicKeyToken);
 			return copy;
@@ -465,15 +429,13 @@ namespace IKVM.Reflection
 			try
 			{
 				path = Path.GetFullPath(path);
-				using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+				using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+				var moduleReader = new ModuleReader(null, null, fileStream, path, false);
+				if (moduleReader.Assembly == null)
 				{
-					ModuleReader module = new ModuleReader(null, null, fs, path, false);
-					if (module.Assembly == null)
-					{
-						throw new BadImageFormatException("Module does not contain a manifest");
-					}
-					return module.Assembly.GetName();
+					throw new BadImageFormatException("Module does not contain a manifest");
 				}
+				return moduleReader.Assembly.GetName();
 			}
 			catch (IOException x)
 			{
@@ -485,11 +447,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal AssemblyNameFlags RawFlags
-		{
-			get { return flags; }
-			set { flags = value; }
-		}
+		internal AssemblyNameFlags RawFlags { get; set; }
 
 		private static bool ParseVersion(string str, bool mustBeComplete, out Version version)
 		{
@@ -498,23 +456,25 @@ namespace IKVM.Reflection
 				version = null;
 				return true;
 			}
-			string[] parts = str.Split('.');
+			var parts = str.Split('.');
 			if (parts.Length < 2 || parts.Length > 4)
 			{
 				version = null;
 				ushort dummy;
-				// if the version consists of a single integer, it is invalid, but not invalid enough to fail the parse of the whole assembly name
+				// if the version consists of a single integer, it is invalid, but not invalid enough to fail
+				// the parse of the whole assembly name
 				return parts.Length == 1 && ushort.TryParse(parts[0], NumberStyles.Integer, null, out dummy);
 			}
 			if (parts[0] == "" || parts[1] == "")
 			{
-				// this is a strange scenario, the version is invalid, but not invalid enough to fail the parse of the whole assembly name
+				// this is a strange scenario, the version is invalid, but not invalid enough to fail the
+				// parse of the whole assembly name
 				version = null;
 				return true;
 			}
-			ushort major, minor, build = 65535, revision = 65535;
-			if (ushort.TryParse(parts[0], NumberStyles.Integer, null, out major)
-				&& ushort.TryParse(parts[1], NumberStyles.Integer, null, out minor)
+			ushort build = 65535, revision = 65535;
+			if (ushort.TryParse(parts[0], NumberStyles.Integer, null, out var major)
+				&& ushort.TryParse(parts[1], NumberStyles.Integer, null, out var minor)
 				&& (parts.Length <= 2 || parts[2] == "" || ushort.TryParse(parts[2], NumberStyles.Integer, null, out build))
 				&& (parts.Length <= 3 || parts[3] == "" || (parts[2] != "" && ushort.TryParse(parts[3], NumberStyles.Integer, null, out revision))))
 			{

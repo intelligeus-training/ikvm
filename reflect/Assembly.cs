@@ -32,7 +32,7 @@ namespace IKVM.Reflection
 	public abstract class Assembly : ICustomAttributeProvider
 	{
 		internal readonly Universe universe;
-		private string fullName;	// AssemblyBuilder needs access to this field to clear it when the name changes
+		protected string fullName;	// AssemblyBuilder needs access to this field to clear it when the name changes
 		protected List<ModuleResolveEventHandler> resolvers;
 
 		internal Assembly(Universe universe)
