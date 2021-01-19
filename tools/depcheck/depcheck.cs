@@ -23,68 +23,71 @@
 */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
-class DependencyChecker
+namespace depcheck
 {
-	static int Main(string[] args)
+	class DependencyChecker
 	{
-		Dictionary<string, List<string>> deps = new Dictionary<string, List<string>>();
-		string dep = null;
-		foreach (string line in File.ReadAllLines(args[1]))
+		static int Main(string[] args)
 		{
-			if (line.Trim().Length == 0 || line.StartsWith("#"))
+			var dependencies = new Dictionary<string, List<string>>();
+			var dependency = string.Empty;
+			foreach (var line in File.ReadAllLines(args[1]))
 			{
-				// comment
-			}
-			else if (line.StartsWith("->"))
-			{
-				deps[dep].Add(line.Substring(2));
-			}
-			else
-			{
-				dep = line;
-				deps.Add(dep, new List<string>());
-			}
-		}
-		List<string> whitelist = new List<string>(new string[] { "mscorlib", "System", "IKVM.Runtime", "IKVM.OpenJDK.Core" });
-		bool fail = false;
-		foreach (string line in File.ReadAllLines(args[0]))
-		{
-			if (line.Contains("-out:"))
-			{
-				string file = line.Trim().Substring(5);
-				Assembly asm = Assembly.ReflectionOnlyLoadFrom(Path.Combine(Path.GetDirectoryName(args[0]), file));
-				if (!deps.ContainsKey(asm.GetName().Name))
+				if (line.Trim().Length == 0 || line.StartsWith("#"))
 				{
-					fail = true;
-					Console.WriteLine(asm.GetName().Name);
-					foreach (AssemblyName asmdep in asm.GetReferencedAssemblies())
-					{
-						if (!whitelist.Contains(asmdep.Name))
-						{
-							Console.WriteLine("->{0}", asmdep.Name);
-						}
-					}
+					// comment
+				}
+				else if (line.StartsWith("->"))
+				{
+					dependencies[dependency].Add(line.Substring(2));
 				}
 				else
 				{
-					foreach (AssemblyName asmdep in asm.GetReferencedAssemblies())
+					dependency = line;
+					dependencies.Add(dependency, new List<string>());
+				}
+			}
+			var whitelist = new List<string>(new string[] { "mscorlib", "System", "IKVM.Runtime", "IKVM.OpenJDK.Core" });
+			var fail = false;
+			foreach (var line in File.ReadAllLines(args[0]))
+			{
+				if (line.Contains("-out:"))
+				{
+					var file = line.Trim().Substring(5);
+					var assembly = Assembly.ReflectionOnlyLoadFrom(Path.Combine(Path.GetDirectoryName(args[0]), file));
+					if (!dependencies.ContainsKey(assembly.GetName().Name ?? string.Empty))
 					{
-						if (!whitelist.Contains(asmdep.Name))
+						fail = true;
+						Console.WriteLine($"Dependencies does not contain {assembly.GetName().Name}");
+						foreach (var assemblyName in assembly.GetReferencedAssemblies())
 						{
-							if (!deps[asm.GetName().Name].Contains(asmdep.Name))
+							if (!whitelist.Contains(assemblyName.Name))
 							{
-								fail = true;
-								Console.WriteLine("Error: Assembly {0} has an undeclared dependency on {1}", asm.GetName().Name, asmdep.Name);
+								Console.WriteLine("->{0}", assemblyName.Name);
+							}
+						}
+					}
+					else
+					{
+						foreach (var assemblyName in assembly.GetReferencedAssemblies())
+						{
+							if (!whitelist.Contains(assemblyName.Name))
+							{
+								if (!dependencies[assembly.GetName().Name].Contains(assemblyName.Name))
+								{
+									fail = true;
+									Console.WriteLine($"Error: Assembly {assembly.GetName().Name} has an undeclared dependency on {assemblyName.Name}");
+								}
 							}
 						}
 					}
 				}
 			}
+			return fail ? 1 : 0;
 		}
-		return fail ? 1 : 0;
 	}
 }
