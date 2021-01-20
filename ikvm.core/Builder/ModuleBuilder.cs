@@ -28,9 +28,7 @@ using System.Diagnostics;
 #if !NO_SYMBOL_WRITER
 using System.Diagnostics.SymbolStore;
 #endif
-using System.Security.Cryptography;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using IKVM.Reflection.Impl;
 using IKVM.Reflection.Metadata;

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
+        <RootNamespace>ikvm.common</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ICSharpCode.SharpZipLib.dll" Version="0.85.4.369" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\runtime\IKVM.Runtime\AssemblyClassLoader.cs">
+        <LinkBase>runtime</LinkBase>
+        <Link>AssemblyClassLoader.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+</Project>

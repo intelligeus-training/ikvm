@@ -27,9 +27,6 @@ using System.Collections.Generic;
 using IKVM.Reflection;
 using IKVM.Reflection.Emit;
 using Type = IKVM.Reflection.Type;
-using System.Diagnostics;
-using System.Security;
-using System.Security.Permissions;
 using IKVM.Attributes;
 
 namespace IKVM.Internal

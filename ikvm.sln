@@ -107,6 +107,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "openjdk", "openjdk\openjdk.
 		{11C753FA-35BF-487F-8AA8-DEA948F0A74E} = {11C753FA-35BF-487F-8AA8-DEA948F0A74E}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ikvm.core", "ikvm.core\ikvm.core.csproj", "{BD52F38A-BFF6-4604-91AC-26518B2473DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ikvm.common", "ikvm.common\ikvm.common.csproj", "{8C1F3AEC-979A-4C9E-94D4-0E8F980A3E5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,6 +189,14 @@ Global
 		{54E0B904-B1A8-4FC2-BD8C-4CE9F2C0FC81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54E0B904-B1A8-4FC2-BD8C-4CE9F2C0FC81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54E0B904-B1A8-4FC2-BD8C-4CE9F2C0FC81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD52F38A-BFF6-4604-91AC-26518B2473DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD52F38A-BFF6-4604-91AC-26518B2473DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD52F38A-BFF6-4604-91AC-26518B2473DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD52F38A-BFF6-4604-91AC-26518B2473DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C1F3AEC-979A-4C9E-94D4-0E8F980A3E5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C1F3AEC-979A-4C9E-94D4-0E8F980A3E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C1F3AEC-979A-4C9E-94D4-0E8F980A3E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C1F3AEC-979A-4C9E-94D4-0E8F980A3E5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
