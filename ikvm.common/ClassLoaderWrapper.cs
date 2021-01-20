@@ -42,7 +42,7 @@ using IKVM.Attributes;
 namespace IKVM.Internal
 {
 	[Flags]
-	enum CodeGenOptions
+	public enum CodeGenOptions
 	{
 		None = 0,
 		Debug = 1,
@@ -57,7 +57,7 @@ namespace IKVM.Internal
 	}
 
 	[Flags]
-	enum LoadMode
+	public enum LoadMode
 	{
 		// These are the modes that should be used
 		Find					= ReturnNull,
@@ -83,7 +83,7 @@ namespace IKVM.Internal
 	}
 
 #if !STUB_GENERATOR
-	abstract class TypeWrapperFactory
+	public abstract class TypeWrapperFactory
 	{
 		internal abstract ModuleBuilder ModuleBuilder { get; }
 		internal abstract TypeWrapper DefineClassImpl(Dictionary<string, TypeWrapper> types, TypeWrapper host, ClassFile f, ClassLoaderWrapper classLoader, ProtectionDomain protectionDomain);
@@ -98,7 +98,7 @@ namespace IKVM.Internal
 	}
 #endif // !STUB_GENERATOR
 
-	class ClassLoaderWrapper
+	public class ClassLoaderWrapper
 	{
 		private static readonly object wrapperLock = new object();
 		private static readonly Dictionary<Type, TypeWrapper> globalTypeToTypeWrapper = new Dictionary<Type, TypeWrapper>();
@@ -204,7 +204,7 @@ namespace IKVM.Internal
 
 		// return the TypeWrapper if it is already loaded, this exists for DynamicTypeWrapper.SetupGhosts
 		// and implements ClassLoader.findLoadedClass()
-		internal TypeWrapper FindLoadedClass(string name)
+		public TypeWrapper FindLoadedClass(string name)
 		{
 			if (name.Length > 1 && name[0] == '[')
 			{

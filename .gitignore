@@ -68,3 +68,4 @@ openjdk/resources/nashorn/version.properties
 /.idea/.idea.ikvm/.idea/misc.xml
 /.idea/.idea.ikvm/.idea/riderModule.iml
 /.idea/.idea.ikvm/.idea/vcs.xml
+/ikvm.sln.DotSettings.user

@@ -28,7 +28,7 @@ using System.Text;
 namespace IKVM.Reflection.Metadata
 {
 	// base class for MetadataReader and MetadataWriter
-	abstract class MetadataRW
+	public abstract class MetadataRW
 	{
 		internal readonly bool bigStrings;
 		internal readonly bool bigGuids;

@@ -7,13 +7,13 @@
 
     <ItemGroup>
       <PackageReference Include="ICSharpCode.SharpZipLib.dll" Version="0.85.4.369" />
+      <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />
+      <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Include="..\runtime\IKVM.Runtime\AssemblyClassLoader.cs">
-        <LinkBase>runtime</LinkBase>
-        <Link>AssemblyClassLoader.cs</Link>
-      </Compile>
+      <Compile Remove="ClassLoaderWrapper.cs" />
+      <Compile Remove="CompilerClassLoader.cs" />
     </ItemGroup>
 
 </Project>

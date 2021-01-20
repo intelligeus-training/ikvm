@@ -29,7 +29,7 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class MetadataReader : MetadataRW
+	public sealed class MetadataReader : MetadataRW
 	{
 		private readonly Stream stream;
 		private const int bufferLength = 2048;

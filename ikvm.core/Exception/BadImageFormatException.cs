@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009-2011 Jeroen Frijters
+  Copyright (C) 2009 Jeroen Frijters
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -21,43 +21,34 @@
   jeroen@frijters.net
   
 */
+using System;
 
 namespace IKVM.Reflection
 {
-	public class LocalVariableInfo
+#if !NETSTANDARD
+	[Serializable]
+#endif
+	public sealed class BadImageFormatException : Exception
 	{
-		private readonly int index;
-		private readonly Type type;
-		private readonly bool pinned;
-		private readonly CustomModifiers customModifiers;
-
-		internal LocalVariableInfo(int index, Type type, bool pinned)
+		public BadImageFormatException()
 		{
-			this.index = index;
-			this.type = type;
-			this.pinned = pinned;
 		}
 
-		internal LocalVariableInfo(int index, Type type, bool pinned, CustomModifiers customModifiers)
-			: this(index, type, pinned)
+		public BadImageFormatException(string message)
+			: base(message)
 		{
-			this.customModifiers = customModifiers;
 		}
 
-		public bool IsPinned => pinned;
-
-		public int LocalIndex => index;
-
-		public Type LocalType => type;
-
-		public CustomModifiers __GetCustomModifiers()
+		public BadImageFormatException(string message, Exception inner)
+			: base(message, inner)
 		{
-			return customModifiers;
 		}
 
-		public override string ToString()
+#if !NETSTANDARD
+		private BadImageFormatException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+			: base(info, context)
 		{
-			return string.Format(pinned ? "{0} ({1}) (pinned)" : "{0} ({1})", type, index);
 		}
+#endif
 	}
 }

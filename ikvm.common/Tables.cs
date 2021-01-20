@@ -23,6 +23,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Text;
 using IKVM.Reflection.Emit;
 using IKVM.Reflection.Writer;
 using IKVM.Reflection.Reader;
@@ -33,7 +34,10 @@ namespace IKVM.Reflection.Metadata
 	{
 		internal bool Sorted;
 
-		internal bool IsBig => RowCount > 65535;
+		internal bool IsBig
+		{
+			get { return RowCount > 65535; }
+		}
 
 		internal abstract int RowCount { get; set; }
 

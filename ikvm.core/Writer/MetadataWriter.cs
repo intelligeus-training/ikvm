@@ -23,14 +23,12 @@
 */
 using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
 using IKVM.Reflection.Emit;
 using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Writer
 {
-	sealed class MetadataWriter : MetadataRW
+	public sealed class MetadataWriter : MetadataRW
 	{
 		private readonly ModuleBuilder moduleBuilder;
 		private readonly Stream stream;

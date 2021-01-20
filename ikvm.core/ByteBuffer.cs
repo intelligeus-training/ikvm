@@ -23,6 +23,7 @@
 */
 using System;
 using System.Text;
+using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Writer
 {
