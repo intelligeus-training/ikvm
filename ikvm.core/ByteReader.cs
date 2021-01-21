@@ -27,20 +27,20 @@ using System.Text;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class ByteReader
+	public sealed class ByteReader
 	{
 		private byte[] buffer;
 		private int pos;
 		private int end;
 
-		internal ByteReader(byte[] buffer, int offset, int length)
+		public ByteReader(byte[] buffer, int offset, int length)
 		{
 			this.buffer = buffer;
 			this.pos = offset;
 			this.end = pos + length;
 		}
 
-		internal static ByteReader FromBlob(byte[] blobHeap, int blob)
+		public static ByteReader FromBlob(byte[] blobHeap, int blob)
 		{
 			ByteReader br = new ByteReader(blobHeap, blob, 4);
 			int length = br.ReadCompressedUInt();
@@ -48,26 +48,26 @@ namespace IKVM.Reflection.Reader
 			return br;
 		}
 
-		internal int Length
+		public int Length
 		{
 			get { return end - pos; }
 		}
 
-		internal byte PeekByte()
+		public byte PeekByte()
 		{
 			if (pos == end)
 				throw new BadImageFormatException();
 			return buffer[pos];
 		}
 
-		internal byte ReadByte()
+		public byte ReadByte()
 		{
 			if (pos == end)
 				throw new BadImageFormatException();
 			return buffer[pos++];
 		}
 
-		internal byte[] ReadBytes(int count)
+		public byte[] ReadBytes(int count)
 		{
 			if (count < 0)
 				throw new BadImageFormatException();
@@ -79,7 +79,7 @@ namespace IKVM.Reflection.Reader
 			return buf;
 		}
 
-		internal int ReadCompressedUInt()
+		public int ReadCompressedUInt()
 		{
 			byte b1 = ReadByte();
 			if (b1 <= 0x7F)
@@ -100,7 +100,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal int ReadCompressedInt()
+		public int ReadCompressedInt()
 		{
 			byte b1 = PeekByte();
 			int value = ReadCompressedUInt();
@@ -108,22 +108,21 @@ namespace IKVM.Reflection.Reader
 			{
 				return value >> 1;
 			}
-			else
+		
+			switch (b1 & 0xC0)
 			{
-				switch (b1 & 0xC0)
-				{
-					case 0:
-					case 0x40:
-						return (value >> 1) - 0x40;
-					case 0x80:
-						return (value >> 1) - 0x2000;
-					default:
-						return (value >> 1) - 0x10000000;
-				}
+				case 0:
+				case 0x40:
+					return (value >> 1) - 0x40;
+				case 0x80:
+					return (value >> 1) - 0x2000;
+				default:
+					return (value >> 1) - 0x10000000;
 			}
+			
 		}
 
-		internal string ReadString()
+		public string ReadString()
 		{
 			if (PeekByte() == 0xFF)
 			{
@@ -136,17 +135,17 @@ namespace IKVM.Reflection.Reader
 			return str;
 		}
 
-		internal char ReadChar()
+		public char ReadChar()
 		{
 			return (char)ReadInt16();
 		}
 
-		internal sbyte ReadSByte()
+		public sbyte ReadSByte()
 		{
 			return (sbyte)ReadByte();
 		}
 
-		internal short ReadInt16()
+		public short ReadInt16()
 		{
 			if (end - pos < 2)
 				throw new BadImageFormatException();
@@ -155,12 +154,12 @@ namespace IKVM.Reflection.Reader
 			return (short)(b1 | (b2 << 8));
 		}
 
-		internal ushort ReadUInt16()
+		public ushort ReadUInt16()
 		{
 			return (ushort)ReadInt16();
 		}
 
-		internal int ReadInt32()
+		public int ReadInt32()
 		{
 			if (end - pos < 4)
 				throw new BadImageFormatException();
@@ -171,34 +170,34 @@ namespace IKVM.Reflection.Reader
 			return (int)(b1 | (b2 << 8) | (b3 << 16) | (b4 << 24));
 		}
 
-		internal uint ReadUInt32()
+		public uint ReadUInt32()
 		{
 			return (uint)ReadInt32();
 		}
 
-		internal long ReadInt64()
+		public long ReadInt64()
 		{
 			ulong lo = ReadUInt32();
 			ulong hi = ReadUInt32();
 			return (long)(lo | (hi << 32));
 		}
 
-		internal ulong ReadUInt64()
+		public ulong ReadUInt64()
 		{
 			return (ulong)ReadInt64();
 		}
 
-		internal float ReadSingle()
+		public float ReadSingle()
 		{
 			return SingleConverter.Int32BitsToSingle(ReadInt32());
 		}
 
-		internal double ReadDouble()
+		public double ReadDouble()
 		{
 			return BitConverter.Int64BitsToDouble(ReadInt64());
 		}
 
-		internal ByteReader Slice(int length)
+		public ByteReader Slice(int length)
 		{
 			if (end - pos < length)
 				throw new BadImageFormatException();
@@ -208,7 +207,7 @@ namespace IKVM.Reflection.Reader
 		}
 
 		// NOTE this method only works if the original offset was aligned and for alignments that are a power of 2
-		internal void Align(int alignment)
+		public void Align(int alignment)
 		{
 			alignment--;
 			pos = (pos + alignment) & ~alignment;

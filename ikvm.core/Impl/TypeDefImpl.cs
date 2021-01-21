@@ -29,7 +29,7 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class TypeDefImpl : TypeInfo
+	public sealed class TypeDefImpl : TypeInfo
 	{
 		private readonly ModuleReader module;
 		private readonly int index;
@@ -37,7 +37,7 @@ namespace IKVM.Reflection.Reader
 		private readonly string typeNamespace;
 		private Type[] typeArgs;
 
-		internal TypeDefImpl(ModuleReader module, int index)
+		public TypeDefImpl(ModuleReader module, int index)
 		{
 			this.module = module;
 			this.index = index;
@@ -59,10 +59,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		public override TypeAttributes Attributes
-		{
-			get { return (TypeAttributes)module.TypeDef.records[index].Flags; }
-		}
+		public override TypeAttributes Attributes => (TypeAttributes)module.TypeDef.records[index].Flags;
 
 		public override EventInfo[] __GetDeclaredEvents()
 		{
@@ -218,10 +215,7 @@ namespace IKVM.Reflection.Reader
 			return Empty<PropertyInfo>.Array;
 		}
 
-		internal override TypeName TypeName
-		{
-			get { return new TypeName(typeNamespace, typeName); }
-		}
+		public override TypeName TypeName => new TypeName(typeNamespace, typeName);
 
 		public override string Name
 		{
@@ -267,7 +261,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override Type GetGenericTypeArgument(int index)
+		public override Type GetGenericTypeArgument(int index)
 		{
 			PopulateGenericArguments();
 			return typeArgs[index];
@@ -324,7 +318,7 @@ namespace IKVM.Reflection.Reader
 			return sb.ToString();
 		}
 
-		internal bool IsNestedByFlags
+		public bool IsNestedByFlags
 		{
 			get { return (this.Attributes & TypeAttributes.VisibilityMask & ~TypeAttributes.Public) != 0; }
 		}
@@ -364,12 +358,12 @@ namespace IKVM.Reflection.Reader
 			get { return module; }
 		}
 
-		internal override bool IsModulePseudoType
+		public override bool IsModulePseudoType
 		{
 			get { return index == 0; }
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { return true; }
 		}

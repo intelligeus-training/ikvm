@@ -43,11 +43,11 @@ namespace IKVM.Reflection.Emit
 
 		private struct Accessor
 		{
-			internal short Semantics;
-			internal MethodBuilder Method;
+			public short Semantics;
+			public MethodBuilder Method;
 		}
 
-		internal EventBuilder(TypeBuilder typeBuilder, string name, EventAttributes attributes, Type eventtype)
+		public EventBuilder(TypeBuilder typeBuilder, string name, EventAttributes attributes, Type eventtype)
 		{
 			this.typeBuilder = typeBuilder;
 			this.name = name;
@@ -183,7 +183,7 @@ namespace IKVM.Reflection.Emit
 			get { return typeBuilder.ModuleBuilder.ResolveType(eventtype); }
 		}
 
-		internal void Bake()
+		public void Bake()
 		{
 			EventTable.Record rec = new EventTable.Record();
 			rec.EventFlags = (short)attributes;
@@ -215,7 +215,7 @@ namespace IKVM.Reflection.Emit
 			typeBuilder.ModuleBuilder.MethodSemantics.AddRecord(rec);
 		}
 
-		internal override bool IsPublic
+		public override bool IsPublic
 		{
 			get
 			{
@@ -230,7 +230,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsNonPrivate
+		public override bool IsNonPrivate
 		{
 			get
 			{
@@ -245,7 +245,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsStatic
+		public override bool IsStatic
 		{
 			get
 			{
@@ -260,12 +260,12 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { return typeBuilder.IsBaked; }
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			if (typeBuilder.ModuleBuilder.IsSaved && ModuleBuilder.IsPseudoToken(lazyPseudoToken))
 			{

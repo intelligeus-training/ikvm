@@ -30,21 +30,18 @@ using IKVM.Reflection.Reader;
 
 namespace IKVM.Reflection.Metadata
 {
-	internal abstract class Table
+	public abstract class Table
 	{
-		internal bool Sorted;
+		public bool Sorted;
 
-		internal bool IsBig
-		{
-			get { return RowCount > 65535; }
-		}
+		public bool IsBig => RowCount > 65535;
 
-		internal abstract int RowCount { get; set; }
+		public abstract int RowCount { get; set; }
 
-		internal abstract void Write(MetadataWriter mw);
-		internal abstract void Read(MetadataReader mr);
+		public abstract void Write(MetadataWriter mw);
+		public abstract void Read(MetadataReader mr);
 
-		internal int GetLength(MetadataWriter md)
+		public int GetLength(MetadataWriter md)
 		{
 			return RowCount * GetRowSize(new RowSizeCalc(md));
 		}
@@ -56,18 +53,18 @@ namespace IKVM.Reflection.Metadata
 			private readonly MetadataWriter mw;
 			private int size;
 
-			internal RowSizeCalc(MetadataWriter mw)
+			public RowSizeCalc(MetadataWriter mw)
 			{
 				this.mw = mw;
 			}
 
-			internal RowSizeCalc AddFixed(int size)
+			public RowSizeCalc AddFixed(int size)
 			{
 				this.size += size;
 				return this;
 			}
 
-			internal RowSizeCalc WriteStringIndex()
+			public RowSizeCalc WriteStringIndex()
 			{
 				if (mw.bigStrings)
 				{
@@ -80,7 +77,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteGuidIndex()
+			public RowSizeCalc WriteGuidIndex()
 			{
 				if (mw.bigGuids)
 				{
@@ -93,7 +90,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteBlobIndex()
+			public RowSizeCalc WriteBlobIndex()
 			{
 				if (mw.bigBlobs)
 				{
@@ -106,7 +103,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteTypeDefOrRef()
+			public RowSizeCalc WriteTypeDefOrRef()
 			{
 				if (mw.bigTypeDefOrRef)
 				{
@@ -119,7 +116,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteField()
+			public RowSizeCalc WriteField()
 			{
 				if (mw.bigField)
 				{
@@ -132,7 +129,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteMethodDef()
+			public RowSizeCalc WriteMethodDef()
 			{
 				if (mw.bigMethodDef)
 				{
@@ -145,7 +142,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteParam()
+			public RowSizeCalc WriteParam()
 			{
 				if (mw.bigParam)
 				{
@@ -158,7 +155,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteResolutionScope()
+			public RowSizeCalc WriteResolutionScope()
 			{
 				if (mw.bigResolutionScope)
 				{
@@ -171,7 +168,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteMemberRefParent()
+			public RowSizeCalc WriteMemberRefParent()
 			{
 				if (mw.bigMemberRefParent)
 				{
@@ -184,7 +181,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteHasCustomAttribute()
+			public RowSizeCalc WriteHasCustomAttribute()
 			{
 				if (mw.bigHasCustomAttribute)
 				{
@@ -197,7 +194,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteCustomAttributeType()
+			public RowSizeCalc WriteCustomAttributeType()
 			{
 				if (mw.bigCustomAttributeType)
 				{
@@ -210,7 +207,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteHasConstant()
+			public RowSizeCalc WriteHasConstant()
 			{
 				if (mw.bigHasConstant)
 				{
@@ -223,7 +220,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteTypeDef()
+			public RowSizeCalc WriteTypeDef()
 			{
 				if (mw.bigTypeDef)
 				{
@@ -236,7 +233,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteMethodDefOrRef()
+			public RowSizeCalc WriteMethodDefOrRef()
 			{
 				if (mw.bigMethodDefOrRef)
 				{
@@ -249,7 +246,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteEvent()
+			public RowSizeCalc WriteEvent()
 			{
 				if (mw.bigEvent)
 				{
@@ -262,7 +259,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteProperty()
+			public RowSizeCalc WriteProperty()
 			{
 				if (mw.bigProperty)
 				{
@@ -275,7 +272,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteHasSemantics()
+			public RowSizeCalc WriteHasSemantics()
 			{
 				if (mw.bigHasSemantics)
 				{
@@ -288,7 +285,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteImplementation()
+			public RowSizeCalc WriteImplementation()
 			{
 				if (mw.bigImplementation)
 				{
@@ -301,7 +298,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteTypeOrMethodDef()
+			public RowSizeCalc WriteTypeOrMethodDef()
 			{
 				if (mw.bigTypeOrMethodDef)
 				{
@@ -314,7 +311,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteGenericParam()
+			public RowSizeCalc WriteGenericParam()
 			{
 				if (mw.bigGenericParam)
 				{
@@ -327,7 +324,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteHasDeclSecurity()
+			public RowSizeCalc WriteHasDeclSecurity()
 			{
 				if (mw.bigHasDeclSecurity)
 				{
@@ -340,7 +337,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteMemberForwarded()
+			public RowSizeCalc WriteMemberForwarded()
 			{
 				if (mw.bigMemberForwarded)
 				{
@@ -353,7 +350,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteModuleRef()
+			public RowSizeCalc WriteModuleRef()
 			{
 				if (mw.bigModuleRef)
 				{
@@ -366,7 +363,7 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal RowSizeCalc WriteHasFieldMarshal()
+			public RowSizeCalc WriteHasFieldMarshal()
 			{
 				if (mw.bigHasFieldMarshal)
 				{
@@ -379,19 +376,19 @@ namespace IKVM.Reflection.Metadata
 				return this;
 			}
 
-			internal int Value
+			public int Value
 			{
 				get { return size; }
 			}
 		}
 	}
 
-	abstract class Table<T> : Table
+	public abstract class Table<T> : Table
 	{
-		internal T[] records = Empty<T>.Array;
+		public T[] records = Empty<T>.Array;
 		protected int rowCount;
 
-		internal sealed override int RowCount
+		public sealed override int RowCount
 		{
 			get { return rowCount; }
 			set { rowCount = value; records = new T[value]; }
@@ -402,7 +399,7 @@ namespace IKVM.Reflection.Metadata
 			throw new InvalidOperationException();
 		}
 
-		internal int AddRecord(T newRecord)
+		public int AddRecord(T newRecord)
 		{
 			if (rowCount == records.Length)
 			{
@@ -412,32 +409,32 @@ namespace IKVM.Reflection.Metadata
 			return rowCount;
 		}
 
-		internal int AddVirtualRecord()
+		public int AddVirtualRecord()
 		{
 			return ++rowCount;
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			throw new InvalidOperationException();
 		}
 	}
 
-	abstract class SortedTable<T> : Table<T>
+	public abstract class SortedTable<T> : Table<T>
 		where T : SortedTable<T>.IRecord
 	{
-		internal interface IRecord
+		public interface IRecord
 		{
 			int SortKey { get; }
 			int FilterKey { get; }
 		}
 
-		internal struct Enumerable
+		public struct Enumerable
 		{
 			private readonly SortedTable<T> table;
 			private readonly int token;
 
-			internal Enumerable(SortedTable<T> table, int token)
+			public Enumerable(SortedTable<T> table, int token)
 			{
 				this.table = table;
 				this.token = token;
@@ -494,14 +491,14 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal struct Enumerator
+		public struct Enumerator
 		{
 			private readonly T[] records;
 			private readonly int token;
 			private readonly int max;
 			private int index;
 
-			internal Enumerator(T[] records, int max, int index, int token)
+			public Enumerator(T[] records, int max, int index, int token)
 			{
 				this.records = records;
 				this.token = token;
@@ -528,7 +525,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal Enumerable Filter(int token)
+		public Enumerable Filter(int token)
 		{
 			return new Enumerable(this, token);
 		}
@@ -550,7 +547,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ModuleTable : Table<ModuleTable.Record>
+	public sealed class ModuleTable : Table<ModuleTable.Record>
 	{
 		internal const int Index = 0x00;
 
@@ -563,7 +560,7 @@ namespace IKVM.Reflection.Metadata
 			internal int EncBaseId; // -> GuidHeap
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -575,7 +572,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -610,7 +607,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class TypeRefTable : Table<TypeRefTable.Record>
+	public sealed class TypeRefTable : Table<TypeRefTable.Record>
 	{
 		internal const int Index = 0x01;
 
@@ -621,7 +618,7 @@ namespace IKVM.Reflection.Metadata
 			internal int TypeNamespace;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -631,7 +628,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -650,7 +647,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -659,7 +656,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class TypeDefTable : Table<TypeDefTable.Record>
+	public sealed class TypeDefTable : Table<TypeDefTable.Record>
 	{
 		internal const int Index = 0x02;
 
@@ -673,7 +670,7 @@ namespace IKVM.Reflection.Metadata
 			internal int MethodList;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -686,12 +683,12 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			mw.ModuleBuilder.WriteTypeDefTable(mw);
 		}
 
-		internal int AllocToken()
+		public int AllocToken()
 		{
 			return 0x02000000 + AddVirtualRecord();
 		}
@@ -709,11 +706,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldPtrTable : Table<int>
+	public sealed class FieldPtrTable : Table<int>
 	{
 		internal const int Index = 0x03;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -722,7 +719,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldTable : Table<FieldTable.Record>
+	public sealed class FieldTable : Table<FieldTable.Record>
 	{
 		internal const int Index = 0x04;
 
@@ -733,7 +730,7 @@ namespace IKVM.Reflection.Metadata
 			internal int Signature;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -743,7 +740,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			mw.ModuleBuilder.WriteFieldTable(mw);
 		}
@@ -758,11 +755,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodPtrTable : Table<int>
+	public sealed class MethodPtrTable : Table<int>
 	{
 		internal const int Index = 0x05;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -771,7 +768,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodDefTable : Table<MethodDefTable.Record>
+	public sealed class MethodDefTable : Table<MethodDefTable.Record>
 	{
 		internal const int Index = 0x06;
 		private int baseRVA;
@@ -786,7 +783,7 @@ namespace IKVM.Reflection.Metadata
 			internal int ParamList;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -799,7 +796,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			mw.ModuleBuilder.WriteMethodDefTable(baseRVA, mw);
 		}
@@ -814,17 +811,17 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(TextSection code)
+		public void Fixup(TextSection code)
 		{
 			baseRVA = (int)code.MethodBodiesRVA;
 		}
 	}
 
-	sealed class ParamPtrTable : Table<int>
+	public sealed class ParamPtrTable : Table<int>
 	{
 		internal const int Index = 0x07;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -833,18 +830,18 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ParamTable : Table<ParamTable.Record>
+	public sealed class ParamTable : Table<ParamTable.Record>
 	{
 		internal const int Index = 0x08;
 
-		internal struct Record
+		public struct Record
 		{
 			internal short Flags;
 			internal short Sequence;
 			internal int Name;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -854,7 +851,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			mw.ModuleBuilder.WriteParamTable(mw);
 		}
@@ -868,11 +865,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class InterfaceImplTable : SortedTable<InterfaceImplTable.Record>
+	public sealed class InterfaceImplTable : SortedTable<InterfaceImplTable.Record>
 	{
-		internal const int Index = 0x09;
+		public const int Index = 0x09;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
 			internal int Class;
 			internal int Interface;
@@ -888,7 +885,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -897,7 +894,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -914,7 +911,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup()
+		public void Fixup()
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -944,9 +941,9 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MemberRefTable : Table<MemberRefTable.Record>
+	public sealed class MemberRefTable : Table<MemberRefTable.Record>
 	{
-		internal const int Index = 0x0A;
+		public const int Index = 0x0A;
 
 		internal struct Record
 		{
@@ -955,7 +952,7 @@ namespace IKVM.Reflection.Metadata
 			internal int Signature;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -965,7 +962,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -984,7 +981,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal int FindOrAddRecord(Record record)
+		public int FindOrAddRecord(Record record)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -998,7 +995,7 @@ namespace IKVM.Reflection.Metadata
 			return AddRecord(record);
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1007,15 +1004,15 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ConstantTable : SortedTable<ConstantTable.Record>
+	public sealed class ConstantTable : SortedTable<ConstantTable.Record>
 	{
-		internal const int Index = 0x0B;
+		public const int Index = 0x0B;
 
 		internal struct Record : IRecord
 		{
-			internal short Type;
-			internal int Parent;
-			internal int Value;
+			public short Type;
+			public int Parent;
+			public int Value;
 
 			int IRecord.SortKey
 			{
@@ -1028,7 +1025,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1038,7 +1035,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1057,7 +1054,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1066,7 +1063,7 @@ namespace IKVM.Reflection.Metadata
 			Sort();
 		}
 
-		internal static int EncodeHasConstant(int token)
+		public static int EncodeHasConstant(int token)
 		{
 			switch (token >> 24)
 			{
@@ -1081,7 +1078,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal object GetRawConstantValue(Module module, int parent)
+		public object GetRawConstantValue(Module module, int parent)
 		{
 			foreach (int i in Filter(parent))
 			{
@@ -1136,15 +1133,15 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class CustomAttributeTable : SortedTable<CustomAttributeTable.Record>
+	public sealed class CustomAttributeTable : SortedTable<CustomAttributeTable.Record>
 	{
-		internal const int Index = 0x0C;
+		public const int Index = 0x0C;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int Parent;
-			internal int Type;
-			internal int Value;
+			public int Parent;
+			public int Type;
+			public int Value;
 
 			int IRecord.SortKey
 			{
@@ -1157,7 +1154,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1167,7 +1164,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1186,7 +1183,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			int[] genericParamFixup = moduleBuilder.GenericParam.GetIndexFixup();
 			for (int i = 0; i < rowCount; i++)
@@ -1203,7 +1200,7 @@ namespace IKVM.Reflection.Metadata
 			Sort();
 		}
 
-		internal static int EncodeHasCustomAttribute(int token)
+		public static int EncodeHasCustomAttribute(int token)
 		{
 			switch (token >> 24)
 			{
@@ -1260,11 +1257,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldMarshalTable : SortedTable<FieldMarshalTable.Record>
+	public sealed class FieldMarshalTable : SortedTable<FieldMarshalTable.Record>
 	{
-		internal const int Index = 0x0D;
+		public const int Index = 0x0D;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
 			internal int Parent;
 			internal int NativeType;
@@ -1280,7 +1277,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1289,7 +1286,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1306,7 +1303,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1315,7 +1312,7 @@ namespace IKVM.Reflection.Metadata
 			Sort();
 		}
 
-		internal static int EncodeHasFieldMarshal(int token)
+		public static int EncodeHasFieldMarshal(int token)
 		{
 			switch (token >> 24)
 			{
@@ -1329,15 +1326,15 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class DeclSecurityTable : SortedTable<DeclSecurityTable.Record>
+	public sealed class DeclSecurityTable : SortedTable<DeclSecurityTable.Record>
 	{
-		internal const int Index = 0x0E;
+		public const int Index = 0x0E;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal short Action;
-			internal int Parent;
-			internal int PermissionSet;
+			public short Action;
+			public int Parent;
+			public int PermissionSet;
 
 			int IRecord.SortKey
 			{
@@ -1350,7 +1347,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1360,7 +1357,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1379,7 +1376,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1406,15 +1403,15 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ClassLayoutTable : SortedTable<ClassLayoutTable.Record>
+	public sealed class ClassLayoutTable : SortedTable<ClassLayoutTable.Record>
 	{
-		internal const int Index = 0x0f;
+		public const int Index = 0x0f;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal short PackingSize;
-			internal int ClassSize;
-			internal int Parent;
+			public short PackingSize;
+			public int ClassSize;
+			public int Parent;
 
 			int IRecord.SortKey
 			{
@@ -1427,7 +1424,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1437,7 +1434,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			Sort();
 			for (int i = 0; i < rowCount; i++)
@@ -1457,14 +1454,14 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldLayoutTable : SortedTable<FieldLayoutTable.Record>
+	public sealed class FieldLayoutTable : SortedTable<FieldLayoutTable.Record>
 	{
-		internal const int Index = 0x10;
+		public const int Index = 0x10;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int Offset;
-			internal int Field;
+			public int Offset;
+			public int Field;
 
 			int IRecord.SortKey
 			{
@@ -1477,7 +1474,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1486,7 +1483,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1503,7 +1500,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1513,11 +1510,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class StandAloneSigTable : Table<int>
+	public sealed class StandAloneSigTable : Table<int>
 	{
 		internal const int Index = 0x11;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1525,7 +1522,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1538,7 +1535,7 @@ namespace IKVM.Reflection.Metadata
 			return rsc.WriteBlobIndex().Value;
 		}
 
-		internal int FindOrAddRecord(int blob)
+		public int FindOrAddRecord(int blob)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1551,27 +1548,21 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventMapTable : SortedTable<EventMapTable.Record>
+	public sealed class EventMapTable : SortedTable<EventMapTable.Record>
 	{
-		internal const int Index = 0x12;
+		public const int Index = 0x12;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int Parent;
-			internal int EventList;
+			public int Parent;
+			public int EventList;
 
-			int IRecord.SortKey
-			{
-				get { return Parent; }
-			}
+			int IRecord.SortKey => Parent;
 
-			int IRecord.FilterKey
-			{
-				get { return Parent; }
-			}
+			int IRecord.FilterKey => Parent;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1580,7 +1571,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1598,11 +1589,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventPtrTable : Table<int>
+	public sealed class EventPtrTable : Table<int>
 	{
-		internal const int Index = 0x13;
+		public const int Index = 0x13;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1611,18 +1602,18 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventTable : Table<EventTable.Record>
+	public sealed class EventTable : Table<EventTable.Record>
 	{
-		internal const int Index = 0x14;
+		public const int Index = 0x14;
 
-		internal struct Record
+		public struct Record
 		{
-			internal short EventFlags;
-			internal int Name;
-			internal int EventType;
+			public short EventFlags;
+			public int Name;
+			public int EventType;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1632,7 +1623,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1652,14 +1643,14 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyMapTable : SortedTable<PropertyMapTable.Record>
+	public sealed class PropertyMapTable : SortedTable<PropertyMapTable.Record>
 	{
-		internal const int Index = 0x15;
+		public const int Index = 0x15;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int Parent;
-			internal int PropertyList;
+			public int Parent;
+			public int PropertyList;
 
 			int IRecord.SortKey
 			{
@@ -1672,7 +1663,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1681,7 +1672,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1699,11 +1690,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyPtrTable : Table<int>
+	public sealed class PropertyPtrTable : Table<int>
 	{
-		internal const int Index = 0x16;
+		public const int Index = 0x16;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1712,18 +1703,18 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyTable : Table<PropertyTable.Record>
+	public sealed class PropertyTable : Table<PropertyTable.Record>
 	{
-		internal const int Index = 0x17;
+		public const int Index = 0x17;
 
-		internal struct Record
+		public struct Record
 		{
-			internal short Flags;
-			internal int Name;
-			internal int Type;
+			public short Flags;
+			public int Name;
+			public int Type;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1733,7 +1724,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1753,23 +1744,23 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodSemanticsTable : SortedTable<MethodSemanticsTable.Record>
+	public sealed class MethodSemanticsTable : SortedTable<MethodSemanticsTable.Record>
 	{
-		internal const int Index = 0x18;
+		public const int Index = 0x18;
 
 		// semantics
-		internal const short Setter = 0x0001;
-		internal const short Getter = 0x0002;
-		internal const short Other = 0x0004;
-		internal const short AddOn = 0x0008;
-		internal const short RemoveOn = 0x0010;
-		internal const short Fire = 0x0020;
+		public const short Setter = 0x0001;
+		public const short Getter = 0x0002;
+		public const short Other = 0x0004;
+		public const short AddOn = 0x0008;
+		public const short RemoveOn = 0x0010;
+		public const short Fire = 0x0020;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal short Semantics;
-			internal int Method;
-			internal int Association;
+			public short Semantics;
+			public int Method;
+			public int Association;
 
 			int IRecord.SortKey
 			{
@@ -1782,7 +1773,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1792,7 +1783,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1811,7 +1802,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1834,7 +1825,7 @@ namespace IKVM.Reflection.Metadata
 			Sort();
 		}
 
-		internal MethodInfo GetMethod(Module module, int token, bool nonPublic, short semantics)
+		public MethodInfo GetMethod(Module module, int token, bool nonPublic, short semantics)
 		{
 			foreach (int i in Filter(token))
 			{
@@ -1850,7 +1841,7 @@ namespace IKVM.Reflection.Metadata
 			return null;
 		}
 
-		internal MethodInfo[] GetMethods(Module module, int token, bool nonPublic, short semantics)
+		public MethodInfo[] GetMethods(Module module, int token, bool nonPublic, short semantics)
 		{
 			List<MethodInfo> methods = new List<MethodInfo>();
 			foreach (int i in Filter(token))
@@ -1867,7 +1858,7 @@ namespace IKVM.Reflection.Metadata
 			return methods.ToArray();
 		}
 
-		internal void ComputeFlags(Module module, int token, out bool isPublic, out bool isNonPrivate, out bool isStatic)
+		public void ComputeFlags(Module module, int token, out bool isPublic, out bool isNonPrivate, out bool isStatic)
 		{
 			isPublic = false;
 			isNonPrivate = false;
@@ -1882,28 +1873,22 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodImplTable : SortedTable<MethodImplTable.Record>
+	public sealed class MethodImplTable : SortedTable<MethodImplTable.Record>
 	{
-		internal const int Index = 0x19;
+		public const int Index = 0x19;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
 			internal int Class;
 			internal int MethodBody;
 			internal int MethodDeclaration;
 
-			int IRecord.SortKey
-			{
-				get { return Class; }
-			}
+			int IRecord.SortKey => Class;
 
-			int IRecord.FilterKey
-			{
-				get { return Class; }
-			}
+			int IRecord.FilterKey => Class;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1913,7 +1898,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1932,7 +1917,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1943,11 +1928,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ModuleRefTable : Table<int>
+	public sealed class ModuleRefTable : Table<int>
 	{
-		internal const int Index = 0x1A;
+		public const int Index = 0x1A;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1955,7 +1940,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1970,7 +1955,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal int FindOrAddRecord(int str)
+		public int FindOrAddRecord(int str)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -1983,11 +1968,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class TypeSpecTable : Table<int>
+	public sealed class TypeSpecTable : Table<int>
 	{
-		internal const int Index = 0x1B;
+		public const int Index = 0x1B;
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -1995,7 +1980,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2031,7 +2016,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2042,7 +2027,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2063,7 +2048,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2073,27 +2058,21 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldRVATable : SortedTable<FieldRVATable.Record>
+	public sealed class FieldRVATable : SortedTable<FieldRVATable.Record>
 	{
-		internal const int Index = 0x1D;
+		public const int Index = 0x1D;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int RVA;		// we set the high bit to signify that the RVA is in the CIL stream (instead of .sdata)
-			internal int Field;
+			public int RVA;		// we set the high bit to signify that the RVA is in the CIL stream (instead of .sdata)
+			public int Field;
 
-			int IRecord.SortKey
-			{
-				get { return Field; }
-			}
+			int IRecord.SortKey => Field;
 
-			int IRecord.FilterKey
-			{
-				get { return Field; }
-			}
+			int IRecord.FilterKey => Field;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2102,7 +2081,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2119,7 +2098,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder, int sdataRVA, int cilRVA)
+		public void Fixup(ModuleBuilder moduleBuilder, int sdataRVA, int cilRVA)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2137,24 +2116,24 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class AssemblyTable : Table<AssemblyTable.Record>
+	public sealed class AssemblyTable : Table<AssemblyTable.Record>
 	{
-		internal const int Index = 0x20;
+		public const int Index = 0x20;
 
-		internal struct Record
+		public struct Record
 		{
-			internal int HashAlgId;
-			internal ushort MajorVersion;
-			internal ushort MinorVersion;
-			internal ushort BuildNumber;
-			internal ushort RevisionNumber;
-			internal int Flags;
-			internal int PublicKey;
-			internal int Name;
-			internal int Culture;
+			public int HashAlgId;
+			public ushort MajorVersion;
+			public ushort MinorVersion;
+			public ushort BuildNumber;
+			public ushort RevisionNumber;
+			public int Flags;
+			public int PublicKey;
+			public int Name;
+			public int Culture;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2170,7 +2149,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2197,11 +2176,11 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class AssemblyRefTable : Table<AssemblyRefTable.Record>
+	public sealed class AssemblyRefTable : Table<AssemblyRefTable.Record>
 	{
-		internal const int Index = 0x23;
+		public const int Index = 0x23;
 
-		internal struct Record
+		public struct Record
 		{
 			internal ushort MajorVersion;
 			internal ushort MinorVersion;
@@ -2214,7 +2193,7 @@ namespace IKVM.Reflection.Metadata
 			internal int HashValue;
 		}
 
-		internal int FindOrAddRecord(Record rec)
+		public int FindOrAddRecord(Record rec)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2235,7 +2214,7 @@ namespace IKVM.Reflection.Metadata
 			return AddRecord(rec);
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2251,7 +2230,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2279,18 +2258,18 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FileTable : Table<FileTable.Record>
+	public sealed class FileTable : Table<FileTable.Record>
 	{
-		internal const int Index = 0x26;
+		public const int Index = 0x26;
 
-		internal struct Record
+		public struct Record
 		{
-			internal int Flags;
-			internal int Name;
-			internal int HashValue;
+			public int Flags;
+			public int Name;
+			public int HashValue;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2300,7 +2279,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2320,20 +2299,20 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ExportedTypeTable : Table<ExportedTypeTable.Record>
+	public sealed class ExportedTypeTable : Table<ExportedTypeTable.Record>
 	{
-		internal const int Index = 0x27;
+		public const int Index = 0x27;
 
-		internal struct Record
+		public struct Record
 		{
-			internal int Flags;
-			internal int TypeDefId;
-			internal int TypeName;
-			internal int TypeNamespace;
-			internal int Implementation;
+			public int Flags;
+			public int TypeDefId;
+			public int TypeName;
+			public int TypeNamespace;
+			public int Implementation;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2345,7 +2324,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2367,7 +2346,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal int FindOrAddRecord(Record rec)
+		public int FindOrAddRecord(Record rec)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2381,7 +2360,7 @@ namespace IKVM.Reflection.Metadata
 			return AddRecord(rec);
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2390,19 +2369,19 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ManifestResourceTable : Table<ManifestResourceTable.Record>
+	public sealed class ManifestResourceTable : Table<ManifestResourceTable.Record>
 	{
-		internal const int Index = 0x28;
+		public const int Index = 0x28;
 
-		internal struct Record
+		public struct Record
 		{
-			internal int Offset;
-			internal int Flags;
-			internal int Name;
-			internal int Implementation;
+			public int Offset;
+			public int Flags;
+			public int Name;
+			public int Implementation;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2413,7 +2392,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2433,7 +2412,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2442,14 +2421,14 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class NestedClassTable : SortedTable<NestedClassTable.Record>
+	public sealed class NestedClassTable : SortedTable<NestedClassTable.Record>
 	{
-		internal const int Index = 0x29;
+		public const int Index = 0x29;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int NestedClass;
-			internal int EnclosingClass;
+			public int NestedClass;
+			public int EnclosingClass;
 
 			int IRecord.SortKey
 			{
@@ -2462,7 +2441,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2471,7 +2450,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2488,7 +2467,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal List<int> GetNestedClasses(int enclosingClass)
+		public List<int> GetNestedClasses(int enclosingClass)
 		{
 			List<int> nestedClasses = new List<int>();
 			for (int i = 0; i < rowCount; i++)
@@ -2502,31 +2481,25 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class GenericParamTable : SortedTable<GenericParamTable.Record>, IComparer<GenericParamTable.Record>
+	public sealed class GenericParamTable : SortedTable<GenericParamTable.Record>, IComparer<GenericParamTable.Record>
 	{
-		internal const int Index = 0x2A;
+		public const int Index = 0x2A;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal short Number;
-			internal short Flags;
-			internal int Owner;
-			internal int Name;
+			public short Number;
+			public short Flags;
+			public int Owner;
+			public int Name;
 			// not part of the table, we use it to be able to fixup the GenericParamConstraint table
-			internal int unsortedIndex;
+			public int unsortedIndex;
 
-			int IRecord.SortKey
-			{
-				get { return Owner; }
-			}
+			int IRecord.SortKey => Owner;
 
-			int IRecord.FilterKey
-			{
-				get { return Owner; }
-			}
+			int IRecord.FilterKey => Owner;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2537,7 +2510,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2557,7 +2530,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2590,12 +2563,12 @@ namespace IKVM.Reflection.Metadata
 			return x.Owner > y.Owner ? 1 : -1;
 		}
 
-		internal void PatchAttribute(int token, GenericParameterAttributes genericParameterAttributes)
+		public void PatchAttribute(int token, GenericParameterAttributes genericParameterAttributes)
 		{
 			records[(token & 0xFFFFFF) - 1].Flags = (short)genericParameterAttributes;
 		}
 
-		internal int[] GetIndexFixup()
+		public int[] GetIndexFixup()
 		{
 			int[] array = new int[rowCount];
 			for (int i = 0; i < rowCount; i++)
@@ -2605,7 +2578,7 @@ namespace IKVM.Reflection.Metadata
 			return array;
 		}
 
-		internal int FindFirstByOwner(int token)
+		public int FindFirstByOwner(int token)
 		{
 			foreach (int i in Filter(token))
 			{
@@ -2615,17 +2588,17 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodSpecTable : Table<MethodSpecTable.Record>
+	public sealed class MethodSpecTable : Table<MethodSpecTable.Record>
 	{
-		internal const int Index = 0x2B;
+		public const int Index = 0x2B;
 
-		internal struct Record
+		public struct Record
 		{
-			internal int Method;
-			internal int Instantiation;
+			public int Method;
+			public int Instantiation;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2634,7 +2607,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2651,7 +2624,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal int FindOrAddRecord(Record record)
+		public int FindOrAddRecord(Record record)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2664,7 +2637,7 @@ namespace IKVM.Reflection.Metadata
 			return AddRecord(record);
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2673,27 +2646,21 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class GenericParamConstraintTable : SortedTable<GenericParamConstraintTable.Record>
+	public sealed class GenericParamConstraintTable : SortedTable<GenericParamConstraintTable.Record>
 	{
-		internal const int Index = 0x2C;
+		public const int Index = 0x2C;
 
-		internal struct Record : IRecord
+		public struct Record : IRecord
 		{
-			internal int Owner;
-			internal int Constraint;
+			public int Owner;
+			public int Constraint;
 
-			int IRecord.SortKey
-			{
-				get { return Owner; }
-			}
+			int IRecord.SortKey => Owner;
 
-			int IRecord.FilterKey
-			{
-				get { return Owner; }
-			}
+			int IRecord.FilterKey => Owner;
 		}
 
-		internal override void Read(MetadataReader mr)
+		public override void Read(MetadataReader mr)
 		{
 			for (int i = 0; i < records.Length; i++)
 			{
@@ -2702,7 +2669,7 @@ namespace IKVM.Reflection.Metadata
 			}
 		}
 
-		internal override void Write(MetadataWriter mw)
+		public override void Write(MetadataWriter mw)
 		{
 			for (int i = 0; i < rowCount; i++)
 			{
@@ -2719,7 +2686,7 @@ namespace IKVM.Reflection.Metadata
 				.Value;
 		}
 
-		internal void Fixup(ModuleBuilder moduleBuilder)
+		public void Fixup(ModuleBuilder moduleBuilder)
 		{
 			int[] fixups = moduleBuilder.GenericParam.GetIndexFixup();
 			for (int i = 0; i < rowCount; i++)

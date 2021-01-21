@@ -33,7 +33,7 @@ namespace IKVM.Reflection
 	public abstract class MemberInfo : ICustomAttributeProvider
 	{
 		// prevent external subclasses
-		internal MemberInfo()
+		public MemberInfo()
 		{
 		}
 
@@ -43,7 +43,7 @@ namespace IKVM.Reflection
 
 		public virtual Type ReflectedType => DeclaringType;
 
-		internal abstract MemberInfo SetReflectedType(Type type);
+		public abstract MemberInfo SetReflectedType(Type type);
 
 		public virtual int MetadataToken => throw new NotSupportedException();
 
@@ -81,18 +81,18 @@ namespace IKVM.Reflection
 			return !(m1 == m2);
 		}
 
-		internal abstract int GetCurrentToken();
+		public abstract int GetCurrentToken();
 
-		internal abstract List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType);
+		public abstract List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType);
 
-		internal abstract bool IsBaked { get; }
+		public abstract bool IsBaked { get; }
 
-		internal virtual bool BindingFlagsMatch(BindingFlags flags)
+		public virtual bool BindingFlagsMatch(BindingFlags flags)
 		{
 			throw new InvalidOperationException();
 		}
 
-		internal virtual bool BindingFlagsMatchInherited(BindingFlags flags)
+		public virtual bool BindingFlagsMatchInherited(BindingFlags flags)
 		{
 			throw new InvalidOperationException();
 		}

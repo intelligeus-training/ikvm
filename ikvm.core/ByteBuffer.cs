@@ -27,13 +27,13 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Writer
 {
-	sealed class ByteBuffer
+	public sealed class ByteBuffer
 	{
 		private byte[] buffer;
 		private int pos;
 		private int __length;	// __length is only valid if > pos, otherwise pos is the current length
 
-		internal ByteBuffer(int initialCapacity)
+		public ByteBuffer(int initialCapacity)
 		{
 			buffer = new byte[initialCapacity];
 		}
@@ -44,7 +44,7 @@ namespace IKVM.Reflection.Writer
 			this.pos = length;
 		}
 
-		internal int Position
+		public int Position
 		{
 			get { return pos; }
 			set
@@ -56,13 +56,13 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal int Length
+		public int Length
 		{
 			get { return Math.Max(pos, __length); }
 		}
 
 		// insert count bytes at the current position (without advancing the current position)
-		internal void Insert(int count)
+		public void Insert(int count)
 		{
 			if (count > 0)
 			{
@@ -89,7 +89,7 @@ namespace IKVM.Reflection.Writer
 		}
 
 		// NOTE this does not advance the position
-		internal int GetInt32AtCurrentPosition()
+		public int GetInt32AtCurrentPosition()
 		{
 			return buffer[pos]
 				+ (buffer[pos + 1] << 8)
@@ -98,13 +98,13 @@ namespace IKVM.Reflection.Writer
 		}
 
 		// NOTE this does not advance the position
-		internal byte GetByteAtCurrentPosition()
+		public byte GetByteAtCurrentPosition()
 		{
 			return buffer[pos];
 		}
 
 		// return the number of bytes that the compressed int at the current position takes
-		internal int GetCompressedUIntLength()
+		public int GetCompressedUIntLength()
 		{
 			switch (buffer[pos] & 0xC0)
 			{
@@ -117,7 +117,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void Write(byte[] value)
+		public void Write(byte[] value)
 		{
 			if (pos + value.Length > buffer.Length)
 				Grow(value.Length);
@@ -125,24 +125,24 @@ namespace IKVM.Reflection.Writer
 			pos += value.Length;
 		}
 
-		internal void Write(byte value)
+		public void Write(byte value)
 		{
 			if (pos == buffer.Length)
 				Grow(1);
 			buffer[pos++] = value;
 		}
 
-		internal void Write(sbyte value)
+		public void Write(sbyte value)
 		{
 			Write((byte)value);
 		}
 
-		internal void Write(ushort value)
+		public void Write(ushort value)
 		{
 			Write((short)value);
 		}
 
-		internal void Write(short value)
+		public void Write(short value)
 		{
 			if (pos + 2 > buffer.Length)
 				Grow(2);
@@ -150,12 +150,12 @@ namespace IKVM.Reflection.Writer
 			buffer[pos++] = (byte)(value >> 8);
 		}
 
-		internal void Write(uint value)
+		public void Write(uint value)
 		{
 			Write((int)value);
 		}
 	
-		internal void Write(int value)
+		public void Write(int value)
 		{
 			if (pos + 4 > buffer.Length)
 				Grow(4);
@@ -165,12 +165,12 @@ namespace IKVM.Reflection.Writer
 			buffer[pos++] = (byte)(value >> 24);
 		}
 
-		internal void Write(ulong value)
+		public void Write(ulong value)
 		{
 			Write((long)value);
 		}
 
-		internal void Write(long value)
+		public void Write(long value)
 		{
 			if (pos + 8 > buffer.Length)
 				Grow(8);
@@ -184,17 +184,17 @@ namespace IKVM.Reflection.Writer
 			buffer[pos++] = (byte)(value >> 56);
 		}
 
-		internal void Write(float value)
+		public void Write(float value)
 		{
 			Write(SingleConverter.SingleToInt32Bits(value));
 		}
 
-		internal void Write(double value)
+		public void Write(double value)
 		{
 			Write(BitConverter.DoubleToInt64Bits(value));
 		}
 
-		internal void Write(string str)
+		public void Write(string str)
 		{
 			if (str == null)
 			{
@@ -208,7 +208,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteCompressedUInt(int value)
+		public void WriteCompressedUInt(int value)
 		{
 			if (value <= 0x7F)
 			{
@@ -228,7 +228,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteCompressedInt(int value)
+		public void WriteCompressedInt(int value)
 		{
 			if (value >= 0)
 			{
@@ -255,7 +255,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void Write(ByteBuffer bb)
+		public void Write(ByteBuffer bb)
 		{
 			if (pos + bb.Length > buffer.Length)
 				Grow(bb.Length);
@@ -263,7 +263,7 @@ namespace IKVM.Reflection.Writer
 			pos += bb.Length;
 		}
 
-		internal void WriteTo(System.IO.Stream stream)
+		public void WriteTo(System.IO.Stream stream)
 		{
 			stream.Write(buffer, 0, this.Length);
 		}
@@ -274,7 +274,7 @@ namespace IKVM.Reflection.Writer
 			__length = 0;
 		}
 
-		internal void Align(int alignment)
+		public void Align(int alignment)
 		{
 			if (pos + alignment > buffer.Length)
 				Grow(alignment);
@@ -283,7 +283,7 @@ namespace IKVM.Reflection.Writer
 				buffer[pos++] = 0;
 		}
 
-		internal void WriteTypeDefOrRefEncoded(int token)
+		public void WriteTypeDefOrRefEncoded(int token)
 		{
 			switch (token >> 24)
 			{
@@ -301,7 +301,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal byte[] ToArray()
+		public byte[] ToArray()
 		{
 			int len = this.Length;
 			byte[] buf = new byte[len];
@@ -309,17 +309,17 @@ namespace IKVM.Reflection.Writer
 			return buf;
 		}
 
-		internal static ByteBuffer Wrap(byte[] buf)
+		public static ByteBuffer Wrap(byte[] buf)
 		{
 			return new ByteBuffer(buf, buf.Length);
 		}
 
-		internal static ByteBuffer Wrap(byte[] buf, int length)
+		public static ByteBuffer Wrap(byte[] buf, int length)
 		{
 			return new ByteBuffer(buf, length);
 		}
 
-		internal bool Match(int pos, ByteBuffer bb2, int pos2, int len)
+		public bool Match(int pos, ByteBuffer bb2, int pos2, int len)
 		{
 			for (int i = 0; i < len; i++)
 			{
@@ -331,7 +331,7 @@ namespace IKVM.Reflection.Writer
 			return true;
 		}
 
-		internal int Hash()
+		public int Hash()
 		{
 			int hash = 0;
 			int len = this.Length;
@@ -343,7 +343,7 @@ namespace IKVM.Reflection.Writer
 			return hash;
 		}
 
-		internal IKVM.Reflection.Reader.ByteReader GetBlob(int offset)
+		public IKVM.Reflection.Reader.ByteReader GetBlob(int offset)
 		{
 			return IKVM.Reflection.Reader.ByteReader.FromBlob(buffer, offset);
 		}

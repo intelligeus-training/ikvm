@@ -31,7 +31,7 @@ using IKVM.Reflection.Emit;
 
 namespace IKVM.Reflection
 {
-	sealed class MethodSignature : Signature
+	public sealed class MethodSignature : Signature
 	{
 		private readonly Type returnType;
 		private readonly Type[] parameterTypes;
@@ -39,7 +39,7 @@ namespace IKVM.Reflection
 		private readonly CallingConventions callingConvention;
 		private readonly int genericParamCount;
 
-		internal MethodSignature(Type returnType, Type[] parameterTypes, PackedCustomModifiers modifiers, CallingConventions callingConvention, int genericParamCount)
+		public MethodSignature(Type returnType, Type[] parameterTypes, PackedCustomModifiers modifiers, CallingConventions callingConvention, int genericParamCount)
 		{
 			this.returnType = returnType;
 			this.parameterTypes = parameterTypes;
@@ -87,7 +87,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static MethodSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
+		public static MethodSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			CallingConventions callingConvention;
 			int genericParamCount;
@@ -136,7 +136,7 @@ namespace IKVM.Reflection
 			return new MethodSignature(returnType, parameterTypes, PackedCustomModifiers.Wrap(modifiers), callingConvention, genericParamCount);
 		}
 
-		internal static __StandAloneMethodSig ReadStandAloneMethodSig(ModuleReader module, ByteReader br, IGenericContext context)
+		public static __StandAloneMethodSig ReadStandAloneMethodSig(ModuleReader module, ByteReader br, IGenericContext context)
 		{
 			CallingConventions callingConvention = 0;
 			System.Runtime.InteropServices.CallingConvention unmanagedCallingConvention = 0;
@@ -209,39 +209,39 @@ namespace IKVM.Reflection
 			return new __StandAloneMethodSig(unmanaged, unmanagedCallingConvention, callingConvention, returnType, parameterTypes.ToArray(), optionalParameterTypes.ToArray(), PackedCustomModifiers.Wrap(customModifiers));
 		}
 
-		internal int GetParameterCount()
+		public int GetParameterCount()
 		{
 			return parameterTypes.Length;
 		}
 
-		internal Type GetParameterType(int index)
+		public Type GetParameterType(int index)
 		{
 			return parameterTypes[index];
 		}
 
-		internal Type GetReturnType(IGenericBinder binder)
+		public Type GetReturnType(IGenericBinder binder)
 		{
 			return returnType.BindTypeParameters(binder);
 		}
 
-		internal CustomModifiers GetReturnTypeCustomModifiers(IGenericBinder binder)
+		public CustomModifiers GetReturnTypeCustomModifiers(IGenericBinder binder)
 		{
 			return modifiers.GetReturnTypeCustomModifiers().Bind(binder);
 		}
 
-		internal Type GetParameterType(IGenericBinder binder, int index)
+		public Type GetParameterType(IGenericBinder binder, int index)
 		{
 			return parameterTypes[index].BindTypeParameters(binder);
 		}
 
-		internal CustomModifiers GetParameterCustomModifiers(IGenericBinder binder, int index)
+		public CustomModifiers GetParameterCustomModifiers(IGenericBinder binder, int index)
 		{
 			return modifiers.GetParameterCustomModifiers(index).Bind(binder);
 		}
 
-		internal CallingConventions CallingConvention => callingConvention;
+		public CallingConventions CallingConvention => callingConvention;
 
-		internal int GenericParameterCount => genericParamCount;
+		public int GenericParameterCount => genericParamCount;
 
 		private sealed class Binder : IGenericBinder
 		{
@@ -269,7 +269,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal MethodSignature Bind(Type type, Type[] methodArgs)
+		public MethodSignature Bind(Type type, Type[] methodArgs)
 		{
 			var binder = new Binder(type, methodArgs);
 			return new MethodSignature(returnType.BindTypeParameters(binder),
@@ -298,7 +298,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static MethodSignature MakeFromBuilder(Type returnType, 
+		public static MethodSignature MakeFromBuilder(Type returnType, 
 															Type[] parameterTypes, 
 															PackedCustomModifiers modifiers, 
 															CallingConventions callingConvention, 
@@ -313,22 +313,22 @@ namespace IKVM.Reflection
 			return new MethodSignature(returnType, parameterTypes, modifiers, callingConvention, genericParamCount);
 		}
 
-		internal bool MatchParameterTypes(MethodSignature other)
+		public bool MatchParameterTypes(MethodSignature other)
 		{
 			return Util.ArrayEquals(other.parameterTypes, parameterTypes);
 		}
 
-		internal bool MatchParameterTypes(Type[] types)
+		public bool MatchParameterTypes(Type[] types)
 		{
 			return Util.ArrayEquals(types, parameterTypes);
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
+		public override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
 			WriteSigImpl(module, byteBuffer, parameterTypes.Length);
 		}
 
-		internal void WriteMethodRefSig(ModuleBuilder module, 
+		public void WriteMethodRefSig(ModuleBuilder module, 
 										ByteBuffer byteBuffer, 
 										Type[] optionalParameterTypes, 
 										CustomModifiers[] customModifiers)
@@ -387,7 +387,7 @@ namespace IKVM.Reflection
 		}
 	}
 
-	struct PackedCustomModifiers
+	public struct PackedCustomModifiers
 	{
 		// element 0 is the return type, the rest are the parameters
 		private readonly CustomModifiers[] customModifiers;
@@ -408,12 +408,12 @@ namespace IKVM.Reflection
 			return other != null && Equals(other.Value);
 		}
 
-		internal bool Equals(PackedCustomModifiers other)
+		public bool Equals(PackedCustomModifiers other)
 		{
 			return Util.ArrayEquals(customModifiers, other.customModifiers);
 		}
 
-		internal CustomModifiers GetReturnTypeCustomModifiers()
+		public CustomModifiers GetReturnTypeCustomModifiers()
 		{
 			if (customModifiers == null)
 			{
@@ -422,7 +422,7 @@ namespace IKVM.Reflection
 			return customModifiers[0];
 		}
 
-		internal CustomModifiers GetParameterCustomModifiers(int index)
+		public CustomModifiers GetParameterCustomModifiers(int index)
 		{
 			if (customModifiers == null)
 			{
@@ -431,7 +431,7 @@ namespace IKVM.Reflection
 			return customModifiers[index + 1];
 		}
 
-		internal PackedCustomModifiers Bind(IGenericBinder binder)
+		public PackedCustomModifiers Bind(IGenericBinder binder)
 		{
 			if (customModifiers == null)
 			{
@@ -445,7 +445,7 @@ namespace IKVM.Reflection
 			return new PackedCustomModifiers(expanded);
 		}
 
-		internal bool ContainsMissingType
+		public bool ContainsMissingType
 		{
 			get
 			{
@@ -458,7 +458,7 @@ namespace IKVM.Reflection
 		}
 
 		// this method make a copy of the incoming arrays (where necessary) and returns a normalized modifiers array
-		internal static PackedCustomModifiers CreateFromExternal(Type[] returnOptional, Type[] returnRequired, Type[][] parameterOptional, Type[][] parameterRequired, int parameterCount)
+		public static PackedCustomModifiers CreateFromExternal(Type[] returnOptional, Type[] returnRequired, Type[][] parameterOptional, Type[][] parameterRequired, int parameterCount)
 		{
 			CustomModifiers[] modifiers = null;
 			Pack(ref modifiers, 0, CustomModifiers.FromReqOpt(returnRequired, returnOptional), parameterCount + 1);
@@ -469,7 +469,7 @@ namespace IKVM.Reflection
 			return new PackedCustomModifiers(modifiers);
 		}
 
-		internal static PackedCustomModifiers CreateFromExternal(CustomModifiers returnTypeCustomModifiers, CustomModifiers[] parameterTypeCustomModifiers, int parameterCount)
+		public static PackedCustomModifiers CreateFromExternal(CustomModifiers returnTypeCustomModifiers, CustomModifiers[] parameterTypeCustomModifiers, int parameterCount)
 		{
 			CustomModifiers[] customModifiers = null;
 			Pack(ref customModifiers, 0, returnTypeCustomModifiers, parameterCount + 1);
@@ -483,12 +483,12 @@ namespace IKVM.Reflection
 			return new PackedCustomModifiers(customModifiers);
 		}
 
-		internal static PackedCustomModifiers Wrap(CustomModifiers[] modifiers)
+		public static PackedCustomModifiers Wrap(CustomModifiers[] modifiers)
 		{
 			return new PackedCustomModifiers(modifiers);
 		}
 
-		internal static void Pack(ref CustomModifiers[] array, int index, CustomModifiers mods, int count)
+		public static void Pack(ref CustomModifiers[] array, int index, CustomModifiers mods, int count)
 		{
 			if (!mods.IsEmpty)
 			{

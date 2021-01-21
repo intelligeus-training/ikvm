@@ -29,7 +29,7 @@ namespace IKVM.Reflection
 	public abstract class EventInfo : MemberInfo
 	{
 		// prevent external subclasses
-		internal EventInfo()
+		public EventInfo()
 		{
 		}
 
@@ -42,9 +42,9 @@ namespace IKVM.Reflection
 		public abstract MethodInfo[] GetOtherMethods(bool nonPublic);
 		public abstract MethodInfo[] __GetMethods();
 		public abstract Type EventHandlerType { get; }
-		internal abstract bool IsPublic { get; }
-		internal abstract bool IsNonPrivate { get; }
-		internal abstract bool IsStatic { get; }
+		public abstract bool IsPublic { get; }
+		public abstract bool IsNonPrivate { get; }
+		public abstract bool IsStatic { get; }
 
 		public bool IsSpecialName => (Attributes & EventAttributes.SpecialName) != 0;
 
@@ -74,7 +74,7 @@ namespace IKVM.Reflection
 
 		public MethodInfo RemoveMethod => GetRemoveMethod(true);
 
-		internal virtual EventInfo BindTypeParameters(Type type)
+		public virtual EventInfo BindTypeParameters(Type type)
 		{
 			return new GenericEventInfo(this.DeclaringType.BindTypeParameters(type), this);
 		}
@@ -84,25 +84,25 @@ namespace IKVM.Reflection
 			return this.DeclaringType.ToString() + " " + Name;
 		}
 
-		internal sealed override bool BindingFlagsMatch(BindingFlags flags)
+		public sealed override bool BindingFlagsMatch(BindingFlags flags)
 		{
 			return BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
 				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static, BindingFlags.Instance);
 		}
 
-		internal sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
+		public sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
 		{
 			return IsNonPrivate
 				&& BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
 				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static | BindingFlags.FlattenHierarchy, BindingFlags.Instance);
 		}
 
-		internal sealed override MemberInfo SetReflectedType(Type type)
+		public sealed override MemberInfo SetReflectedType(Type type)
 		{
 			return new EventInfoWithReflectedType(type, this);
 		}
 
-		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
+		public sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
 			// events don't have pseudo custom attributes
 			return null;
@@ -114,7 +114,7 @@ namespace IKVM.Reflection
 		private readonly Type reflectedType;
 		private readonly EventInfo eventInfo;
 
-		internal EventInfoWithReflectedType(Type reflectedType, EventInfo eventInfo)
+		public EventInfoWithReflectedType(Type reflectedType, EventInfo eventInfo)
 		{
 			Debug.Assert(reflectedType != eventInfo.DeclaringType);
 			this.reflectedType = reflectedType;
@@ -150,16 +150,16 @@ namespace IKVM.Reflection
 
 		public override Type EventHandlerType => eventInfo.EventHandlerType;
 
-		internal override bool IsPublic
+		public override bool IsPublic
 		{
 			get { return eventInfo.IsPublic; }
 		}
 
-		internal override bool IsNonPrivate => eventInfo.IsNonPrivate;
+		public override bool IsNonPrivate => eventInfo.IsNonPrivate;
 
-		internal override bool IsStatic => eventInfo.IsStatic;
+		public override bool IsStatic => eventInfo.IsStatic;
 
-		internal override EventInfo BindTypeParameters(Type type)
+		public override EventInfo BindTypeParameters(Type type)
 		{
 			return eventInfo.BindTypeParameters(type);
 		}
@@ -194,9 +194,9 @@ namespace IKVM.Reflection
 
 		public override string Name => eventInfo.Name;
 
-		internal override bool IsBaked => eventInfo.IsBaked;
+		public override bool IsBaked => eventInfo.IsBaked;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return eventInfo.GetCurrentToken();
 		}

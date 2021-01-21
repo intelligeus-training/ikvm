@@ -30,13 +30,13 @@ using IKVM.Reflection.Emit;
 
 namespace IKVM.Reflection
 {
-	interface IGenericContext
+	public interface IGenericContext
 	{
 		Type GetGenericTypeArgument(int index);
 		Type GetGenericMethodArgument(int index);
 	}
 
-	interface IGenericBinder
+	public interface IGenericBinder
 	{
 		Type BindTypeParameter(Type type);
 		Type BindMethodParameter(Type type);
@@ -83,19 +83,19 @@ namespace IKVM.Reflection
 		}
 
 		// prevent subclassing by outsiders
-		internal Type()
+		public Type()
 		{ 
 			underlyingType = this;
 		}
 
-		internal Type(Type underlyingType)
+		public Type(Type underlyingType)
 		{
 			System.Diagnostics.Debug.Assert(underlyingType.underlyingType == underlyingType);
 			this.underlyingType = underlyingType;
 			typeFlags = underlyingType.typeFlags;
 		}
 
-		internal Type(byte sigElementType)
+		public Type(byte sigElementType)
 			: this()
 		{
 			this.sigElementType = sigElementType;
@@ -124,7 +124,7 @@ namespace IKVM.Reflection
 			return null;
 		}
 
-		internal virtual void CheckBaked()
+		public virtual void CheckBaked()
 		{
 		}
 
@@ -230,7 +230,7 @@ namespace IKVM.Reflection
 
 		public override Type DeclaringType => null;
 
-		internal virtual TypeName TypeName => throw new InvalidOperationException();
+		public virtual TypeName TypeName => throw new InvalidOperationException();
 
 		public string __Name => TypeName.Name;
 
@@ -253,7 +253,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal virtual int GetModuleBuilderToken()
+		public virtual int GetModuleBuilderToken()
 		{
 			throw new InvalidOperationException();
 		}
@@ -445,7 +445,7 @@ namespace IKVM.Reflection
 			return GetEnumUnderlyingTypeImpl();
 		}
 
-		internal Type GetEnumUnderlyingTypeImpl()
+		public Type GetEnumUnderlyingTypeImpl()
 		{
 			foreach (var fieldInfo in __GetDeclaredFields())
 			{
@@ -571,9 +571,9 @@ namespace IKVM.Reflection
 			return declaringType.FullName + "+" + ns + "." + this.Name;
 		}
 
-		internal virtual bool IsModulePseudoType => false;
+		public virtual bool IsModulePseudoType => false;
 
-		internal virtual Type GetGenericTypeArgument(int index)
+		public virtual Type GetGenericTypeArgument(int index)
 		{
 			throw new InvalidOperationException();
 		}
@@ -1013,13 +1013,13 @@ namespace IKVM.Reflection
 			return GetConstructor(bindingAttr, binder, types, modifiers);
 		}
 
-		internal Type ResolveNestedType(Module requester, TypeName typeName)
+		public Type ResolveNestedType(Module requester, TypeName typeName)
 		{
 			return FindNestedType(typeName) ?? Module.universe.GetMissingTypeOrThrow(requester, Module, this, typeName);
 		}
 
 		// unlike the public API, this takes the namespace and name into account
-		internal virtual Type FindNestedType(TypeName name)
+		public virtual Type FindNestedType(TypeName name)
 		{
 			foreach (var type in __GetDeclaredTypes())
 			{
@@ -1031,7 +1031,7 @@ namespace IKVM.Reflection
 			return null;
 		}
 
-		internal virtual Type FindNestedTypeIgnoreCase(TypeName lowerCaseName)
+		public virtual Type FindNestedTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			foreach (var type in __GetDeclaredTypes())
 			{
@@ -1198,7 +1198,7 @@ namespace IKVM.Reflection
 			(typeFlags & (TypeFlags.BuiltIn | TypeFlags.PotentialBuiltIn)) != 0
 			&& ((typeFlags & TypeFlags.BuiltIn) != 0 || ResolvePotentialBuiltInType());
 
-		internal byte SigElementType
+		public byte SigElementType
 		{
 			get
 			{
@@ -1338,7 +1338,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static bool ContainsMissingType(Type[] types)
+		public static bool ContainsMissingType(Type[] types)
 		{
 			if (types == null)
 			{
@@ -1869,7 +1869,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal void FillInExplicitInterfaceMethods(MethodInfo[] interfaceMethods, MethodInfo[] targetMethods)
+		public void FillInExplicitInterfaceMethods(MethodInfo[] interfaceMethods, MethodInfo[] targetMethods)
 		{
 			var implMap = __GetMethodImplMap();
 			for (var i = 0; i < implMap.MethodDeclarations.Length; i++)
@@ -1905,7 +1905,7 @@ namespace IKVM.Reflection
 			throw new BadImageFormatException();
 		}
 
-		internal virtual Type BindTypeParameters(IGenericBinder binder)
+		public virtual Type BindTypeParameters(IGenericBinder binder)
 		{
 			if (IsGenericTypeDefinition)
 			{
@@ -1926,7 +1926,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal virtual MethodBase FindMethod(string name, MethodSignature signature)
+		public virtual MethodBase FindMethod(string name, MethodSignature signature)
 		{
 			foreach (var methodBase in __GetDeclaredMethods())
 			{
@@ -1938,7 +1938,7 @@ namespace IKVM.Reflection
 			return null;
 		}
 
-		internal virtual FieldInfo FindField(string name, FieldSignature signature)
+		public virtual FieldInfo FindField(string name, FieldSignature signature)
 		{
 			foreach (var fieldInfo in __GetDeclaredFields())
 			{
@@ -1950,7 +1950,7 @@ namespace IKVM.Reflection
 			return null;
 		}
 
-		internal bool IsAllowMultipleCustomAttribute
+		public bool IsAllowMultipleCustomAttribute
 		{
 			get
 			{
@@ -1971,19 +1971,19 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type MarkNotValueType()
+		public Type MarkNotValueType()
 		{
 			typeFlags |= TypeFlags.NotValueType;
 			return this;
 		}
 
-		internal Type MarkValueType()
+		public Type MarkValueType()
 		{
 			typeFlags |= TypeFlags.ValueType;
 			return this;
 		}
 
-		internal ConstructorInfo GetPseudoCustomAttributeConstructor(params Type[] parameterTypes)
+		public ConstructorInfo GetPseudoCustomAttributeConstructor(params Type[] parameterTypes)
 		{
 			var universe = Module.universe;
 			var methodSig = MethodSignature.MakeFromBuilder(universe.System_Void, 
@@ -2085,17 +2085,17 @@ namespace IKVM.Reflection
 			return new MissingProperty(this, name, propertySignature);
 		}
 
-		internal virtual Type SetMetadataTokenForMissing(int token, int flags)
+		public virtual Type SetMetadataTokenForMissing(int token, int flags)
 		{
 			return this;
 		}
 
-		internal virtual Type SetCyclicTypeForwarder()
+		public virtual Type SetCyclicTypeForwarder()
 		{
 			return this;
 		}
 
-		internal virtual Type SetCyclicTypeSpec()
+		public virtual Type SetCyclicTypeSpec()
 		{
 			return this;
 		}
@@ -2152,28 +2152,28 @@ namespace IKVM.Reflection
 			
 		}
 
-		internal bool IsEnumOrValueType =>
+		public bool IsEnumOrValueType =>
 			(typeFlags & (TypeFlags.EnumOrValueType | TypeFlags.PotentialEnumOrValueType)) != 0
 			&& ((typeFlags & TypeFlags.EnumOrValueType) != 0 || ResolvePotentialEnumOrValueType());
 
-		internal virtual Universe Universe => Module.universe;
+		public virtual Universe Universe => Module.universe;
 
-		internal sealed override bool BindingFlagsMatch(BindingFlags flags)
+		public sealed override bool BindingFlagsMatch(BindingFlags flags)
 		{
 			return BindingFlagsMatch(IsNestedPublic, flags, BindingFlags.Public, BindingFlags.NonPublic);
 		}
 
-		internal sealed override MemberInfo SetReflectedType(Type type)
+		public sealed override MemberInfo SetReflectedType(Type type)
 		{
 			throw new InvalidOperationException();
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return MetadataToken;
 		}
 
-		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
+		public sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
 			// types don't have pseudo custom attributes
 			return null;
@@ -2240,7 +2240,7 @@ namespace IKVM.Reflection
 
 		public sealed override Module Module => elementType.Module;
 
-		internal sealed override int GetModuleBuilderToken()
+		public sealed override int GetModuleBuilderToken()
 		{
 			if (token == 0)
 			{
@@ -2277,7 +2277,7 @@ namespace IKVM.Reflection
 
 		protected sealed override bool IsValueTypeImpl => false;
 
-		internal sealed override Type BindTypeParameters(IGenericBinder binder)
+		public sealed override Type BindTypeParameters(IGenericBinder binder)
 		{
 			var type = elementType.BindTypeParameters(binder);
 			var mods = this.mods.Bind(binder);
@@ -2289,29 +2289,29 @@ namespace IKVM.Reflection
 			return Wrap(type, mods);
 		}
 
-		internal override void CheckBaked()
+		public override void CheckBaked()
 		{
 			elementType.CheckBaked();
 		}
 
-		internal sealed override Universe Universe => elementType.Universe;
+		public sealed override Universe Universe => elementType.Universe;
 
-		internal sealed override bool IsBaked => elementType.IsBaked;
+		public sealed override bool IsBaked => elementType.IsBaked;
 
-		internal sealed override int GetCurrentToken()
+		public sealed override int GetCurrentToken()
 		{
 			// we don't have a token, so we return 0 (which is never a valid token)
 			return 0;
 		}
 
-		internal abstract string GetSuffix();
+		public abstract string GetSuffix();
 
 		protected abstract Type Wrap(Type type, CustomModifiers mods);
 	}
 
 	sealed class ArrayType : ElementHolderType
 	{
-		internal static Type Make(Type type, CustomModifiers mods)
+		public static Type Make(Type type, CustomModifiers mods)
 		{
 			return type.Universe.CanonicalizeType(new ArrayType(type, mods));
 		}
@@ -2369,7 +2369,7 @@ namespace IKVM.Reflection
 			return elementType.GetHashCode() * 5;
 		}
 
-		internal override string GetSuffix()
+		public override string GetSuffix()
 		{
 			return "[]";
 		}
@@ -2380,13 +2380,13 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class MultiArrayType : ElementHolderType
+	public sealed class MultiArrayType : ElementHolderType
 	{
 		private readonly int rank;
 		private readonly int[] sizes;
 		private readonly int[] lobounds;
 
-		internal static Type Make(Type type, int rank, int[] sizes, int[] lobounds, CustomModifiers mods)
+		public static Type Make(Type type, int rank, int[] sizes, int[] lobounds, CustomModifiers mods)
 		{
 			return type.Universe.CanonicalizeType(new MultiArrayType(type, rank, sizes, lobounds, mods));
 		}
@@ -2471,7 +2471,7 @@ namespace IKVM.Reflection
 			return elementType.GetHashCode() * 9 + rank;
 		}
 
-		internal override string GetSuffix()
+		public override string GetSuffix()
 		{
 			if (rank == 1)
 			{
@@ -2489,9 +2489,9 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class BuiltinArrayMethod : ArrayMethod
+	public sealed class BuiltinArrayMethod : ArrayMethod
 	{
-		internal BuiltinArrayMethod(Module module, 
+		public BuiltinArrayMethod(Module module, 
 									Type arrayClass, 
 									string methodName, 
 									CallingConventions callingConvention, 
@@ -2533,7 +2533,7 @@ namespace IKVM.Reflection
 			private readonly Type type;
 			private readonly int pos;
 
-			internal ParameterInfoImpl(MethodInfo method, Type type, int pos)
+			public ParameterInfoImpl(MethodInfo method, Type type, int pos)
 			{
 				this.method = method;
 				this.type = type;
@@ -2568,13 +2568,13 @@ namespace IKVM.Reflection
 				get { return 0x08000000; }
 			}
 
-			internal override Module Module => method.Module;
+			public override Module Module => method.Module;
 		}
 	}
 
-	sealed class ByRefType : ElementHolderType
+	public sealed class ByRefType : ElementHolderType
 	{
-		internal static Type Make(Type type, CustomModifiers mods)
+		public static Type Make(Type type, CustomModifiers mods)
 		{
 			return type.Universe.CanonicalizeType(new ByRefType(type, mods));
 		}
@@ -2598,7 +2598,7 @@ namespace IKVM.Reflection
 
 		public override TypeAttributes Attributes => 0;
 
-		internal override string GetSuffix()
+		public override string GetSuffix()
 		{
 			return "&";
 		}
@@ -2609,9 +2609,9 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class PointerType : ElementHolderType
+	public sealed class PointerType : ElementHolderType
 	{
-		internal static Type Make(Type type, CustomModifiers mods)
+		public static Type Make(Type type, CustomModifiers mods)
 		{
 			return type.Universe.CanonicalizeType(new PointerType(type, mods));
 		}
@@ -2635,7 +2635,7 @@ namespace IKVM.Reflection
 
 		public override TypeAttributes Attributes => 0;
 
-		internal override string GetSuffix()
+		public override string GetSuffix()
 		{
 			return "*";
 		}
@@ -2646,7 +2646,7 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class GenericTypeInstance : TypeInfo
+	public sealed class GenericTypeInstance : TypeInfo
 	{
 		private readonly Type type;
 		private readonly Type[] args;
@@ -2654,7 +2654,7 @@ namespace IKVM.Reflection
 		private Type baseType;
 		private int token;
 
-		internal static Type Make(Type type, Type[] typeArguments, CustomModifiers[] mods)
+		public static Type Make(Type type, Type[] typeArguments, CustomModifiers[] mods)
 		{
 			var identity = true;
 			if (type is TypeBuilder || type is BakedType || type.__IsMissing)
@@ -2758,7 +2758,7 @@ namespace IKVM.Reflection
 
 		public override TypeAttributes Attributes => type.Attributes;
 
-		internal override void CheckBaked()
+		public override void CheckBaked()
 		{
 			type.CheckBaked();
 		}
@@ -2903,7 +2903,7 @@ namespace IKVM.Reflection
 			return mods != null ? (CustomModifiers[])mods.Clone() : new CustomModifiers[args.Length];
 		}
 
-		internal override Type GetGenericTypeArgument(int index)
+		public override Type GetGenericTypeArgument(int index)
 		{
 			return args[index];
 		}
@@ -2930,7 +2930,7 @@ namespace IKVM.Reflection
 			return type.__GetLayout(out packingSize, out typeSize);
 		}
 
-		internal override int GetModuleBuilderToken()
+		public override int GetModuleBuilderToken()
 		{
 			if (token == 0)
 			{
@@ -2939,7 +2939,7 @@ namespace IKVM.Reflection
 			return token;
 		}
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			for (var i = 0; i < args.Length; i++)
 			{
@@ -2959,20 +2959,20 @@ namespace IKVM.Reflection
 			return this;
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return type.GetCurrentToken();
 		}
 
-		internal override bool IsBaked => type.IsBaked;
+		public override bool IsBaked => type.IsBaked;
 	}
 
-	sealed class FunctionPointerType : TypeInfo
+	public sealed class FunctionPointerType : TypeInfo
 	{
 		private readonly Universe universe;
 		private readonly __StandAloneMethodSig sig;
 
-		internal static Type Make(Universe universe, __StandAloneMethodSig sig)
+		public static Type Make(Universe universe, __StandAloneMethodSig sig)
 		{
 			return universe.CanonicalizeType(new FunctionPointerType(universe, sig));
 		}
@@ -3012,7 +3012,7 @@ namespace IKVM.Reflection
 			get { throw new InvalidOperationException(); }
 		}
 
-		internal override Universe Universe => universe;
+		public override Universe Universe => universe;
 
 		public override string ToString()
 		{
@@ -3021,21 +3021,21 @@ namespace IKVM.Reflection
 
 		protected override bool ContainsMissingTypeImpl => sig.ContainsMissingType;
 
-		internal override bool IsBaked => true;
+		public override bool IsBaked => true;
 
 		protected override bool IsValueTypeImpl => false;
 	}
 
-	sealed class MarkerType : Type
+	public sealed class MarkerType : Type
 	{
 		// used by CustomModifiers and SignatureHelper
-		internal static readonly Type ModOpt = new MarkerType(Signature.ELEMENT_TYPE_CMOD_OPT);
-		internal static readonly Type ModReq = new MarkerType(Signature.ELEMENT_TYPE_CMOD_REQD);
+		public static readonly Type ModOpt = new MarkerType(Signature.ELEMENT_TYPE_CMOD_OPT);
+		public static readonly Type ModReq = new MarkerType(Signature.ELEMENT_TYPE_CMOD_REQD);
 		// used by SignatureHelper
-		internal static readonly Type Sentinel = new MarkerType(Signature.SENTINEL);
-		internal static readonly Type Pinned = new MarkerType(Signature.ELEMENT_TYPE_PINNED);
+		public static readonly Type Sentinel = new MarkerType(Signature.SENTINEL);
+		public static readonly Type Pinned = new MarkerType(Signature.ELEMENT_TYPE_PINNED);
 		// used by ModuleReader.LazyForwardedType and TypeSpec resolution
-		internal static readonly Type LazyResolveInProgress = new MarkerType(0xFF);
+		public static readonly Type LazyResolveInProgress = new MarkerType(0xFF);
 
 		private MarkerType(byte sigElementType)
 			: base(sigElementType)
@@ -3052,7 +3052,7 @@ namespace IKVM.Reflection
 
 		public override Module Module => throw new InvalidOperationException();
 
-		internal override bool IsBaked => throw new InvalidOperationException();
+		public override bool IsBaked => throw new InvalidOperationException();
 
 		public override bool __IsMissing => false;
 

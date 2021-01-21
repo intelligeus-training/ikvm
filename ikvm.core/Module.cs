@@ -101,53 +101,53 @@ namespace IKVM.Reflection
 
 	public abstract class Module : ICustomAttributeProvider
 	{
-		internal readonly Universe universe;
-		internal readonly ModuleTable ModuleTable = new ModuleTable();
-		internal readonly TypeRefTable TypeRef = new TypeRefTable();
-		internal readonly TypeDefTable TypeDef = new TypeDefTable();
-		internal readonly FieldPtrTable FieldPtr = new FieldPtrTable();
-		internal readonly FieldTable Field = new FieldTable();
-		internal readonly MemberRefTable MemberRef = new MemberRefTable();
-		internal readonly ConstantTable Constant = new ConstantTable();
-		internal readonly CustomAttributeTable CustomAttribute = new CustomAttributeTable();
-		internal readonly FieldMarshalTable FieldMarshal = new FieldMarshalTable();
-		internal readonly DeclSecurityTable DeclSecurity = new DeclSecurityTable();
-		internal readonly ClassLayoutTable ClassLayout = new ClassLayoutTable();
-		internal readonly FieldLayoutTable FieldLayout = new FieldLayoutTable();
-		internal readonly ParamPtrTable ParamPtr = new ParamPtrTable();
-		internal readonly ParamTable Param = new ParamTable();
-		internal readonly InterfaceImplTable InterfaceImpl = new InterfaceImplTable();
-		internal readonly StandAloneSigTable StandAloneSig = new StandAloneSigTable();
-		internal readonly EventMapTable EventMap = new EventMapTable();
-		internal readonly EventPtrTable EventPtr = new EventPtrTable();
-		internal readonly EventTable Event = new EventTable();
-		internal readonly PropertyMapTable PropertyMap = new PropertyMapTable();
-		internal readonly PropertyPtrTable PropertyPtr = new PropertyPtrTable();
-		internal readonly PropertyTable Property = new PropertyTable();
-		internal readonly MethodSemanticsTable MethodSemantics = new MethodSemanticsTable();
-		internal readonly MethodImplTable MethodImpl = new MethodImplTable();
-		internal readonly ModuleRefTable ModuleRef = new ModuleRefTable();
-		internal readonly TypeSpecTable TypeSpec = new TypeSpecTable();
-		internal readonly ImplMapTable ImplMap = new ImplMapTable();
-		internal readonly FieldRVATable FieldRVA = new FieldRVATable();
-		internal readonly AssemblyTable AssemblyTable = new AssemblyTable();
-		internal readonly AssemblyRefTable AssemblyRef = new AssemblyRefTable();
-		internal readonly MethodPtrTable MethodPtr = new MethodPtrTable();
-		internal readonly MethodDefTable MethodDef = new MethodDefTable();
-		internal readonly NestedClassTable NestedClass = new NestedClassTable();
-		internal readonly FileTable File = new FileTable();
-		internal readonly ExportedTypeTable ExportedType = new ExportedTypeTable();
-		internal readonly ManifestResourceTable ManifestResource = new ManifestResourceTable();
-		internal readonly GenericParamTable GenericParam = new GenericParamTable();
-		internal readonly MethodSpecTable MethodSpec = new MethodSpecTable();
-		internal readonly GenericParamConstraintTable GenericParamConstraint = new GenericParamConstraintTable();
+		public readonly Universe universe;
+		public readonly ModuleTable ModuleTable = new ModuleTable();
+		public readonly TypeRefTable TypeRef = new TypeRefTable();
+		public readonly TypeDefTable TypeDef = new TypeDefTable();
+		public readonly FieldPtrTable FieldPtr = new FieldPtrTable();
+		public readonly FieldTable Field = new FieldTable();
+		public readonly MemberRefTable MemberRef = new MemberRefTable();
+		public readonly ConstantTable Constant = new ConstantTable();
+		public readonly CustomAttributeTable CustomAttribute = new CustomAttributeTable();
+		public readonly FieldMarshalTable FieldMarshal = new FieldMarshalTable();
+		public readonly DeclSecurityTable DeclSecurity = new DeclSecurityTable();
+		public readonly ClassLayoutTable ClassLayout = new ClassLayoutTable();
+		public readonly FieldLayoutTable FieldLayout = new FieldLayoutTable();
+		public readonly ParamPtrTable ParamPtr = new ParamPtrTable();
+		public readonly ParamTable Param = new ParamTable();
+		public readonly InterfaceImplTable InterfaceImpl = new InterfaceImplTable();
+		public readonly StandAloneSigTable StandAloneSig = new StandAloneSigTable();
+		public readonly EventMapTable EventMap = new EventMapTable();
+		public readonly EventPtrTable EventPtr = new EventPtrTable();
+		public readonly EventTable Event = new EventTable();
+		public readonly PropertyMapTable PropertyMap = new PropertyMapTable();
+		public readonly PropertyPtrTable PropertyPtr = new PropertyPtrTable();
+		public readonly PropertyTable Property = new PropertyTable();
+		public readonly MethodSemanticsTable MethodSemantics = new MethodSemanticsTable();
+		public readonly MethodImplTable MethodImpl = new MethodImplTable();
+		public readonly ModuleRefTable ModuleRef = new ModuleRefTable();
+		public readonly TypeSpecTable TypeSpec = new TypeSpecTable();
+		public readonly ImplMapTable ImplMap = new ImplMapTable();
+		public readonly FieldRVATable FieldRVA = new FieldRVATable();
+		public readonly AssemblyTable AssemblyTable = new AssemblyTable();
+		public readonly AssemblyRefTable AssemblyRef = new AssemblyRefTable();
+		public readonly MethodPtrTable MethodPtr = new MethodPtrTable();
+		public readonly MethodDefTable MethodDef = new MethodDefTable();
+		public readonly NestedClassTable NestedClass = new NestedClassTable();
+		public readonly FileTable File = new FileTable();
+		public readonly ExportedTypeTable ExportedType = new ExportedTypeTable();
+		public readonly ManifestResourceTable ManifestResource = new ManifestResourceTable();
+		public readonly GenericParamTable GenericParam = new GenericParamTable();
+		public readonly MethodSpecTable MethodSpec = new MethodSpecTable();
+		public readonly GenericParamConstraintTable GenericParamConstraint = new GenericParamConstraintTable();
 
-		internal Module(Universe universe)
+		public Module(Universe universe)
 		{
 			this.universe = universe;
 		}
 
-		internal Table[] GetTables()
+		public Table[] GetTables()
 		{
 			Table[] tables = new Table[64];
 			tables[ModuleTable.Index] = ModuleTable;
@@ -351,9 +351,9 @@ namespace IKVM.Reflection
 																Type[] genericMethodArguments, 
 																out CustomModifiers[] customModifiers);
 		public abstract string ScopeName { get; }
-		internal abstract void GetTypesImpl(List<Type> list);
-		internal abstract Type FindType(TypeName name);
-		internal abstract Type FindTypeIgnoreCase(TypeName lowerCaseName);
+		public abstract void GetTypesImpl(List<Type> list);
+		public abstract Type FindType(TypeName name);
+		public abstract Type FindTypeIgnoreCase(TypeName lowerCaseName);
 
 #if !NETSTANDARD
 		[Obsolete("Please use __ResolveOptionalParameterTypes(int, Type[], Type[], out CustomModifiers[]) instead.")]
@@ -592,11 +592,11 @@ namespace IKVM.Reflection
 		}
 #endif // !NO_AUTHENTICODE
 
-		internal abstract Type GetModuleType();
+		public abstract Type GetModuleType();
 
-		internal abstract ByteReader GetBlob(int blobIndex);
+		public abstract ByteReader GetBlob(int blobIndex);
 
-		internal IList<CustomAttributeData> GetDeclarativeSecurity(int metadataToken)
+		public IList<CustomAttributeData> GetDeclarativeSecurity(int metadataToken)
 		{
 			var customAttributeDatas = new List<CustomAttributeData>();
 			foreach (var i in DeclSecurity.Filter(metadataToken))
@@ -606,21 +606,21 @@ namespace IKVM.Reflection
 			return customAttributeDatas;
 		}
 
-		internal virtual void Dispose()
+		public virtual void Dispose()
 		{
 		}
 
-		internal virtual void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
+		public virtual void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
 		{
 		}
 
-		internal virtual string GetString(int index)
+		public virtual string GetString(int index)
 		{
 			throw new NotSupportedException();
 		}
 	}
 
-	abstract class NonPEModule : Module
+	public abstract class NonPEModule : Module
 	{
 		protected NonPEModule(Universe universe)
 			: base(universe)
@@ -642,12 +642,12 @@ namespace IKVM.Reflection
 			return new ArgumentOutOfRangeException();
 		}
 
-		internal sealed override Type GetModuleType()
+		public sealed override Type GetModuleType()
 		{
 			throw InvalidOperationException();
 		}
 
-		internal sealed override ByteReader GetBlob(int blobIndex)
+		public sealed override ByteReader GetBlob(int blobIndex)
 		{
 			throw InvalidOperationException();
 		}
@@ -692,7 +692,7 @@ namespace IKVM.Reflection
 			throw NotSupportedException();
 		}
 
-		internal sealed override Type ResolveType(int metadataToken, IGenericContext context)
+		public sealed override Type ResolveType(int metadataToken, IGenericContext context)
 		{
 			throw ArgumentOutOfRangeException();
 		}

@@ -28,7 +28,7 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	abstract class TypeParameterType : TypeInfo
+	public abstract class TypeParameterType : TypeInfo
 	{
 		protected TypeParameterType(byte sigElementType)
 			: base(sigElementType)
@@ -94,14 +94,14 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	sealed class UnboundGenericMethodParameter : TypeParameterType
+	public sealed class UnboundGenericMethodParameter : TypeParameterType
 	{
 		private static readonly DummyModule module = new DummyModule();
 		private readonly int position;
 
 		private sealed class DummyModule : NonPEModule
 		{
-			internal DummyModule()
+			public DummyModule()
 				: base(new Universe())
 			{
 			}
@@ -131,27 +131,21 @@ namespace IKVM.Reflection.Reader
 				throw new InvalidOperationException();
 			}
 
-			public override int MDStreamVersion
-			{
-				get { throw new InvalidOperationException(); }
-			}
+			public override int MDStreamVersion => throw new InvalidOperationException();
 
-			public override Assembly Assembly
-			{
-				get { throw new InvalidOperationException(); }
-			}
+			public override Assembly Assembly => throw new InvalidOperationException();
 
-			internal override Type FindType(TypeName typeName)
+			public override Type FindType(TypeName typeName)
 			{
 				throw new InvalidOperationException();
 			}
 
-			internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+			public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 			{
 				throw new InvalidOperationException();
 			}
 
-			internal override void GetTypesImpl(List<Type> list)
+			public override void GetTypesImpl(List<Type> list)
 			{
 				throw new InvalidOperationException();
 			}
@@ -177,7 +171,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal static Type Make(int position)
+		public static Type Make(int position)
 		{
 			return module.universe.CanonicalizeType(new UnboundGenericMethodParameter(position));
 		}
@@ -249,23 +243,23 @@ namespace IKVM.Reflection.Reader
 			get { throw new InvalidOperationException(); }
 		}
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			return binder.BindMethodParameter(this);
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { throw new InvalidOperationException(); }
 		}
 	}
 
-	sealed class GenericTypeParameter : TypeParameterType
+	public sealed class GenericTypeParameter : TypeParameterType
 	{
 		private readonly ModuleReader module;
 		private readonly int index;
 
-		internal GenericTypeParameter(ModuleReader module, int index, byte sigElementType)
+		public GenericTypeParameter(ModuleReader module, int index, byte sigElementType)
 			: base(sigElementType)
 		{
 			this.module = module;
@@ -359,7 +353,7 @@ namespace IKVM.Reflection.Reader
 			get { return (GenericParameterAttributes)module.GenericParam.records[index].Flags; }
 		}
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			int owner = module.GenericParam.records[index].Owner;
 			if ((owner >> 24) == MethodDefTable.Index)
@@ -372,7 +366,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { return true; }
 		}

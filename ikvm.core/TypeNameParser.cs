@@ -30,20 +30,20 @@ namespace IKVM.Reflection
 	// this respresents a type name as in metadata:
 	// - ns will be null for empty the namespace (never the empty string)
 	// - the strings are not escaped
-	struct TypeName : IEquatable<TypeName>
+	public struct TypeName : IEquatable<TypeName>
 	{
 		private readonly string ns;
 		private readonly string name;
 
-		internal TypeName(string ns, string name)
+		public TypeName(string ns, string name)
 		{
 			this.ns = ns;
 			this.name = name ?? throw new ArgumentNullException("name");
 		}
 
-		internal string Name => name;
+		public string Name => name;
 
-		internal string Namespace => ns;
+		public string Namespace => ns;
 
 		public static bool operator ==(TypeName o1, TypeName o2)
 		{
@@ -76,7 +76,7 @@ namespace IKVM.Reflection
 			return this == other;
 		}
 
-		internal bool Matches(string fullName)
+		public bool Matches(string fullName)
 		{
 			if (ns == null)
 			{
@@ -91,12 +91,12 @@ namespace IKVM.Reflection
 			return false;
 		}
 
-		internal TypeName ToLowerInvariant()
+		public TypeName ToLowerInvariant()
 		{
 			return new TypeName(ns == null ? null : ns.ToLowerInvariant(), name.ToLowerInvariant());
 		}
 
-		internal static TypeName Split(string name)
+		public static TypeName Split(string name)
 		{
 			var dot = name.LastIndexOf('.');
 			if (dot == -1)
@@ -121,7 +121,7 @@ namespace IKVM.Reflection
 		private readonly short[] modifiers;
 		private readonly TypeNameParser[] genericParameters;
 
-		internal static string Escape(string name)
+		public static string Escape(string name)
 		{
 			if (name == null)
 			{
@@ -157,7 +157,7 @@ namespace IKVM.Reflection
 			return stringBuilder != null ? stringBuilder.ToString() : name;
 		}
 
-		internal static string Unescape(string name)
+		public static string Unescape(string name)
 		{
 			var pos = name.IndexOf('\\');
 			if (pos == -1)
@@ -177,7 +177,7 @@ namespace IKVM.Reflection
 			return stringBuilder.ToString();
 		}
 
-		internal static TypeNameParser Parse(string typeName, bool throwOnError)
+		public static TypeNameParser Parse(string typeName, bool throwOnError)
 		{
 			if (throwOnError)
 			{
@@ -214,18 +214,18 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal bool Error => name == null;
+		public bool Error => name == null;
 
-		internal string FirstNamePart => name;
+		public string FirstNamePart => name;
 
-		internal string AssemblyName => assemblyName;
+		public string AssemblyName => assemblyName;
 
 		private struct Parser
 		{
 			private readonly string typeName;
-			internal int pos;
+			public int pos;
 
-			internal Parser(string typeName)
+			public Parser(string typeName)
 			{
 				this.typeName = typeName;
 				this.pos = 0;
@@ -256,7 +256,7 @@ namespace IKVM.Reflection
 				
 			}
 
-			internal string NextNamePart()
+			public string NextNamePart()
 			{
 				SkipWhiteSpace();
 				var start = pos;
@@ -282,7 +282,7 @@ namespace IKVM.Reflection
 				return typeName.Substring(start, pos - start);
 			}
 
-			internal void ParseNested(ref string[] nested)
+			public void ParseNested(ref string[] nested)
 			{
 				while (TryConsume('+'))
 				{
@@ -290,7 +290,7 @@ namespace IKVM.Reflection
 				}
 			}
 
-			internal void ParseGenericParameters(ref TypeNameParser[] genericParameters)
+			public void ParseGenericParameters(ref TypeNameParser[] genericParameters)
 			{
 				var saved = pos;
 				if (TryConsume('['))
@@ -321,7 +321,7 @@ namespace IKVM.Reflection
 				}
 			}
 
-			internal void ParseModifiers(ref short[] modifiers)
+			public void ParseModifiers(ref short[] modifiers)
 			{
 				while (pos < typeName.Length)
 				{
@@ -347,7 +347,7 @@ namespace IKVM.Reflection
 				}
 			}
 
-			internal void ParseAssemblyName(bool genericParameter, ref string assemblyName)
+			public void ParseAssemblyName(bool genericParameter, ref string assemblyName)
 			{
 				if (pos < typeName.Length)
 				{
@@ -443,7 +443,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type GetType(Universe universe, 
+		public Type GetType(Universe universe, 
 								Module context, 
 								bool throwOnError, 
 								string originalName, 
@@ -525,7 +525,7 @@ namespace IKVM.Reflection
 			return Expand(type, context, throwOnError, originalName, resolve, ignoreCase);
 		}
 
-		internal Type Expand(Type type, Module context, bool throwOnError, string originalName, bool resolve, bool ignoreCase)
+		public Type Expand(Type type, Module context, bool throwOnError, string originalName, bool resolve, bool ignoreCase)
 		{
 			Debug.Assert(!resolve || !ignoreCase);
 			if (type == null)

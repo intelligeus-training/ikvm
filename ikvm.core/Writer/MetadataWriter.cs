@@ -34,29 +34,29 @@ namespace IKVM.Reflection.Writer
 		private readonly Stream stream;
 		private readonly byte[] buffer = new byte[8];
 
-		internal MetadataWriter(ModuleBuilder module, Stream stream)
+		public MetadataWriter(ModuleBuilder module, Stream stream)
 			: base(module, module.Strings.IsBig, module.Guids.IsBig, module.Blobs.IsBig)
 		{
 			this.moduleBuilder = module;
 			this.stream = stream;
 		}
 
-		internal ModuleBuilder ModuleBuilder
+		public ModuleBuilder ModuleBuilder
 		{
 			get { return moduleBuilder; }
 		}
 
-		internal uint Position
+		public uint Position
 		{
 			get { return (uint)stream.Position; }
 		}
 
-		internal void Write(ByteBuffer bb)
+		public void Write(ByteBuffer bb)
 		{
 			bb.WriteTo(stream);
 		}
 
-		internal void WriteAsciiz(string value)
+		public void WriteAsciiz(string value)
 		{
 			foreach (char c in value)
 			{
@@ -65,38 +65,38 @@ namespace IKVM.Reflection.Writer
 			stream.WriteByte(0);
 		}
 
-		internal void Write(byte[] value)
+		public void Write(byte[] value)
 		{
 			stream.Write(value, 0, value.Length);
 		}
 
-		internal void Write(byte[] buffer, int offset, int count)
+		public void Write(byte[] buffer, int offset, int count)
 		{
 			stream.Write(buffer, offset, count);
 		}
 
-		internal void Write(byte value)
+		public void Write(byte value)
 		{
 			stream.WriteByte(value);
 		}
 
-		internal void Write(ushort value)
+		public void Write(ushort value)
 		{
 			Write((short)value);
 		}
 
-		internal void Write(short value)
+		public void Write(short value)
 		{
 			stream.WriteByte((byte)value);
 			stream.WriteByte((byte)(value >> 8));
 		}
 
-		internal void Write(uint value)
+		public void Write(uint value)
 		{
 			Write((int)value);
 		}
 
-		internal void Write(int value)
+		public void Write(int value)
 		{
 			buffer[0] = (byte)value;
 			buffer[1] = (byte)(value >> 8);
@@ -105,12 +105,12 @@ namespace IKVM.Reflection.Writer
 			stream.Write(buffer, 0, 4);
 		}
 
-		internal void Write(ulong value)
+		public void Write(ulong value)
 		{
 			Write((long)value);
 		}
 
-		internal void Write(long value)
+		public void Write(long value)
 		{
 			buffer[0] = (byte)value;
 			buffer[1] = (byte)(value >> 8);
@@ -123,7 +123,7 @@ namespace IKVM.Reflection.Writer
 			stream.Write(buffer, 0, 8);
 		}
 
-		internal void WriteCompressedUInt(int value)
+		public void WriteCompressedUInt(int value)
 		{
 			if (value <= 0x7F)
 			{
@@ -143,7 +143,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal static int GetCompressedUIntLength(int value)
+		public static int GetCompressedUIntLength(int value)
 		{
 			if (value <= 0x7F)
 			{
@@ -159,7 +159,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteStringIndex(int index)
+		public void WriteStringIndex(int index)
 		{
 			if (bigStrings)
 			{
@@ -171,7 +171,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteGuidIndex(int index)
+		public void WriteGuidIndex(int index)
 		{
 			if (bigGuids)
 			{
@@ -183,7 +183,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteBlobIndex(int index)
+		public void WriteBlobIndex(int index)
 		{
 			if (bigBlobs)
 			{
@@ -195,7 +195,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteTypeDefOrRef(int token)
+		public void WriteTypeDefOrRef(int token)
 		{
 			switch (token >> 24)
 			{
@@ -223,7 +223,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteEncodedTypeDefOrRef(int encodedToken)
+		public void WriteEncodedTypeDefOrRef(int encodedToken)
 		{
 			if (bigTypeDefOrRef)
 			{
@@ -235,7 +235,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteHasCustomAttribute(int token)
+		public void WriteHasCustomAttribute(int token)
 		{
 			int encodedToken = CustomAttributeTable.EncodeHasCustomAttribute(token);
 			if (bigHasCustomAttribute)
@@ -248,7 +248,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteCustomAttributeType(int token)
+		public void WriteCustomAttributeType(int token)
 		{
 			switch (token >> 24)
 			{
@@ -271,7 +271,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteField(int index)
+		public void WriteField(int index)
 		{
 			if (bigField)
 			{
@@ -283,7 +283,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteMethodDef(int index)
+		public void WriteMethodDef(int index)
 		{
 			if (bigMethodDef)
 			{
@@ -295,7 +295,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteParam(int index)
+		public void WriteParam(int index)
 		{
 			if (bigParam)
 			{
@@ -307,7 +307,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteTypeDef(int index)
+		public void WriteTypeDef(int index)
 		{
 			if (bigTypeDef)
 			{
@@ -319,7 +319,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteEvent(int index)
+		public void WriteEvent(int index)
 		{
 			if (bigEvent)
 			{
@@ -331,7 +331,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteProperty(int index)
+		public void WriteProperty(int index)
 		{
 			if (bigProperty)
 			{
@@ -343,7 +343,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteGenericParam(int index)
+		public void WriteGenericParam(int index)
 		{
 			if (bigGenericParam)
 			{
@@ -355,7 +355,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteModuleRef(int index)
+		public void WriteModuleRef(int index)
 		{
 			if (bigModuleRef)
 			{
@@ -367,7 +367,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteResolutionScope(int token)
+		public void WriteResolutionScope(int token)
 		{
 			switch (token >> 24)
 			{
@@ -396,7 +396,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteMemberRefParent(int token)
+		public void WriteMemberRefParent(int token)
 		{
 			switch (token >> 24)
 			{
@@ -428,7 +428,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteMethodDefOrRef(int token)
+		public void WriteMethodDefOrRef(int token)
 		{
 			switch (token >> 24)
 			{
@@ -451,7 +451,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteHasConstant(int token)
+		public void WriteHasConstant(int token)
 		{
 			int encodedToken = ConstantTable.EncodeHasConstant(token);
 			if (bigHasConstant)
@@ -464,7 +464,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteHasSemantics(int encodedToken)
+		public void WriteHasSemantics(int encodedToken)
 		{
 			// NOTE because we've already had to do the encoding (to be able to sort the table)
 			// here we simple write the value
@@ -478,7 +478,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteImplementation(int token)
+		public void WriteImplementation(int token)
 		{
 			switch (token >> 24)
 			{
@@ -506,7 +506,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteTypeOrMethodDef(int encodedToken)
+		public void WriteTypeOrMethodDef(int encodedToken)
 		{
 			// NOTE because we've already had to do the encoding (to be able to sort the table)
 			// here we simple write the value
@@ -520,7 +520,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteHasDeclSecurity(int encodedToken)
+		public void WriteHasDeclSecurity(int encodedToken)
 		{
 			// NOTE because we've already had to do the encoding (to be able to sort the table)
 			// here we simple write the value
@@ -534,7 +534,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteMemberForwarded(int token)
+		public void WriteMemberForwarded(int token)
 		{
 			switch (token >> 24)
 			{
@@ -557,7 +557,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void WriteHasFieldMarshal(int token)
+		public void WriteHasFieldMarshal(int token)
 		{
 			int encodedToken = FieldMarshalTable.EncodeHasFieldMarshal(token);
 			if (bigHasFieldMarshal)

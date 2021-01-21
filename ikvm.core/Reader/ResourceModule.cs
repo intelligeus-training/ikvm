@@ -27,13 +27,13 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class ResourceModule : NonPEModule
+	public sealed class ResourceModule : NonPEModule
 	{
 		private readonly ModuleReader manifest;
 		private readonly int index;
 		private readonly string location;
 
-		internal ResourceModule(ModuleReader manifest, int index, string location)
+		public ResourceModule(ModuleReader manifest, int index, string location)
 			: base(manifest.universe)
 		{
 			this.manifest = manifest;
@@ -85,17 +85,17 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			return null;
 		}
 
-		internal override void GetTypesImpl(List<Type> list)
+		public override void GetTypesImpl(List<Type> list)
 		{
 		}
 

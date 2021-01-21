@@ -49,16 +49,16 @@ namespace IKVM.Reflection
 		                                   | BindingFlags.Instance 
 		                                   | BindingFlags.Static;
 
-		internal TypeInfo()
+		public TypeInfo()
 		{
 		}
 
-		internal TypeInfo(Type underlyingType)
+		public TypeInfo(Type underlyingType)
 			: base(underlyingType)
 		{
 		}
 
-		internal TypeInfo(byte sigElementType)
+		public TypeInfo(byte sigElementType)
 			: base(sigElementType)
 		{
 		}

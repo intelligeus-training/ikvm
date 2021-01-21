@@ -29,13 +29,13 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class StreamHeader
+	public sealed class StreamHeader
 	{
-		internal uint Offset;
-		internal uint Size;
-		internal string Name;
+		public uint Offset;
+		public uint Size;
+		public string Name;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			Offset = br.ReadUInt32();
 			Size = br.ReadUInt32();
@@ -52,7 +52,7 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	sealed class ModuleReader : Module
+	public sealed class ModuleReader : Module
 	{
 		private readonly Stream stream;
 		private readonly string location;
@@ -84,12 +84,12 @@ namespace IKVM.Reflection.Reader
 			private readonly int index;
 			private Type type;
 
-			internal LazyForwardedType(int index)
+			public LazyForwardedType(int index)
 			{
 				this.index = index;
 			}
 
-			internal Type GetType(ModuleReader module)
+			public Type GetType(ModuleReader module)
 			{
 				// guard against circular type forwarding
 				if (type == MarkerType.LazyResolveInProgress)
@@ -106,7 +106,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal ModuleReader(AssemblyReader assembly, Universe universe, Stream stream, string location, bool mapped)
+		public ModuleReader(AssemblyReader assembly, Universe universe, Stream stream, string location, bool mapped)
 			: base(universe)
 		{
 			this.stream = universe != null && universe.MetadataOnly ? null : stream;
@@ -238,12 +238,12 @@ namespace IKVM.Reflection.Reader
 			return buf;
 		}
 
-		internal void SeekRVA(int rva)
+		public void SeekRVA(int rva)
 		{
 			GetStream().Seek(peFile.RvaToFileOffset((uint)rva), SeekOrigin.Begin);
 		}
 
-		internal Stream GetStream()
+		public Stream GetStream()
 		{
 			if (stream == null)
 			{
@@ -252,7 +252,7 @@ namespace IKVM.Reflection.Reader
 			return stream;
 		}
 
-		internal override void GetTypesImpl(List<Type> list)
+		public override void GetTypesImpl(List<Type> list)
 		{
 			PopulateTypeDef();
 			foreach (TypeDefImpl type in typeDefs)
@@ -295,7 +295,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override string GetString(int index)
+		public override string GetString(int index)
 		{
 			if (index == 0)
 			{
@@ -336,7 +336,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal byte[] GetBlobCopy(int blobIndex)
+		public byte[] GetBlobCopy(int blobIndex)
 		{
 			int len = ReadCompressedUInt(blobHeap, ref blobIndex);
 			byte[] buf = new byte[len];
@@ -344,7 +344,7 @@ namespace IKVM.Reflection.Reader
 			return buf;
 		}
 
-		internal override ByteReader GetBlob(int blobIndex)
+		public override ByteReader GetBlob(int blobIndex)
 		{
 			return ByteReader.FromBlob(blobHeap, blobIndex);
 		}
@@ -376,7 +376,7 @@ namespace IKVM.Reflection.Reader
 			return str;
 		}
 
-		internal override Type ResolveType(int metadataToken, IGenericContext context)
+		public override Type ResolveType(int metadataToken, IGenericContext context)
 		{
 			int index = (metadataToken & 0xFFFFFF) - 1;
 			if (index < 0)
@@ -581,7 +581,7 @@ namespace IKVM.Reflection.Reader
 			get { return assembly; }
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			PopulateTypeDef();
 			Type type;
@@ -596,7 +596,7 @@ namespace IKVM.Reflection.Reader
 			return type;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			PopulateTypeDef();
 			foreach (Type type in types.Values)
@@ -646,7 +646,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal FieldInfo GetFieldAt(TypeDefImpl owner, int index)
+		public FieldInfo GetFieldAt(TypeDefImpl owner, int index)
 		{
 			if (fields == null)
 			{
@@ -701,7 +701,7 @@ namespace IKVM.Reflection.Reader
 			throw new InvalidOperationException();
 		}
 
-		internal MethodBase GetMethodAt(TypeDefImpl owner, int index)
+		public MethodBase GetMethodAt(TypeDefImpl owner, int index)
 		{
 			if (methods == null)
 			{
@@ -924,7 +924,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal ByteReader GetStandAloneSig(int index)
+		public ByteReader GetStandAloneSig(int index)
 		{
 			return ByteReader.FromBlob(blobHeap, StandAloneSig.records[index]);
 		}
@@ -956,7 +956,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal MethodInfo GetEntryPoint()
+		public MethodInfo GetEntryPoint()
 		{
 			if (cliHeader.EntryPointToken != 0 && (cliHeader.Flags & CliHeader.COMIMAGE_FLAGS_NATIVE_ENTRYPOINT) == 0)
 			{
@@ -965,7 +965,7 @@ namespace IKVM.Reflection.Reader
 			return null;
 		}
 
-		internal string[] GetManifestResourceNames()
+		public string[] GetManifestResourceNames()
 		{
 			string[] names = new string[ManifestResource.records.Length];
 			for (int i = 0; i < ManifestResource.records.Length; i++)
@@ -975,7 +975,7 @@ namespace IKVM.Reflection.Reader
 			return names;
 		}
 
-		internal ManifestResourceInfo GetManifestResourceInfo(string resourceName)
+		public ManifestResourceInfo GetManifestResourceInfo(string resourceName)
 		{
 			for (int i = 0; i < ManifestResource.records.Length; i++)
 			{
@@ -993,7 +993,7 @@ namespace IKVM.Reflection.Reader
 			return null;
 		}
 
-		internal Stream GetManifestResourceStream(string resourceName)
+		public Stream GetManifestResourceStream(string resourceName)
 		{
 			for (int i = 0; i < ManifestResource.records.Length; i++)
 			{
@@ -1151,7 +1151,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override Type GetModuleType()
+		public override Type GetModuleType()
 		{
 			PopulateTypeDef();
 			return moduleType;
@@ -1268,7 +1268,7 @@ namespace IKVM.Reflection.Reader
 			return list;
 		}
 
-		internal override void Dispose()
+		public override void Dispose()
 		{
 			if (stream != null)
 			{
@@ -1276,7 +1276,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
+		public override void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
 		{
 			PopulateTypeDef();
 			manifestModule.ExportTypes(typeDefs, fileToken);
