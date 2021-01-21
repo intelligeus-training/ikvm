@@ -24,13 +24,13 @@
 using System;
 using System.IO;
 
-sealed class BigEndianBinaryReader
+public sealed class BigEndianBinaryReader
 {
 	private byte[] buf;
 	private int pos;
 	private int end;
 
-	internal BigEndianBinaryReader(byte[] buf, int offset, int length)
+	public BigEndianBinaryReader(byte[] buf, int offset, int length)
 	{
 		this.buf = buf;
 		this.pos = offset;
@@ -41,14 +41,14 @@ sealed class BigEndianBinaryReader
 		}
 	}
 
-	internal BigEndianBinaryReader Section(uint length)
+	public BigEndianBinaryReader Section(uint length)
 	{
 		BigEndianBinaryReader br = new BigEndianBinaryReader(buf, pos, checked((int)length));
 		Skip(length);
 		return br;
 	}
 
-	internal bool IsAtEnd
+	public bool IsAtEnd
 	{
 		get
 		{
@@ -56,7 +56,7 @@ sealed class BigEndianBinaryReader
 		}
 	}
 
-	internal int Position
+	public int Position
 	{
 		get
 		{
@@ -64,7 +64,7 @@ sealed class BigEndianBinaryReader
 		}
 	}
 
-	internal void Skip(uint count)
+	public void Skip(uint count)
 	{
 		if(end - pos < count)
 		{
@@ -76,7 +76,7 @@ sealed class BigEndianBinaryReader
 		}
 	}
 
-	internal byte ReadByte()
+	public byte ReadByte()
 	{
 		if(pos == end)
 		{
@@ -85,7 +85,7 @@ sealed class BigEndianBinaryReader
 		return buf[pos++];
 	}
 
-	internal sbyte ReadSByte()
+	public sbyte ReadSByte()
 	{
 		if(pos == end)
 		{
@@ -94,12 +94,12 @@ sealed class BigEndianBinaryReader
 		return (sbyte)buf[pos++];
 	}
 
-	internal double ReadDouble()
+	public double ReadDouble()
 	{
 		return BitConverter.Int64BitsToDouble(ReadInt64());
 	}
 
-	internal short ReadInt16()
+	public short ReadInt16()
 	{
 		if(end - pos < 2)
 		{
@@ -110,7 +110,7 @@ sealed class BigEndianBinaryReader
 		return s;
 	}
 
-	internal int ReadInt32()
+	public int ReadInt32()
 	{
 		if(end - pos < 4)
 		{
@@ -121,7 +121,7 @@ sealed class BigEndianBinaryReader
 		return i;
 	}
 
-	internal long ReadInt64()
+	public long ReadInt64()
 	{
 		if(end - pos < 8)
 		{
@@ -134,12 +134,12 @@ sealed class BigEndianBinaryReader
 		return l;
 	}
 
-	internal float ReadSingle()
+	public float ReadSingle()
 	{
 		return BitConverter.ToSingle(BitConverter.GetBytes(ReadInt32()), 0);
 	}
 
-	internal string ReadString(string classFile, int majorVersion)
+	public string ReadString(string classFile, int majorVersion)
 	{
 		int len = ReadUInt16();
 		if(end - pos < len)
@@ -211,7 +211,7 @@ sealed class BigEndianBinaryReader
 		return s;
 	}
 
-	internal ushort ReadUInt16()
+	public ushort ReadUInt16()
 	{
 		if(end - pos < 2)
 		{
@@ -222,7 +222,7 @@ sealed class BigEndianBinaryReader
 		return s;
 	}
 
-	internal uint ReadUInt32()
+	public uint ReadUInt32()
 	{
 		if(end - pos < 4)
 		{
@@ -233,7 +233,7 @@ sealed class BigEndianBinaryReader
 		return i;
 	}
 
-	internal byte[] ToArray()
+	public byte[] ToArray()
 	{
 		byte[] res = new byte[end - pos];
 		Buffer.BlockCopy(buf, pos, res, 0, res.Length);

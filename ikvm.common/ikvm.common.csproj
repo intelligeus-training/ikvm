@@ -5,11 +5,15 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DefineConstants>TRACE; STATIC_COMPILER</DefineConstants>
+      <DefineConstants>TRACE; STATIC_COMPILER;EMITTERS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\ikvm.core\ikvm.core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="compiler.cs" />
     </ItemGroup>
 
 </Project>

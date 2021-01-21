@@ -29,14 +29,14 @@ using System.Security.Permissions;
 using System.Threading;
 using IKVM.Internal;
 
-static class DynamicMethodUtils
+public static class DynamicMethodUtils
 {
 #if NET_4_0
 	private static Module dynamicModule;
 #endif
 
 	[SecuritySafeCritical]
-	internal static DynamicMethod Create(string name, Type owner, bool nonPublic, Type returnType, Type[] paramTypes)
+	public static DynamicMethod Create(string name, Type owner, bool nonPublic, Type returnType, Type[] paramTypes)
 	{
 		try
 		{

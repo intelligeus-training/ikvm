@@ -334,13 +334,12 @@ namespace IKVM.Internal
 					// attributes
 					return CompiledTypeWrapper.newInstance(name, type);
 				}
-				else
-				{
-					// since this type was not compiled from Java source, we don't need to
-					// look for our attributes, but we do need to filter unrepresentable
-					// stuff (and transform some other stuff)
-					return DotNetTypeWrapper.Create(type, name);
-				}
+				
+				// since this type was not compiled from Java source, we don't need to
+				// look for our attributes, but we do need to filter unrepresentable
+				// stuff (and transform some other stuff)
+				return DotNetTypeWrapper.Create(type, name);
+				
 			}
 
 			internal bool InternalsVisibleTo(AssemblyName otherName)

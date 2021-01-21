@@ -3808,7 +3808,7 @@ sealed class Compiler
 			MethodHandleUtil.EmitCallDelegateInvokeMethod(ilgen, delegateType);
 		}
 
-		internal override void EmitCallvirt(CodeEmitter ilgen)
+		public override void EmitCallvirt(CodeEmitter ilgen)
 		{
 			switch (cpi.Name)
 			{
@@ -3826,7 +3826,7 @@ sealed class Compiler
 			}
 		}
 
-		internal override void EmitNewobj(CodeEmitter ilgen)
+		public override void EmitNewobj(CodeEmitter ilgen)
 		{
 			throw new InvalidOperationException();
 		}
@@ -3959,23 +3959,23 @@ sealed class Compiler
 		{
 			private readonly MethodInfo method;
 
-			internal DynamicBinderMethodWrapper(ClassFile.ConstantPoolItemMI cpi, MethodInfo method, ClassFile.RefKind kind)
+			public DynamicBinderMethodWrapper(ClassFile.ConstantPoolItemMI cpi, MethodInfo method, ClassFile.RefKind kind)
 				: base(cpi.GetClassType(), cpi.Name, cpi.Signature, null, cpi.GetRetType(), cpi.GetArgTypes(), kind == ClassFile.RefKind.invokeStatic ? Modifiers.Public | Modifiers.Static : Modifiers.Public, MemberFlags.None)
 			{
 				this.method = method;
 			}
 
-			internal override void EmitCall(CodeEmitter ilgen)
+			public override void EmitCall(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}
 
-			internal override void EmitCallvirt(CodeEmitter ilgen)
+			public override void EmitCallvirt(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}
 
-			internal override void EmitNewobj(CodeEmitter ilgen)
+			public override void EmitNewobj(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}

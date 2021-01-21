@@ -32,9 +32,9 @@ using IKVM.Reflection;
 using IKVM.Reflection.Emit;
 using Type = IKVM.Reflection.Type;
 
-sealed class FatalCompilerErrorException : Exception
+public sealed class FatalCompilerErrorException : Exception
 {
-	internal FatalCompilerErrorException(Message id, params object[] args)
+	public FatalCompilerErrorException(Message id, params object[] args)
 		: base(string.Format("fatal error IKVMC{0}: {1}", (int)id, args.Length == 0 ? GetMessage(id) : string.Format(GetMessage(id), args)))
 	{
 	}
@@ -169,7 +169,7 @@ sealed class FatalCompilerErrorException : Exception
 	}
 }
 
-sealed class IkvmcCompiler
+public sealed class IkvmcCompiler
 {
 	private bool nonleaf;
 	private string manifestMainClass;
@@ -396,7 +396,7 @@ sealed class IkvmcCompiler
 		}
 	}
 
-	internal static byte[] ReadAllBytes(FileInfo path)
+	public static byte[] ReadAllBytes(FileInfo path)
 	{
 		try
 		{
@@ -1060,7 +1060,7 @@ sealed class IkvmcCompiler
 		targets.Add(options);
 	}
 
-	internal static FileInfo GetFileInfo(string path)
+	public static FileInfo GetFileInfo(string path)
 	{
 		try
 		{
@@ -1134,7 +1134,7 @@ sealed class IkvmcCompiler
 		}
 	}
 
-	internal static bool TryParseVersion(string str, out Version version)
+	public static bool TryParseVersion(string str, out Version version)
 	{
 		if (str.EndsWith(".*"))
 		{

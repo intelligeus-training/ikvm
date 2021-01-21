@@ -40,10 +40,11 @@ using ProtectionDomain = java.security.ProtectionDomain;
 
 namespace IKVM.Internal
 {
-	sealed class DynamicClassLoader : TypeWrapperFactory
+	public sealed class DynamicClassLoader : TypeWrapperFactory
 	{
 		// this PublicKey must be the same as the byte array in ForgedKeyPair
-		internal const string DynamicAssemblySuffixAndPublicKey = "-ikvm-runtime-injected, PublicKey=00240000048000009400000006020000002400005253413100040000010001009D674F3D63B8D7A4C428BD7388341B025C71AA61C6224CD53A12C21330A3159D300051FE2EED154FE30D70673A079E4529D0FD78113DCA771DA8B0C1EF2F77B73651D55645B0A4294F0AF9BF7078432E13D0F46F951D712C2FCF02EB15552C0FE7817FC0AED58E0984F86661BF64D882F29B619899DD264041E7D4992548EB9E";
+		public const string DynamicAssemblySuffixAndPublicKey = 
+			"-ikvm-runtime-injected, PublicKey=00240000048000009400000006020000002400005253413100040000010001009D674F3D63B8D7A4C428BD7388341B025C71AA61C6224CD53A12C21330A3159D300051FE2EED154FE30D70673A079E4529D0FD78113DCA771DA8B0C1EF2F77B73651D55645B0A4294F0AF9BF7078432E13D0F46F951D712C2FCF02EB15552C0FE7817FC0AED58E0984F86661BF64D882F29B619899DD264041E7D4992548EB9E";
 #if !STATIC_COMPILER
 		private static AssemblyBuilder jniProxyAssemblyBuilder;
 		private static List<DynamicClassLoader> saveClassLoaders;
@@ -85,7 +86,7 @@ namespace IKVM.Internal
 #endif // !STATIC_COMPILER
 		}
 
-		internal DynamicClassLoader(ModuleBuilder moduleBuilder, bool hasInternalAccess)
+		public DynamicClassLoader(ModuleBuilder moduleBuilder, bool hasInternalAccess)
 		{
 			this.moduleBuilder = moduleBuilder;
 			this.hasInternalAccess = hasInternalAccess;
@@ -112,7 +113,7 @@ namespace IKVM.Internal
 		}
 
 #if CLASSGC
-		internal override void AddInternalsVisibleTo(Assembly friend)
+		public override void AddInternalsVisibleTo(Assembly friend)
 		{
 			string name = friend.GetName().Name;
 			lock (friends)
@@ -171,7 +172,7 @@ namespace IKVM.Internal
 		}
 #endif // !STATIC_COMPILER
 
-		internal override bool ReserveName(string name)
+		public override bool ReserveName(string name)
 		{
 			lock(dynamicTypes)
 			{
@@ -184,7 +185,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal override string AllocMangledName(DynamicTypeWrapper tw)
+		public override string AllocMangledName(DynamicTypeWrapper tw)
 		{
 			lock(dynamicTypes)
 			{
@@ -192,7 +193,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static string TypeNameMangleImpl(Dictionary<string, TypeWrapper> dict, string name, TypeWrapper tw)
+		public static string TypeNameMangleImpl(Dictionary<string, TypeWrapper> dict, string name, TypeWrapper tw)
 		{
 			// the CLR maximum type name length is 1023 characters,
 			// but we need to leave some room for the suffix that we
@@ -223,7 +224,7 @@ namespace IKVM.Internal
 			return mangledTypeName;
 		}
 
-		internal sealed override TypeWrapper DefineClassImpl(Dictionary<string, TypeWrapper> types, TypeWrapper host, ClassFile f, ClassLoaderWrapper classLoader, ProtectionDomain protectionDomain)
+		public sealed override TypeWrapper DefineClassImpl(Dictionary<string, TypeWrapper> types, TypeWrapper host, ClassFile f, ClassLoaderWrapper classLoader, ProtectionDomain protectionDomain)
 		{
 #if STATIC_COMPILER
 			AotTypeWrapper type = new AotTypeWrapper(f, (CompilerClassLoader)classLoader);
@@ -284,7 +285,7 @@ namespace IKVM.Internal
 #endif
 
 #if STATIC_COMPILER
-		internal TypeBuilder DefineProxy(string name, TypeAttributes typeAttributes, Type parent, Type[] interfaces)
+		public TypeBuilder DefineProxy(string name, TypeAttributes typeAttributes, Type parent, Type[] interfaces)
 		{
 			if (proxiesContainer == null)
 			{
@@ -299,7 +300,7 @@ namespace IKVM.Internal
 		}
 #endif
 
-		internal override Type DefineUnloadable(string name)
+		public override Type DefineUnloadable(string name)
 		{
 			lock(this)
 			{
@@ -323,7 +324,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal override Type DefineDelegate(int parameterCount, bool returnVoid)
+		public override Type DefineDelegate(int parameterCount, bool returnVoid)
 		{
 			lock (this)
 			{
@@ -364,12 +365,12 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal override bool HasInternalAccess
+		public override bool HasInternalAccess
 		{
 			get { return hasInternalAccess; }
 		}
 
-		internal void FinishAll()
+		public void FinishAll()
 		{
 			Dictionary<TypeWrapper, TypeWrapper> done = new Dictionary<TypeWrapper, TypeWrapper>();
 			bool more = true;
@@ -409,7 +410,7 @@ namespace IKVM.Internal
 		}
 
 #if !STATIC_COMPILER
-		internal static void SaveDebugImages()
+		public static void SaveDebugImages()
 		{
 			Console.Error.WriteLine("Saving dynamic assemblies...");
 			JVM.FinishingForDebugSave = true;
@@ -435,7 +436,7 @@ namespace IKVM.Internal
 			ab.Save(ab.GetName().Name + ".dll");
 		}
 
-		internal static ModuleBuilder CreateJniProxyModuleBuilder()
+		public static ModuleBuilder CreateJniProxyModuleBuilder()
 		{
 			AssemblyName name = new AssemblyName();
 			name.Name = "jniproxy";
@@ -444,16 +445,10 @@ namespace IKVM.Internal
 		}
 #endif
 
-		internal sealed override ModuleBuilder ModuleBuilder
-		{
-			get
-			{
-				return moduleBuilder;
-			}
-		}
+		public sealed override ModuleBuilder ModuleBuilder => moduleBuilder;
 
 		[System.Security.SecuritySafeCritical]
-		internal static DynamicClassLoader Get(ClassLoaderWrapper loader)
+		public static DynamicClassLoader Get(ClassLoaderWrapper loader)
 		{
 #if STATIC_COMPILER
 			return new DynamicClassLoader(((CompilerClassLoader)loader).CreateModuleBuilder(), false);
@@ -480,9 +475,9 @@ namespace IKVM.Internal
 		}
 
 #if !STATIC_COMPILER
-		sealed class ForgedKeyPair : StrongNameKeyPair
+		public sealed class ForgedKeyPair : StrongNameKeyPair
 		{
-			internal static readonly StrongNameKeyPair Instance;
+			public static readonly StrongNameKeyPair Instance;
 
 			static ForgedKeyPair()
 			{

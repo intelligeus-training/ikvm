@@ -23,7 +23,7 @@
 */
 using System;
 
-enum ByteCode : byte
+public enum ByteCode : byte
 {
 	__nop = 0,
 	__aconst_null = 1,
@@ -229,7 +229,7 @@ enum ByteCode : byte
 	__jsr_w = 201
 }
 
-enum NormalizedByteCode : byte
+public enum NormalizedByteCode : byte
 {
 	__nop = 0,
 	__aconst_null = 1,
@@ -402,7 +402,7 @@ enum NormalizedByteCode : byte
 	__iconst = 255
 }
 
-enum ByteCodeMode : byte
+public enum ByteCodeMode : byte
 {
 	Unused,
 	Simple,
@@ -421,7 +421,7 @@ enum ByteCodeMode : byte
 	WidePrefix
 }
 
-enum ByteCodeModeWide : byte
+public enum ByteCodeModeWide : byte
 {
 	Unused,
 	Local_2,
@@ -429,14 +429,14 @@ enum ByteCodeModeWide : byte
 }
 
 [Flags]
-enum ByteCodeFlags : byte
+public enum ByteCodeFlags : byte
 {
 	None = 0,
 	FixedArg = 1,
 	CannotThrow = 2
 }
 
-enum ByteCodeFlowControl : byte
+public enum ByteCodeFlowControl : byte
 {
 	Next,
 	Branch,
@@ -446,7 +446,7 @@ enum ByteCodeFlowControl : byte
 	Switch,
 }
 
-struct ByteCodeMetaData
+public struct ByteCodeMetaData
 {
 	private static ByteCodeMetaData[] data = new ByteCodeMetaData[256];
 	private ByteCodeMode reg;

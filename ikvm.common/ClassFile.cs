@@ -22,13 +22,12 @@
   
 */
 using System;
-using System.IO;
 using System.Collections.Generic;
 using IKVM.Attributes;
 
 namespace IKVM.Internal
 {
-	enum HardError : short
+	public enum HardError : short
 	{
 		NoClassDefFoundError,
 		IllegalAccessError,
@@ -44,7 +43,7 @@ namespace IKVM.Internal
 	}
 
 	[Flags]
-	enum ClassFileParseOptions
+	public enum ClassFileParseOptions
 	{
 		None = 0,
 		LocalVariableTable = 1,
@@ -54,7 +53,7 @@ namespace IKVM.Internal
 		RemoveAssertions = 16,
 	}
 
-	sealed class ClassFile
+	public sealed class ClassFile
 	{
 		private ConstantPoolItem[] constantpool;
 		// Modifiers is a ushort, so the next four fields combine into two 32 bit slots
@@ -87,8 +86,8 @@ namespace IKVM.Internal
 
 		private static class SupportedVersions
 		{
-			internal static readonly int Minimum = 45;
-			internal static readonly int Maximum = Experimental.JDK_9 ? 53 : 52;
+			public static readonly int Minimum = 45;
+			public static readonly int Maximum = Experimental.JDK_9 ? 53 : 52;
 		}
 
 #if STATIC_COMPILER
@@ -96,7 +95,7 @@ namespace IKVM.Internal
 		// determine if the class is a possible ikvmstub generated stub, it doesn't
 		// validate the class file structure, but it may throw a ClassFormatError if it
 		// encounters bogus data
-		internal static string GetClassName(byte[] buf, int offset, int length, out bool isstub)
+		public static string GetClassName(byte[] buf, int offset, int length, out bool isstub)
 		{
 			isstub = false;
 			BigEndianBinaryReader br = new BigEndianBinaryReader(buf, offset, length);
@@ -165,7 +164,7 @@ namespace IKVM.Internal
 		}
 #endif // STATIC_COMPILER
 
-		internal ClassFile(byte[] buf, int offset, int length, string inputClassName, ClassFileParseOptions options, object[] constantPoolPatches)
+		public ClassFile(byte[] buf, int offset, int length, string inputClassName, ClassFileParseOptions options, object[] constantPoolPatches)
 		{
 			try
 			{
@@ -571,7 +570,7 @@ namespace IKVM.Internal
 					{
 						if (members[i].Equals(members[j]))
 						{
-							throw new ClassFormatError("{0} ({1})", Name, msg);
+							throw new ClassFormatError($"{Name} ({msg})");
 						}
 					}
 				}
@@ -583,7 +582,7 @@ namespace IKVM.Internal
 				{
 					if (dict.ContainsKey(members[i]))
 					{
-						throw new ClassFormatError("{0} ({1})", Name, msg);
+						throw new ClassFormatError($"{Name} ({msg})");
 					}
 					dict.Add(members[i], null);
 				}
@@ -862,7 +861,7 @@ namespace IKVM.Internal
 			return true;
 		}
 
-		internal static bool IsValidFieldSig(string sig)
+		public static bool IsValidFieldSig(string sig)
 		{
 			return IsValidFieldSigImpl(sig, 0, sig.Length);
 		}
@@ -901,7 +900,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static bool IsValidMethodSig(string sig)
+		public static bool IsValidMethodSig(string sig)
 		{
 			if(sig.Length < 3 || sig[0] != '(')
 			{
@@ -957,15 +956,9 @@ namespace IKVM.Internal
 			return true;
 		}
 
-		internal int MajorVersion
-		{
-			get
-			{
-				return flags & FLAG_MASK_MAJORVERSION;
-			}
-		}
+		public int MajorVersion => flags & FLAG_MASK_MAJORVERSION;
 
-		internal void Link(TypeWrapper thisType, LoadMode mode)
+		public void Link(TypeWrapper thisType, LoadMode mode)
 		{
 			// this is not just an optimization, it's required for anonymous classes to be able to refer to themselves
 			((ConstantPoolItemClass)constantpool[this_class]).LinkSelf(thisType);
@@ -978,76 +971,29 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal Modifiers Modifiers
-		{
-			get
-			{
-				return access_flags;
-			}
-		}
+		public Modifiers Modifiers => access_flags;
 
-		internal bool IsAbstract
-		{
-			get
-			{
-				// interfaces are implicitly abstract
-				return (access_flags & (Modifiers.Abstract | Modifiers.Interface)) != 0;
-			}
-		}
+		public bool IsAbstract =>
+			// interfaces are implicitly abstract
+			(access_flags & (Modifiers.Abstract | Modifiers.Interface)) != 0;
 
-		internal bool IsFinal
-		{
-			get
-			{
-				return (access_flags & Modifiers.Final) != 0;
-			}
-		}
+		public bool IsFinal => (access_flags & Modifiers.Final) != 0;
 
-		internal bool IsPublic
-		{
-			get
-			{
-				return (access_flags & Modifiers.Public) != 0;
-			}
-		}
+		public bool IsPublic => (access_flags & Modifiers.Public) != 0;
 
-		internal bool IsInterface
-		{
-			get
-			{
-				return (access_flags & Modifiers.Interface) != 0;
-			}
-		}
+		public bool IsInterface => (access_flags & Modifiers.Interface) != 0;
 
-		internal bool IsEnum
-		{
-			get
-			{
-				return (access_flags & Modifiers.Enum) != 0;
-			}
-		}
+		public bool IsEnum => (access_flags & Modifiers.Enum) != 0;
 
-		internal bool IsAnnotation
-		{
-			get
-			{
-				return (access_flags & Modifiers.Annotation) != 0;
-			}
-		}
+		public bool IsAnnotation => (access_flags & Modifiers.Annotation) != 0;
 
-		internal bool IsSuper
-		{
-			get
-			{
-				return (access_flags & Modifiers.Super) != 0;
-			}
-		}
+		public bool IsSuper => (access_flags & Modifiers.Super) != 0;
 
-		internal bool IsReferenced(Field fld)
+		public bool IsReferenced(Field fld)
 		{
 			foreach(ConstantPoolItem cpi in constantpool)
 			{
-				ConstantPoolItemFieldref fieldref = cpi as ConstantPoolItemFieldref;
+				var fieldref = cpi as ConstantPoolItemFieldref;
 				if(fieldref != null && 
 					fieldref.Class == this.Name && 
 					fieldref.Name == fld.Name && 
@@ -1059,14 +1005,14 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		internal ConstantPoolItemFieldref GetFieldref(int index)
+		public ConstantPoolItemFieldref GetFieldref(int index)
 		{
 			return (ConstantPoolItemFieldref)constantpool[index];
 		}
 
 		// this won't throw an exception if index is invalid
 		// (used by IsSideEffectFreeStaticInitializer)
-		internal ConstantPoolItemFieldref SafeGetFieldref(int index)
+		public ConstantPoolItemFieldref SafeGetFieldref(int index)
 		{
 			if(index > 0 && index < constantpool.Length)
 			{
@@ -1076,14 +1022,14 @@ namespace IKVM.Internal
 		}
 
 		// NOTE this returns an MI, because it used for both normal methods and interface methods
-		internal ConstantPoolItemMI GetMethodref(int index)
+		public ConstantPoolItemMI GetMethodref(int index)
 		{
 			return (ConstantPoolItemMI)constantpool[index];
 		}
 
 		// this won't throw an exception if index is invalid
 		// (used by IsAccessBridge)
-		internal ConstantPoolItemMI SafeGetMethodref(int index)
+		public ConstantPoolItemMI SafeGetMethodref(int index)
 		{
 			if (index > 0 && index < constantpool.Length)
 			{
@@ -1092,7 +1038,7 @@ namespace IKVM.Internal
 			return null;
 		}
 
-		internal ConstantPoolItemInvokeDynamic GetInvokeDynamic(int index)
+		public ConstantPoolItemInvokeDynamic GetInvokeDynamic(int index)
 		{
 			return (ConstantPoolItemInvokeDynamic)constantpool[index];
 		}
@@ -1102,7 +1048,7 @@ namespace IKVM.Internal
 			return constantpool[index];
 		}
 
-		internal string GetConstantPoolClass(int index)
+		public string GetConstantPoolClass(int index)
 		{
 			return ((ConstantPoolItemClass)constantpool[index]).Name;
 		}
@@ -1116,7 +1062,7 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		internal TypeWrapper GetConstantPoolClassType(int index)
+		public TypeWrapper GetConstantPoolClassType(int index)
 		{
 			return ((ConstantPoolItemClass)constantpool[index]).GetClassType();
 		}
@@ -1128,110 +1074,72 @@ namespace IKVM.Internal
 			{
 				if(this_class == 0)
 				{
-					throw new ClassFormatError("Bad constant pool index #{0}", index);
+					throw new ClassFormatError($"Bad constant pool index #{index}");
 				}
-				else
-				{
-					throw new ClassFormatError("{0} (Bad constant pool index #{1})", this.Name, index);
-				}
+				
+				throw new ClassFormatError($"{Name} (Bad constant pool index #{index})");
 			}
 			return s;
 		}
 
-		internal ConstantType GetConstantPoolConstantType(int index)
+		public ConstantType GetConstantPoolConstantType(int index)
 		{
 			return constantpool[index].GetConstantType();
 		}
 
-		internal double GetConstantPoolConstantDouble(int index)
+		public double GetConstantPoolConstantDouble(int index)
 		{
 			return ((ConstantPoolItemDouble)constantpool[index]).Value;
 		}
 
-		internal float GetConstantPoolConstantFloat(int index)
+		public float GetConstantPoolConstantFloat(int index)
 		{
 			return ((ConstantPoolItemFloat)constantpool[index]).Value;
 		}
 
-		internal int GetConstantPoolConstantInteger(int index)
+		public int GetConstantPoolConstantInteger(int index)
 		{
 			return ((ConstantPoolItemInteger)constantpool[index]).Value;
 		}
 
-		internal long GetConstantPoolConstantLong(int index)
+		public long GetConstantPoolConstantLong(int index)
 		{
 			return ((ConstantPoolItemLong)constantpool[index]).Value;
 		}
 
-		internal string GetConstantPoolConstantString(int index)
+		public string GetConstantPoolConstantString(int index)
 		{
 			return ((ConstantPoolItemString)constantpool[index]).Value;
 		}
 
-		internal ConstantPoolItemMethodHandle GetConstantPoolConstantMethodHandle(int index)
+		public ConstantPoolItemMethodHandle GetConstantPoolConstantMethodHandle(int index)
 		{
 			return (ConstantPoolItemMethodHandle)constantpool[index];
 		}
 
-		internal ConstantPoolItemMethodType GetConstantPoolConstantMethodType(int index)
+		public ConstantPoolItemMethodType GetConstantPoolConstantMethodType(int index)
 		{
 			return (ConstantPoolItemMethodType)constantpool[index];
 		}
 
-		internal object GetConstantPoolConstantLiveObject(int index)
+		public object GetConstantPoolConstantLiveObject(int index)
 		{
 			return ((ConstantPoolItemLiveObject)constantpool[index]).Value;
 		}
 
-		internal string Name
-		{
-			get
-			{
-				return GetConstantPoolClass(this_class);
-			}
-		}
+		public string Name => GetConstantPoolClass(this_class);
 
-		internal ConstantPoolItemClass SuperClass
-		{
-			get
-			{
-				return (ConstantPoolItemClass)constantpool[super_class];
-			}
-		}
+		public ConstantPoolItemClass SuperClass => (ConstantPoolItemClass)constantpool[super_class];
 
-		internal Field[] Fields
-		{
-			get
-			{
-				return fields;
-			}
-		}
+		public Field[] Fields => fields;
 
-		internal Method[] Methods
-		{
-			get
-			{
-				return methods;
-			}
-		}
+		public Method[] Methods => methods;
 
-		internal ConstantPoolItemClass[] Interfaces
-		{
-			get
-			{
-				return interfaces;
-			}
-		}
+		public ConstantPoolItemClass[] Interfaces => interfaces;
 
-		internal string SourceFileAttribute
-		{
-			get
-			{
-				return sourceFile;
-			}
-		}
+		public string SourceFileAttribute => sourceFile;
 
-		internal string SourcePath
+		public string SourcePath
 		{
 #if STATIC_COMPILER
 			get { return sourcePath; }
@@ -1241,39 +1149,15 @@ namespace IKVM.Internal
 #endif
 		}
 
-		internal object[] Annotations
-		{
-			get
-			{
-				return annotations;
-			}
-		}
+		public object[] Annotations => annotations;
 
-		internal string GenericSignature
-		{
-			get
-			{
-				return signature;
-			}
-		}
+		public string GenericSignature => signature;
 
-		internal string[] EnclosingMethod
-		{
-			get
-			{
-				return enclosingMethod;
-			}
-		}
+		public string[] EnclosingMethod => enclosingMethod;
 
-		internal byte[] RuntimeVisibleTypeAnnotations
-		{
-			get
-			{
-				return runtimeVisibleTypeAnnotations;
-			}
-		}
+		public byte[] RuntimeVisibleTypeAnnotations => runtimeVisibleTypeAnnotations;
 
-		internal object[] GetConstantPool()
+		public object[] GetConstantPool()
 		{
 			object[] cp = new object[constantpool.Length];
 			for (int i = 1; i < cp.Length; i++)
@@ -1286,7 +1170,7 @@ namespace IKVM.Internal
 			return cp;
 		}
 
-		internal string IKVMAssemblyAttribute
+		public string IKVMAssemblyAttribute
 		{
 			get
 			{
@@ -1294,7 +1178,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal bool DeprecatedAttribute
+		public bool DeprecatedAttribute
 		{
 			get
 			{
@@ -1302,7 +1186,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal bool IsInternal
+		public bool IsInternal
 		{
 			get
 			{
@@ -1311,13 +1195,13 @@ namespace IKVM.Internal
 		}
 
 		// for use by ikvmc (to implement the -privatepackage option)
-		internal void SetInternal()
+		public void SetInternal()
 		{
 			access_flags &= ~Modifiers.AccessMask;
 			flags |= FLAG_MASK_INTERNAL;
 		}
 
-		internal bool HasAssertions
+		public bool HasAssertions
 		{
 			get
 			{
@@ -1325,7 +1209,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal bool HasInitializedFields
+		public bool HasInitializedFields
 		{
 			get
 			{
@@ -1340,55 +1224,49 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal BootstrapMethod GetBootstrapMethod(int index)
+		public BootstrapMethod GetBootstrapMethod(int index)
 		{
 			return bootstrapMethods[index];
 		}
 
-		internal struct BootstrapMethod
+		public struct BootstrapMethod
 		{
 			private ushort bsm_index;
 			private ushort[] args;
 
-			internal BootstrapMethod(ushort bsm_index, ushort[] args)
+			public BootstrapMethod(ushort bsm_index, ushort[] args)
 			{
 				this.bsm_index = bsm_index;
 				this.args = args;
 			}
 
-			internal int BootstrapMethodIndex
+			public int BootstrapMethodIndex
 			{
 				get { return bsm_index; }
 			}
 
-			internal int ArgumentCount
+			public int ArgumentCount
 			{
 				get { return args.Length; }
 			}
 
-			internal int GetArgument(int index)
+			public int GetArgument(int index)
 			{
 				return args[index];
 			}
 		}
 
-		internal struct InnerClass
+		public struct InnerClass
 		{
-			internal ushort innerClass;		// ConstantPoolItemClass
-			internal ushort outerClass;		// ConstantPoolItemClass
-			internal ushort name;			// ConstantPoolItemUtf8
-			internal Modifiers accessFlags;
+			public ushort innerClass;		// ConstantPoolItemClass
+			public ushort outerClass;		// ConstantPoolItemClass
+			public ushort name;			// ConstantPoolItemUtf8
+			public Modifiers accessFlags;
 		}
 
-		internal InnerClass[] InnerClasses
-		{
-			get
-			{
-				return innerClasses;
-			}
-		}
+		public InnerClass[] InnerClasses => innerClasses;
 
-		internal enum RefKind
+		public enum RefKind
 		{
 			getField = 1,
 			getStatic = 2,
@@ -1401,7 +1279,7 @@ namespace IKVM.Internal
 			invokeInterface = 9
 		}
 
-		internal enum ConstantType
+		public enum ConstantType
 		{
 			Integer,
 			Long,
@@ -1414,52 +1292,52 @@ namespace IKVM.Internal
 			LiveObject,		// used by anonymous class constant pool patching
 		}
 
-		internal abstract class ConstantPoolItem
+		public abstract class ConstantPoolItem
 		{
-			internal virtual void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public virtual void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 			}
 
-			internal virtual void Link(TypeWrapper thisType, LoadMode mode)
+			public virtual void Link(TypeWrapper thisType, LoadMode mode)
 			{
 			}
 
-			internal virtual ConstantType GetConstantType()
+			public virtual ConstantType GetConstantType()
 			{
 				throw new InvalidOperationException();
 			}
 
-			internal virtual void MarkLinkRequired()
+			public virtual void MarkLinkRequired()
 			{
 			}
 
 			// this is used for sun.reflect.ConstantPool
 			// it returns a boxed System.Int32, System.Int64, System.Float, System.Double or a string
-			internal virtual object GetRuntimeValue()
+			public virtual object GetRuntimeValue()
 			{
 				return null;
 			}
 		}
 
-		internal sealed class ConstantPoolItemClass : ConstantPoolItem, IEquatable<ConstantPoolItemClass>
+		public sealed class ConstantPoolItemClass : ConstantPoolItem, IEquatable<ConstantPoolItemClass>
 		{
 			private ushort name_index;
 			private string name;
 			private TypeWrapper typeWrapper;
 			private static char[] invalidJava15Characters = { '.', ';', '[', ']' };
 
-			internal ConstantPoolItemClass(BigEndianBinaryReader br)
+			public ConstantPoolItemClass(BigEndianBinaryReader br)
 			{
 				name_index = br.ReadUInt16();
 			}
 
-			internal ConstantPoolItemClass(string name, TypeWrapper typeWrapper)
+			public ConstantPoolItemClass(string name, TypeWrapper typeWrapper)
 			{
 				this.name = name;
 				this.typeWrapper = typeWrapper;
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				// if the item was patched, we already have a name
 				if(name != null)
@@ -1545,7 +1423,7 @@ namespace IKVM.Internal
 					throw new ClassFormatError("Invalid class name \"{0}\"", name);
 			}
 
-			internal override void MarkLinkRequired()
+			public override void MarkLinkRequired()
 			{
 				if(typeWrapper == null)
 				{
@@ -1553,12 +1431,12 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal void LinkSelf(TypeWrapper thisType)
+			public void LinkSelf(TypeWrapper thisType)
 			{
-				this.typeWrapper = thisType;
+				typeWrapper = thisType;
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				if(typeWrapper == VerifierTypeWrapper.Null)
 				{
@@ -1580,20 +1458,14 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string Name
-			{
-				get
-				{
-					return name;
-				}
-			}
+			public string Name => name;
 
-			internal TypeWrapper GetClassType()
+			public TypeWrapper GetClassType()
 			{
 				return typeWrapper;
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.Class;
 			}
@@ -1611,33 +1483,27 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemDouble : ConstantPoolItem
 		{
-			internal double d;
+			public double d;
 
-			internal ConstantPoolItemDouble(BigEndianBinaryReader br)
+			public ConstantPoolItemDouble(BigEndianBinaryReader br)
 			{
 				d = br.ReadDouble();
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.Double;
 			}
 
-			internal double Value
-			{
-				get
-				{
-					return d;
-				}
-			}
+			public double Value => d;
 
-			internal override object GetRuntimeValue()
+			public override object GetRuntimeValue()
 			{
 				return d;
 			}
 		}
 
-		internal abstract class ConstantPoolItemFMI : ConstantPoolItem
+		public abstract class ConstantPoolItemFMI : ConstantPoolItem
 		{
 			private ushort class_index;
 			private ushort name_and_type_index;
@@ -1645,13 +1511,13 @@ namespace IKVM.Internal
 			private string name;
 			private string descriptor;
 
-			internal ConstantPoolItemFMI(BigEndianBinaryReader br)
+			public ConstantPoolItemFMI(BigEndianBinaryReader br)
 			{
 				class_index = br.ReadUInt16();
 				name_and_type_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				ConstantPoolItemNameAndType name_and_type = (ConstantPoolItemNameAndType)classFile.GetConstantPoolItem(name_and_type_index);
 				clazz = (ConstantPoolItemClass)classFile.GetConstantPoolItem(class_index);
@@ -1668,17 +1534,17 @@ namespace IKVM.Internal
 
 			protected abstract void Validate(string name, string descriptor, int majorVersion);
 
-			internal override void MarkLinkRequired()
+			public override void MarkLinkRequired()
 			{
 				clazz.MarkLinkRequired();
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				clazz.Link(thisType, mode);
 			}
 
-			internal string Name
+			public string Name
 			{
 				get
 				{
@@ -1686,7 +1552,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string Signature
+			public string Signature
 			{
 				get
 				{
@@ -1694,7 +1560,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string Class
+			public string Class
 			{
 				get
 				{
@@ -1702,20 +1568,20 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal TypeWrapper GetClassType()
+			public TypeWrapper GetClassType()
 			{
 				return clazz.GetClassType();
 			}
 
-			internal abstract MemberWrapper GetMember();
+			public abstract MemberWrapper GetMember();
 		}
 
-		internal sealed class ConstantPoolItemFieldref : ConstantPoolItemFMI
+		public sealed class ConstantPoolItemFieldref : ConstantPoolItemFMI
 		{
 			private FieldWrapper field;
 			private TypeWrapper fieldTypeWrapper;
 
-			internal ConstantPoolItemFieldref(BigEndianBinaryReader br) : base(br)
+			public ConstantPoolItemFieldref(BigEndianBinaryReader br) : base(br)
 			{
 			}
 
@@ -1731,12 +1597,12 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal TypeWrapper GetFieldType()
+			public TypeWrapper GetFieldType()
 			{
 				return fieldTypeWrapper;
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				base.Link(thisType, mode);
 				lock(this)
@@ -1772,25 +1638,25 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal FieldWrapper GetField()
+			public FieldWrapper GetField()
 			{
 				return field;
 			}
 
-			internal override MemberWrapper GetMember()
+			public override MemberWrapper GetMember()
 			{
 				return field;
 			}
 		}
 
-		internal class ConstantPoolItemMI : ConstantPoolItemFMI
+		public class ConstantPoolItemMI : ConstantPoolItemFMI
 		{
 			private TypeWrapper[] argTypeWrappers;
 			private TypeWrapper retTypeWrapper;
 			protected MethodWrapper method;
 			protected MethodWrapper invokespecialMethod;
 
-			internal ConstantPoolItemMI(BigEndianBinaryReader br) : base(br)
+			public ConstantPoolItemMI(BigEndianBinaryReader br) : base(br)
 			{
 			}
 
@@ -1813,7 +1679,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				base.Link(thisType, mode);
 				lock(this)
@@ -1836,39 +1702,39 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal TypeWrapper[] GetArgTypes()
+			public TypeWrapper[] GetArgTypes()
 			{
 				return argTypeWrappers;
 			}
 
-			internal TypeWrapper GetRetType()
+			public TypeWrapper GetRetType()
 			{
 				return retTypeWrapper;
 			}
 
-			internal MethodWrapper GetMethod()
+			public MethodWrapper GetMethod()
 			{
 				return method;
 			}
 
-			internal MethodWrapper GetMethodForInvokespecial()
+			public MethodWrapper GetMethodForInvokespecial()
 			{
 				return invokespecialMethod != null ? invokespecialMethod : method;
 			}
 
-			internal override MemberWrapper GetMember()
+			public override MemberWrapper GetMember()
 			{
 				return method;
 			}
 		}
 
-		internal sealed class ConstantPoolItemMethodref : ConstantPoolItemMI
+		public sealed class ConstantPoolItemMethodref : ConstantPoolItemMI
 		{
-			internal ConstantPoolItemMethodref(BigEndianBinaryReader br) : base(br)
+			public ConstantPoolItemMethodref(BigEndianBinaryReader br) : base(br)
 			{
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				base.Link(thisType, mode);
 				TypeWrapper wrapper = GetClassType();
@@ -1895,13 +1761,13 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal sealed class ConstantPoolItemInterfaceMethodref : ConstantPoolItemMI
+		public sealed class ConstantPoolItemInterfaceMethodref : ConstantPoolItemMI
 		{
-			internal ConstantPoolItemInterfaceMethodref(BigEndianBinaryReader br) : base(br)
+			public ConstantPoolItemInterfaceMethodref(BigEndianBinaryReader br) : base(br)
 			{
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				base.Link(thisType, mode);
 				TypeWrapper wrapper = GetClassType();
@@ -1926,27 +1792,21 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemFloat : ConstantPoolItem
 		{
-			internal float v;
+			public float v;
 
-			internal ConstantPoolItemFloat(BigEndianBinaryReader br)
+			public ConstantPoolItemFloat(BigEndianBinaryReader br)
 			{
 				v = br.ReadSingle();
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.Float;
 			}
 
-			internal float Value
-			{
-				get
-				{
-					return v;
-				}
-			}
+			public float Value => v;
 
-			internal override object GetRuntimeValue()
+			public override object GetRuntimeValue()
 			{
 				return v;
 			}
@@ -1954,27 +1814,21 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemInteger : ConstantPoolItem
 		{
-			internal int v;
+			public int v;
 
-			internal ConstantPoolItemInteger(BigEndianBinaryReader br)
+			public ConstantPoolItemInteger(BigEndianBinaryReader br)
 			{
 				v = br.ReadInt32();
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.Integer;
 			}
 
-			internal int Value
-			{
-				get
-				{
-					return v;
-				}
-			}
+			public int Value => v;
 
-			internal override object GetRuntimeValue()
+			public override object GetRuntimeValue()
 			{
 				return v;
 			}
@@ -1982,19 +1836,19 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemLong : ConstantPoolItem
 		{
-			internal long l;
+			public long l;
 
-			internal ConstantPoolItemLong(BigEndianBinaryReader br)
+			public ConstantPoolItemLong(BigEndianBinaryReader br)
 			{
 				l = br.ReadInt64();
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.Long;
 			}
 
-			internal long Value
+			public long Value
 			{
 				get
 				{
@@ -2002,7 +1856,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal override object GetRuntimeValue()
+			public override object GetRuntimeValue()
 			{
 				return l;
 			}
@@ -2010,16 +1864,16 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemNameAndType : ConstantPoolItem
 		{
-			internal ushort name_index;
-			internal ushort descriptor_index;
+			public ushort name_index;
+			public ushort descriptor_index;
 
-			internal ConstantPoolItemNameAndType(BigEndianBinaryReader br)
+			public ConstantPoolItemNameAndType(BigEndianBinaryReader br)
 			{
 				name_index = br.ReadUInt16();
 				descriptor_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				if(classFile.GetConstantPoolUtf8String(utf8_cp, name_index) == null
 					|| classFile.GetConstantPoolUtf8String(utf8_cp, descriptor_index) == null)
@@ -2029,19 +1883,19 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal sealed class ConstantPoolItemMethodHandle : ConstantPoolItem
+		public sealed class ConstantPoolItemMethodHandle : ConstantPoolItem
 		{
 			private byte ref_kind;
 			private ushort method_index;
 			private ConstantPoolItemFMI cpi;
 
-			internal ConstantPoolItemMethodHandle(BigEndianBinaryReader br)
+			public ConstantPoolItemMethodHandle(BigEndianBinaryReader br)
 			{
 				ref_kind = br.ReadByte();
 				method_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				switch ((RefKind)ref_kind)
 				{
@@ -2073,70 +1927,70 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal override void MarkLinkRequired()
+			public override void MarkLinkRequired()
 			{
 				cpi.MarkLinkRequired();
 			}
 
-			internal string Class
+			public string Class
 			{
 				get { return cpi.Class; }
 			}
 
-			internal string Name
+			public string Name
 			{
 				get { return cpi.Name; }
 			}
 
-			internal string Signature
+			public string Signature
 			{
 				get { return cpi.Signature; }
 			}
 
-			internal ConstantPoolItemFMI MemberConstantPoolItem
+			public ConstantPoolItemFMI MemberConstantPoolItem
 			{
 				get { return cpi; }
 			}
 
-			internal RefKind Kind
+			public RefKind Kind
 			{
 				get { return (RefKind)ref_kind; }
 			}
 
-			internal MemberWrapper Member
+			public MemberWrapper Member
 			{
 				get { return cpi.GetMember(); }
 			}
 
-			internal TypeWrapper GetClassType()
+			public TypeWrapper GetClassType()
 			{
 				return cpi.GetClassType();
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				cpi.Link(thisType, mode);
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.MethodHandle;
 			}
 		}
 
-		internal sealed class ConstantPoolItemMethodType : ConstantPoolItem
+		public sealed class ConstantPoolItemMethodType : ConstantPoolItem
 		{
 			private ushort signature_index;
 			private string descriptor;
 			private TypeWrapper[] argTypeWrappers;
 			private TypeWrapper retTypeWrapper;
 
-			internal ConstantPoolItemMethodType(BigEndianBinaryReader br)
+			public ConstantPoolItemMethodType(BigEndianBinaryReader br)
 			{
 				signature_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				string descriptor = classFile.GetConstantPoolUtf8String(utf8_cp, signature_index);
 				if (descriptor == null || !IsValidMethodSig(descriptor))
@@ -2146,7 +2000,7 @@ namespace IKVM.Internal
 				this.descriptor = String.Intern(descriptor.Replace('/', '.'));
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				lock (this)
 				{
@@ -2168,28 +2022,28 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string Signature
+			public string Signature
 			{
 				get { return descriptor; }
 			}
 
-			internal TypeWrapper[] GetArgTypes()
+			public TypeWrapper[] GetArgTypes()
 			{
 				return argTypeWrappers;
 			}
 
-			internal TypeWrapper GetRetType()
+			public TypeWrapper GetRetType()
 			{
 				return retTypeWrapper;
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.MethodType;
 			}
 		}
 
-		internal sealed class ConstantPoolItemInvokeDynamic : ConstantPoolItem
+		public sealed class ConstantPoolItemInvokeDynamic : ConstantPoolItem
 		{
 			private ushort bootstrap_specifier_index;
 			private ushort name_and_type_index;
@@ -2198,13 +2052,13 @@ namespace IKVM.Internal
 			private TypeWrapper[] argTypeWrappers;
 			private TypeWrapper retTypeWrapper;
 
-			internal ConstantPoolItemInvokeDynamic(BigEndianBinaryReader br)
+			public ConstantPoolItemInvokeDynamic(BigEndianBinaryReader br)
 			{
 				bootstrap_specifier_index = br.ReadUInt16();
 				name_and_type_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				ConstantPoolItemNameAndType name_and_type = (ConstantPoolItemNameAndType)classFile.GetConstantPoolItem(name_and_type_index);
 				// if the constant pool items referred to were strings, GetConstantPoolItem returns null
@@ -2216,7 +2070,7 @@ namespace IKVM.Internal
 				descriptor = String.Intern(classFile.GetConstantPoolUtf8String(utf8_cp, name_and_type.descriptor_index).Replace('/', '.'));
 			}
 
-			internal override void Link(TypeWrapper thisType, LoadMode mode)
+			public override void Link(TypeWrapper thisType, LoadMode mode)
 			{
 				lock (this)
 				{
@@ -2238,30 +2092,21 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal TypeWrapper[] GetArgTypes()
+			public TypeWrapper[] GetArgTypes()
 			{
 				return argTypeWrappers;
 			}
 
-			internal TypeWrapper GetRetType()
+			public TypeWrapper GetRetType()
 			{
 				return retTypeWrapper;
 			}
 
-			internal string Name
-			{
-				get { return name; }
-			}
+			public string Name => name;
 
-			internal string Signature
-			{
-				get { return descriptor; }
-			}
+			public string Signature => descriptor;
 
-			internal ushort BootstrapMethod
-			{
-				get { return bootstrap_specifier_index; }
-			}
+			public ushort BootstrapMethod => bootstrap_specifier_index;
 		}
 
 		private sealed class ConstantPoolItemString : ConstantPoolItem
@@ -2269,22 +2114,22 @@ namespace IKVM.Internal
 			private ushort string_index;
 			private string s;
 
-			internal ConstantPoolItemString(BigEndianBinaryReader br)
+			public ConstantPoolItemString(BigEndianBinaryReader br)
 			{
 				string_index = br.ReadUInt16();
 			}
 
-			internal override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
+			public override void Resolve(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options)
 			{
 				s = classFile.GetConstantPoolUtf8String(utf8_cp, string_index);
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.String;
 			}
 
-			internal string Value
+			public string Value
 			{
 				get
 				{
@@ -2299,12 +2144,12 @@ namespace IKVM.Internal
 		{
 			private readonly string str;
 
-			internal ConstantPoolItemUtf8(string str)
+			public ConstantPoolItemUtf8(string str)
 			{
 				this.str = str;
 			}
 
-			internal override object GetRuntimeValue()
+			public override object GetRuntimeValue()
 			{
 				return str;
 			}
@@ -2312,20 +2157,20 @@ namespace IKVM.Internal
 
 		private sealed class ConstantPoolItemLiveObject : ConstantPoolItem
 		{
-			internal readonly object Value;
+			public readonly object Value;
 
-			internal ConstantPoolItemLiveObject(object value)
+			public ConstantPoolItemLiveObject(object value)
 			{
 				this.Value = value;
 			}
 
-			internal override ConstantType GetConstantType()
+			public override ConstantType GetConstantType()
 			{
 				return ConstantType.LiveObject;
 			}
 		}
 
-		internal enum Constant
+		public enum Constant
 		{
 			Utf8 = 1,
 			Integer = 3,
@@ -2343,7 +2188,7 @@ namespace IKVM.Internal
 			InvokeDynamic = 18,
 		}
 
-		internal abstract class FieldOrMethod : IEquatable<FieldOrMethod>
+		public abstract class FieldOrMethod : IEquatable<FieldOrMethod>
 		{
 			// Note that Modifiers is a ushort, so it combines nicely with the following ushort field
 			protected Modifiers access_flags;
@@ -2354,7 +2199,7 @@ namespace IKVM.Internal
 			protected object[] annotations;
 			protected byte[] runtimeVisibleTypeAnnotations;
 
-			internal FieldOrMethod(ClassFile classFile, string[] utf8_cp, BigEndianBinaryReader br)
+			public FieldOrMethod(ClassFile classFile, string[] utf8_cp, BigEndianBinaryReader br)
 			{
 				access_flags = (Modifiers)br.ReadUInt16();
 				name = String.Intern(classFile.GetConstantPoolUtf8String(utf8_cp, br.ReadUInt16()));
@@ -2365,157 +2210,43 @@ namespace IKVM.Internal
 
 			protected abstract void ValidateSig(ClassFile classFile, string descriptor);
 
-			internal string Name
-			{
-				get
-				{
-					return name;
-				}
-			}
+			public string Name => name;
 
-			internal string Signature
-			{
-				get
-				{
-					return descriptor;
-				}
-			}
+			public string Signature => descriptor;
 
-			internal object[] Annotations
-			{
-				get
-				{
-					return annotations;
-				}
-			}
+			public object[] Annotations => annotations;
 
-			internal string GenericSignature
-			{
-				get
-				{
-					return signature;
-				}
-			}
+			public string GenericSignature => signature;
 
-			internal Modifiers Modifiers
-			{
-				get
-				{
-					return (Modifiers)access_flags;
-				}
-			}
+			public Modifiers Modifiers => (Modifiers)access_flags;
 
-			internal bool IsAbstract
-			{
-				get
-				{
-					return (access_flags & Modifiers.Abstract) != 0;
-				}
-			}
+			public bool IsAbstract => (access_flags & Modifiers.Abstract) != 0;
 
-			internal bool IsFinal
-			{
-				get
-				{
-					return (access_flags & Modifiers.Final) != 0;
-				}
-			}
+			public bool IsFinal => (access_flags & Modifiers.Final) != 0;
 
-			internal bool IsPublic
-			{
-				get
-				{
-					return (access_flags & Modifiers.Public) != 0;
-				}
-			}
+			public bool IsPublic => (access_flags & Modifiers.Public) != 0;
 
-			internal bool IsPrivate
-			{
-				get
-				{
-					return (access_flags & Modifiers.Private) != 0;
-				}
-			}
+			public bool IsPrivate => (access_flags & Modifiers.Private) != 0;
 
-			internal bool IsProtected
-			{
-				get
-				{
-					return (access_flags & Modifiers.Protected) != 0;
-				}
-			}
+			public bool IsProtected => (access_flags & Modifiers.Protected) != 0;
 
-			internal bool IsStatic
-			{
-				get
-				{
-					return (access_flags & Modifiers.Static) != 0;
-				}
-			}
+			public bool IsStatic => (access_flags & Modifiers.Static) != 0;
 
-			internal bool IsSynchronized
-			{
-				get
-				{
-					return (access_flags & Modifiers.Synchronized) != 0;
-				}
-			}
+			public bool IsSynchronized => (access_flags & Modifiers.Synchronized) != 0;
 
-			internal bool IsVolatile
-			{
-				get
-				{
-					return (access_flags & Modifiers.Volatile) != 0;
-				}
-			}
+			public bool IsVolatile => (access_flags & Modifiers.Volatile) != 0;
 
-			internal bool IsTransient
-			{
-				get
-				{
-					return (access_flags & Modifiers.Transient) != 0;
-				}
-			}
+			public bool IsTransient => (access_flags & Modifiers.Transient) != 0;
 
-			internal bool IsNative
-			{
-				get
-				{
-					return (access_flags & Modifiers.Native) != 0;
-				}
-			}
+			public bool IsNative => (access_flags & Modifiers.Native) != 0;
 
-			internal bool IsEnum
-			{
-				get
-				{
-					return (access_flags & Modifiers.Enum) != 0;
-				}
-			}
+			public bool IsEnum => (access_flags & Modifiers.Enum) != 0;
 
-			internal bool DeprecatedAttribute
-			{
-				get
-				{
-					return (flags & FLAG_MASK_DEPRECATED) != 0;
-				}
-			}
+			public bool DeprecatedAttribute => (flags & FLAG_MASK_DEPRECATED) != 0;
 
-			internal bool IsInternal
-			{
-				get
-				{
-					return (flags & FLAG_MASK_INTERNAL) != 0;
-				}
-			}
+			public bool IsInternal => (flags & FLAG_MASK_INTERNAL) != 0;
 
-			internal byte[] RuntimeVisibleTypeAnnotations
-			{
-				get
-				{
-					return runtimeVisibleTypeAnnotations;
-				}
-			}
+			public byte[] RuntimeVisibleTypeAnnotations => runtimeVisibleTypeAnnotations;
 
 			public sealed override int GetHashCode()
 			{
@@ -2528,12 +2259,12 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal sealed class Field : FieldOrMethod
+		public sealed class Field : FieldOrMethod
 		{
 			private object constantValue;
 			private string[] propertyGetterSetter;
 
-			internal Field(ClassFile classFile, string[] utf8_cp, BigEndianBinaryReader br) : base(classFile, utf8_cp, br)
+			public Field(ClassFile classFile, string[] utf8_cp, BigEndianBinaryReader br) : base(classFile, utf8_cp, br)
 			{
 				if((IsPrivate && IsPublic) || (IsPrivate && IsProtected) || (IsPublic && IsProtected)
 					|| (IsFinal && IsVolatile)
@@ -2712,7 +2443,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal object ConstantValue
+			public object ConstantValue
 			{
 				get
 				{
@@ -2720,17 +2451,17 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal void PatchConstantValue(object value)
+			public void PatchConstantValue(object value)
 			{
 				constantValue = value;
 			}
 
-			internal bool IsStaticFinalConstant
+			public bool IsStaticFinalConstant
 			{
 				get { return (access_flags & (Modifiers.Final | Modifiers.Static)) == (Modifiers.Final | Modifiers.Static) && constantValue != null; }
 			}
 
-			internal bool IsProperty
+			public bool IsProperty
 			{
 				get
 				{
@@ -2738,7 +2469,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string PropertyGetter
+			public string PropertyGetter
 			{
 				get
 				{
@@ -2746,7 +2477,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string PropertySetter
+			public string PropertySetter
 			{
 				get
 				{
@@ -2755,25 +2486,25 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal sealed class Method : FieldOrMethod
+		public sealed class Method : FieldOrMethod
 		{
 			private Code code;
 			private string[] exceptions;
 			private LowFreqData low;
 			private MethodParametersEntry[] parameters;
 
-			sealed class LowFreqData
+			public sealed class LowFreqData
 			{
-				internal object annotationDefault;
-				internal object[][] parameterAnnotations;
+				public object annotationDefault;
+				public object[][] parameterAnnotations;
 #if STATIC_COMPILER
-				internal string DllExportName;
-				internal int DllExportOrdinal;
-				internal string InterlockedCompareAndSetField;
+				public string DllExportName;
+				public int DllExportOrdinal;
+				public string InterlockedCompareAndSetField;
 #endif
 			}
 
-			internal Method(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options, BigEndianBinaryReader br) : base(classFile, utf8_cp, br)
+			public Method(ClassFile classFile, string[] utf8_cp, ClassFileParseOptions options, BigEndianBinaryReader br) : base(classFile, utf8_cp, br)
 			{
 				// vmspec 4.6 says that all flags, except ACC_STRICT are ignored on <clinit>
 				// however, since Java 7 it does need to be marked static
@@ -3082,7 +2813,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool IsStrictfp
+			public bool IsStrictfp
 			{
 				get
 				{
@@ -3090,7 +2821,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool IsVirtual
+			public bool IsVirtual
 			{
 				get
 				{
@@ -3100,7 +2831,7 @@ namespace IKVM.Internal
 			}
 
 			// Is this the <clinit>()V method?
-			internal bool IsClassInitializer
+			public bool IsClassInitializer
 			{
 				get
 				{
@@ -3108,7 +2839,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool IsConstructor
+			public bool IsConstructor
 			{
 				get
 				{
@@ -3117,7 +2848,7 @@ namespace IKVM.Internal
 			}
 
 #if STATIC_COMPILER
-			internal bool IsCallerSensitive
+			public bool IsCallerSensitive
 			{
 				get
 				{
@@ -3126,7 +2857,7 @@ namespace IKVM.Internal
 			}
 #endif
 
-			internal bool IsLambdaFormCompiled
+			public bool IsLambdaFormCompiled
 			{
 				get
 				{
@@ -3134,7 +2865,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool IsLambdaFormHidden
+			public bool IsLambdaFormHidden
 			{
 				get
 				{
@@ -3142,7 +2873,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool IsForceInline
+			public bool IsForceInline
 			{
 				get
 				{
@@ -3150,7 +2881,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string[] ExceptionsAttribute
+			public string[] ExceptionsAttribute
 			{
 				get
 				{
@@ -3158,7 +2889,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal object[][] ParameterAnnotations
+			public object[][] ParameterAnnotations
 			{
 				get
 				{
@@ -3166,7 +2897,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal object AnnotationDefault
+			public object AnnotationDefault
 			{
 				get
 				{
@@ -3175,7 +2906,7 @@ namespace IKVM.Internal
 			}
 
 #if STATIC_COMPILER
-			internal string DllExportName
+			public string DllExportName
 			{
 				get
 				{
@@ -3183,7 +2914,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal int DllExportOrdinal
+			public int DllExportOrdinal
 			{
 				get
 				{
@@ -3191,7 +2922,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal string InterlockedCompareAndSetField
+			public string InterlockedCompareAndSetField
 			{
 				get
 				{
@@ -3200,7 +2931,7 @@ namespace IKVM.Internal
 			}
 #endif
 
-			internal string VerifyError
+			public string VerifyError
 			{
 				get
 				{
@@ -3209,7 +2940,7 @@ namespace IKVM.Internal
 			}
 
 			// maps argument 'slot' (as encoded in the xload/xstore instructions) into the ordinal
-			internal int[] ArgMap
+			public int[] ArgMap
 			{
 				get
 				{
@@ -3217,7 +2948,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal int MaxStack
+			public int MaxStack
 			{
 				get
 				{
@@ -3225,7 +2956,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal int MaxLocals
+			public int MaxLocals
 			{
 				get
 				{
@@ -3233,7 +2964,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal Instruction[] Instructions
+			public Instruction[] Instructions
 			{
 				get
 				{
@@ -3245,7 +2976,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal ExceptionTableEntry[] ExceptionTable
+			public ExceptionTableEntry[] ExceptionTable
 			{
 				get
 				{
@@ -3257,7 +2988,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal LineNumberTableEntry[] LineNumberTableAttribute
+			public LineNumberTableEntry[] LineNumberTableAttribute
 			{
 				get
 				{
@@ -3265,7 +2996,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal LocalVariableTableEntry[] LocalVariableTableAttribute
+			public LocalVariableTableEntry[] LocalVariableTableAttribute
 			{
 				get
 				{
@@ -3273,7 +3004,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal MethodParametersEntry[] MethodParameters
+			public MethodParametersEntry[] MethodParameters
 			{
 				get
 				{
@@ -3281,7 +3012,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool MalformedMethodParameters
+			public bool MalformedMethodParameters
 			{
 				get
 				{
@@ -3289,7 +3020,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool HasJsr
+			public bool HasJsr
 			{
 				get
 				{
@@ -3299,17 +3030,17 @@ namespace IKVM.Internal
 
 			private struct Code
 			{
-				internal bool hasJsr;
-				internal string verifyError;
-				internal ushort max_stack;
-				internal ushort max_locals;
-				internal Instruction[] instructions;
-				internal ExceptionTableEntry[] exception_table;
-				internal int[] argmap;
-				internal LineNumberTableEntry[] lineNumberTable;
-				internal LocalVariableTableEntry[] localVariableTable;
+				public bool hasJsr;
+				public string verifyError;
+				public ushort max_stack;
+				public ushort max_locals;
+				public Instruction[] instructions;
+				public ExceptionTableEntry[] exception_table;
+				public int[] argmap;
+				public LineNumberTableEntry[] lineNumberTable;
+				public LocalVariableTableEntry[] localVariableTable;
 
-				internal void Read(ClassFile classFile, string[] utf8_cp, Method method, BigEndianBinaryReader br, ClassFileParseOptions options)
+				public void Read(ClassFile classFile, string[] utf8_cp, Method method, BigEndianBinaryReader br, ClassFileParseOptions options)
 				{
 					max_stack = br.ReadUInt16();
 					max_locals = br.ReadUInt16();
@@ -3514,7 +3245,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal bool IsEmpty
+				public bool IsEmpty
 				{
 					get
 					{
@@ -3523,21 +3254,21 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal sealed class ExceptionTableEntry
+			public sealed class ExceptionTableEntry
 			{
-				internal readonly int startIndex;
-				internal readonly int endIndex;
-				internal readonly int handlerIndex;
-				internal readonly ushort catch_type;
-				internal readonly int ordinal;
-				internal readonly bool isFinally;
+				public readonly int startIndex;
+				public readonly int endIndex;
+				public readonly int handlerIndex;
+				public readonly ushort catch_type;
+				public readonly int ordinal;
+				public readonly bool isFinally;
 
-				internal ExceptionTableEntry(int startIndex, int endIndex, int handlerIndex, ushort catch_type, int ordinal)
+				public ExceptionTableEntry(int startIndex, int endIndex, int handlerIndex, ushort catch_type, int ordinal)
 					: this(startIndex, endIndex, handlerIndex, catch_type, ordinal, false)
 				{
 				}
 
-				internal ExceptionTableEntry(int startIndex, int endIndex, int handlerIndex, ushort catch_type, int ordinal, bool isFinally)
+				public ExceptionTableEntry(int startIndex, int endIndex, int handlerIndex, ushort catch_type, int ordinal, bool isFinally)
 				{
 					this.startIndex = startIndex;
 					this.endIndex = endIndex;
@@ -3549,14 +3280,14 @@ namespace IKVM.Internal
 			}
 
 			[Flags]
-			internal enum InstructionFlags : byte
+			public enum InstructionFlags : byte
 			{
 				Reachable = 1,
 				Processed = 2,
 				BranchTarget = 4,
 			}
 
-			internal struct Instruction
+			public struct Instruction
 			{
 				private ushort pc;
 				private NormalizedByteCode normopcode;
@@ -3566,18 +3297,18 @@ namespace IKVM.Internal
 
 				struct SwitchEntry
 				{
-					internal int value;
-					internal int target;
+					public int value;
+					public int target;
 				}
 
-				internal void SetHardError(HardError error, int messageId)
+				public void SetHardError(HardError error, int messageId)
 				{
 					normopcode = NormalizedByteCode.__static_error;
 					arg2 = (short)error;
 					arg1 = messageId;
 				}
 
-				internal HardError HardError
+				public HardError HardError
 				{
 					get
 					{
@@ -3585,12 +3316,12 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int HandlerIndex
+				public int HandlerIndex
 				{
 					get { return (ushort)arg2; }
 				}
 
-				internal int HardErrorMessageId
+				public int HardErrorMessageId
 				{
 					get
 					{
@@ -3598,42 +3329,42 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal void PatchOpCode(NormalizedByteCode bc)
+				public void PatchOpCode(NormalizedByteCode bc)
 				{
 					this.normopcode = bc;
 				}
 
-				internal void PatchOpCode(NormalizedByteCode bc, int arg1)
+				public void PatchOpCode(NormalizedByteCode bc, int arg1)
 				{
 					this.normopcode = bc;
 					this.arg1 = arg1;
 				}
 
-				internal void PatchOpCode(NormalizedByteCode bc, int arg1, short arg2)
+				public void PatchOpCode(NormalizedByteCode bc, int arg1, short arg2)
 				{
 					this.normopcode = bc;
 					this.arg1 = arg1;
 					this.arg2 = arg2;
 				}
 
-				internal void SetPC(int pc)
+				public void SetPC(int pc)
 				{
 					this.pc = (ushort)pc;
 				}
 
-				internal void SetTargetIndex(int targetIndex)
+				public void SetTargetIndex(int targetIndex)
 				{
 					this.arg1 = targetIndex;
 				}
 
-				internal void SetTermNop(ushort pc)
+				public void SetTermNop(ushort pc)
 				{
 					// TODO what happens if we already have exactly the maximum number of instructions?
 					this.pc = pc;
 					this.normopcode = NormalizedByteCode.__nop;
 				}
 
-				internal void MapSwitchTargets(int[] pcIndexMap)
+				public void MapSwitchTargets(int[] pcIndexMap)
 				{
 					arg1 = pcIndexMap[arg1 + pc];
 					for (int i = 0; i < switch_entries.Length; i++)
@@ -3642,7 +3373,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal void Read(ushort pc, BigEndianBinaryReader br, ClassFile classFile)
+				public void Read(ushort pc, BigEndianBinaryReader br, ClassFile classFile)
 				{
 					this.pc = pc;
 					ByteCode bc = (ByteCode)br.ReadByte();
@@ -3763,7 +3494,7 @@ namespace IKVM.Internal
 					arg1 = ByteCodeMetaData.GetArg(bc, arg1);
 				}
 
-				internal int PC
+				public int PC
 				{
 					get
 					{
@@ -3771,7 +3502,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal NormalizedByteCode NormalizedOpCode
+				public NormalizedByteCode NormalizedOpCode
 				{
 					get
 					{
@@ -3779,7 +3510,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int Arg1
+				public int Arg1
 				{
 					get
 					{
@@ -3787,7 +3518,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int TargetIndex
+				public int TargetIndex
 				{
 					get
 					{
@@ -3799,7 +3530,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int Arg2
+				public int Arg2
 				{
 					get
 					{
@@ -3807,7 +3538,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int NormalizedArg1
+				public int NormalizedArg1
 				{
 					get
 					{
@@ -3815,7 +3546,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int DefaultTarget
+				public int DefaultTarget
 				{
 					get
 					{
@@ -3827,7 +3558,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int SwitchEntryCount
+				public int SwitchEntryCount
 				{
 					get
 					{
@@ -3835,17 +3566,17 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal int GetSwitchValue(int i)
+				public int GetSwitchValue(int i)
 				{
 					return switch_entries[i].value;
 				}
 
-				internal int GetSwitchTargetIndex(int i)
+				public int GetSwitchTargetIndex(int i)
 				{
 					return switch_entries[i].target;
 				}
 
-				internal void SetSwitchTargets(int[] targets)
+				public void SetSwitchTargets(int[] targets)
 				{
 					SwitchEntry[] newEntries = (SwitchEntry[])switch_entries.Clone();
 					for (int i = 0; i < newEntries.Length; i++)
@@ -3856,23 +3587,23 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal struct LineNumberTableEntry
+			public struct LineNumberTableEntry
 			{
-				internal ushort start_pc;
-				internal ushort line_number;
+				public ushort start_pc;
+				public ushort line_number;
 			}
 
-			internal struct LocalVariableTableEntry
+			public struct LocalVariableTableEntry
 			{
-				internal ushort start_pc;
-				internal ushort length;
-				internal string name;
-				internal string descriptor;
-				internal ushort index;
+				public ushort start_pc;
+				public ushort length;
+				public string name;
+				public string descriptor;
+				public ushort index;
 			}
 		}
 
-		internal Field GetField(string name, string sig)
+		public Field GetField(string name, string sig)
 		{
 			for (int i = 0; i < fields.Length; i++)
 			{

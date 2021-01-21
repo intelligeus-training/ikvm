@@ -70,7 +70,7 @@ namespace IKVM.Reflection.Emit
 		};
 		private readonly int value;
 
-		internal OpCode(int value)
+		public OpCode(int value)
 		{
 			this.value = value;
 		}
@@ -127,7 +127,7 @@ namespace IKVM.Reflection.Emit
 			get { return (FlowControl)(((value & 0x3FFFFF) / OperandTypeCount) % FlowControlCount); }
 		}
 
-		internal int StackDiff
+		public int StackDiff
 		{
 			get { return ((((value & 0x3FFFFF) / (OperandTypeCount * FlowControlCount)) % StackDiffCount) - 3); }
 		}

@@ -254,7 +254,7 @@ namespace IKVM.Reflection.Emit
 		public static readonly OpCode Refanytype = new OpCode(-2025531014);
 		public static readonly OpCode Readonly = new OpCode(-2021650514);
 
-		internal static string GetName(int value)
+		public static string GetName(int value)
 		{
 			switch (value)
 			{

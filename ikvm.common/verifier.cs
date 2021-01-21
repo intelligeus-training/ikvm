@@ -22,14 +22,13 @@
   
 */
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using IKVM.Internal;
 using InstructionFlags = IKVM.Internal.ClassFile.Method.InstructionFlags;
 using ExceptionTableEntry = IKVM.Internal.ClassFile.Method.ExceptionTableEntry;
 
-sealed class InstructionState
+public sealed class InstructionState
 {
 	private struct LocalStoreSites
 	{
@@ -37,7 +36,7 @@ sealed class InstructionState
 		private int count;
 		private bool shared;
 
-		internal LocalStoreSites Copy()
+		public LocalStoreSites Copy()
 		{
 			LocalStoreSites n = new LocalStoreSites();
 			n.data = data;
@@ -46,14 +45,14 @@ sealed class InstructionState
 			return n;
 		}
 
-		internal static LocalStoreSites Alloc()
+		public static LocalStoreSites Alloc()
 		{
 			LocalStoreSites n = new LocalStoreSites();
 			n.data = new int[4];
 			return n;
 		}
 
-		internal void Add(int store)
+		public void Add(int store)
 		{
 			for(int i = 0; i < count; i++)
 			{
@@ -77,7 +76,7 @@ sealed class InstructionState
 			data[count++] = store;
 		}
 
-		internal int this[int index]
+		public int this[int index]
 		{
 			get
 			{
@@ -85,7 +84,7 @@ sealed class InstructionState
 			}
 		}
 
-		internal int Count
+		public int Count
 		{
 			get
 			{
@@ -93,7 +92,7 @@ sealed class InstructionState
 			}
 		}
 
-		internal static void MarkShared(LocalStoreSites[] localStoreSites)
+		public static void MarkShared(LocalStoreSites[] localStoreSites)
 		{
 			for(int i = 0; i < localStoreSites.Length; i++)
 			{
@@ -126,7 +125,7 @@ sealed class InstructionState
 		this.unitializedThis = unitializedThis;
 	}
 
-	internal InstructionState(int maxLocals, int maxStack)
+	public InstructionState(int maxLocals, int maxStack)
 	{
 		this.flags = ShareFlags.None;
 		this.stack = new TypeWrapper[maxStack];
@@ -134,12 +133,12 @@ sealed class InstructionState
 		this.locals = new TypeWrapper[maxLocals];
 	}
 
-	internal InstructionState Copy()
+	public InstructionState Copy()
 	{
 		return new InstructionState(stack, stackSize, stackEnd, locals, unitializedThis);
 	}
 
-	internal void CopyTo(InstructionState target)
+	public void CopyTo(InstructionState target)
 	{
 		target.flags = ShareFlags.All;
 		target.stack = stack;
@@ -256,12 +255,12 @@ sealed class InstructionState
 		return h;
 	}
 
-	internal void SetUnitializedThis(bool state)
+	public void SetUnitializedThis(bool state)
 	{
 		unitializedThis = state;
 	}
 
-	internal void CheckUninitializedThis()
+	public void CheckUninitializedThis()
 	{
 		if(unitializedThis)
 		{
@@ -269,7 +268,7 @@ sealed class InstructionState
 		}
 	}
 
-	internal static TypeWrapper FindCommonBaseType(TypeWrapper type1, TypeWrapper type2)
+	public static TypeWrapper FindCommonBaseType(TypeWrapper type1, TypeWrapper type2)
 	{
 		if(type1 == type2)
 		{
@@ -454,7 +453,7 @@ sealed class InstructionState
 		}
 	}
 
-	internal void GetLocalInt(int index)
+	public void GetLocalInt(int index)
 	{
 		if(GetLocalType(index) != PrimitiveTypeWrapper.INT)
 		{
@@ -462,12 +461,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal void SetLocalInt(int index, int instructionIndex)
+	public void SetLocalInt(int index, int instructionIndex)
 	{
 		SetLocal1(index, PrimitiveTypeWrapper.INT);
 	}
 
-	internal void GetLocalLong(int index)
+	public void GetLocalLong(int index)
 	{
 		if(GetLocalType(index) != PrimitiveTypeWrapper.LONG)
 		{
@@ -475,12 +474,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal void SetLocalLong(int index, int instructionIndex)
+	public void SetLocalLong(int index, int instructionIndex)
 	{
 		SetLocal2(index, PrimitiveTypeWrapper.LONG);
 	}
 
-	internal void GetLocalFloat(int index)
+	public void GetLocalFloat(int index)
 	{
 		if(GetLocalType(index) != PrimitiveTypeWrapper.FLOAT)
 		{
@@ -488,12 +487,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal void SetLocalFloat(int index, int instructionIndex)
+	public void SetLocalFloat(int index, int instructionIndex)
 	{
 		SetLocal1(index, PrimitiveTypeWrapper.FLOAT);
 	}
 
-	internal void GetLocalDouble(int index)
+	public void GetLocalDouble(int index)
 	{
 		if(GetLocalType(index) != PrimitiveTypeWrapper.DOUBLE)
 		{
@@ -501,12 +500,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal void SetLocalDouble(int index, int instructionIndex)
+	public void SetLocalDouble(int index, int instructionIndex)
 	{
 		SetLocal2(index, PrimitiveTypeWrapper.DOUBLE);
 	}
 
-	internal TypeWrapper GetLocalType(int index)
+	public TypeWrapper GetLocalType(int index)
 	{
 		try
 		{
@@ -521,12 +520,12 @@ sealed class InstructionState
 	// this is used by the compiler (indirectly, through MethodAnalyzer.GetLocalTypeWrapper),
 	// we've already verified the code so we know we won't run outside the array boundary,
 	// and we don't need to record the fact that we're reading the local.
-	internal TypeWrapper GetLocalTypeEx(int index)
+	public TypeWrapper GetLocalTypeEx(int index)
 	{
 		return locals[index];
 	}
 
-	internal void SetLocalType(int index, TypeWrapper type, int instructionIndex)
+	public void SetLocalType(int index, TypeWrapper type, int instructionIndex)
 	{
 		if(type.IsWidePrimitive)
 		{
@@ -538,7 +537,7 @@ sealed class InstructionState
 		}
 	}
 
-	internal void PushType(TypeWrapper type)
+	public void PushType(TypeWrapper type)
 	{
 		if(type.IsIntOnStackPrimitive)
 		{
@@ -547,42 +546,42 @@ sealed class InstructionState
 		PushHelper(type);
 	}
 
-	internal void PushInt()
+	public void PushInt()
 	{
 		PushHelper(PrimitiveTypeWrapper.INT);
 	}
 
-	internal void PushLong()
+	public void PushLong()
 	{
 		PushHelper(PrimitiveTypeWrapper.LONG);
 	}
 
-	internal void PushFloat()
+	public void PushFloat()
 	{
 		PushHelper(PrimitiveTypeWrapper.FLOAT);
 	}
 
-	internal void PushExtendedFloat()
+	public void PushExtendedFloat()
 	{
 		PushHelper(VerifierTypeWrapper.ExtendedFloat);
 	}
 
-	internal void PushDouble()
+	public void PushDouble()
 	{
 		PushHelper(PrimitiveTypeWrapper.DOUBLE);
 	}
 
-	internal void PushExtendedDouble()
+	public void PushExtendedDouble()
 	{
 		PushHelper(VerifierTypeWrapper.ExtendedDouble);
 	}
 
-	internal void PopInt()
+	public void PopInt()
 	{
 		PopIntImpl(PopAnyType());
 	}
 
-	internal static void PopIntImpl(TypeWrapper type)
+	public static void PopIntImpl(TypeWrapper type)
 	{
 		if (type != PrimitiveTypeWrapper.INT)
 		{
@@ -590,14 +589,14 @@ sealed class InstructionState
 		}
 	}
 
-	internal bool PopFloat()
+	public bool PopFloat()
 	{
 		TypeWrapper tw = PopAnyType();
 		PopFloatImpl(tw);
 		return tw == VerifierTypeWrapper.ExtendedFloat;
 	}
 
-	internal static void PopFloatImpl(TypeWrapper tw)
+	public static void PopFloatImpl(TypeWrapper tw)
 	{
 		if(tw != PrimitiveTypeWrapper.FLOAT && tw != VerifierTypeWrapper.ExtendedFloat)
 		{
@@ -605,14 +604,14 @@ sealed class InstructionState
 		}
 	}
 
-	internal bool PopDouble()
+	public bool PopDouble()
 	{
 		TypeWrapper tw = PopAnyType();
 		PopDoubleImpl(tw);
 		return tw == VerifierTypeWrapper.ExtendedDouble;
 	}
 
-	internal static void PopDoubleImpl(TypeWrapper tw)
+	public static void PopDoubleImpl(TypeWrapper tw)
 	{
 		if(tw != PrimitiveTypeWrapper.DOUBLE && tw != VerifierTypeWrapper.ExtendedDouble)
 		{
@@ -620,12 +619,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal void PopLong()
+	public void PopLong()
 	{
 		PopLongImpl(PopAnyType());
 	}
 
-	internal static void PopLongImpl(TypeWrapper tw)
+	public static void PopLongImpl(TypeWrapper tw)
 	{
 		if(tw != PrimitiveTypeWrapper.LONG)
 		{
@@ -633,12 +632,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal TypeWrapper PopArrayType()
+	public TypeWrapper PopArrayType()
 	{
 		return PopArrayTypeImpl(PopAnyType());
 	}
 
-	internal static TypeWrapper PopArrayTypeImpl(TypeWrapper type)
+	public static TypeWrapper PopArrayTypeImpl(TypeWrapper type)
 	{
 		if(!VerifierTypeWrapper.IsNullOrUnloadable(type) && type.ArrayRank == 0)
 		{
@@ -648,12 +647,12 @@ sealed class InstructionState
 	}
 
 	// null or an initialized object reference
-	internal TypeWrapper PopObjectType()
+	public TypeWrapper PopObjectType()
 	{
 		return PopObjectTypeImpl(PopType());
 	}
 
-	internal static TypeWrapper PopObjectTypeImpl(TypeWrapper type)
+	public static TypeWrapper PopObjectTypeImpl(TypeWrapper type)
 	{
 		if(type.IsPrimitive || VerifierTypeWrapper.IsNew(type) || type == VerifierTypeWrapper.UninitializedThis)
 		{
@@ -663,12 +662,12 @@ sealed class InstructionState
 	}
 
 	// null or an initialized object reference derived from baseType (or baseType)
-	internal TypeWrapper PopObjectType(TypeWrapper baseType)
+	public TypeWrapper PopObjectType(TypeWrapper baseType)
 	{
 		return PopObjectTypeImpl(baseType, PopObjectType());
 	}
 
-	internal static TypeWrapper PopObjectTypeImpl(TypeWrapper baseType, TypeWrapper type)
+	public static TypeWrapper PopObjectTypeImpl(TypeWrapper baseType, TypeWrapper type)
 	{
 		// HACK because of the way interfaces references works, if baseType
 		// is an interface or array of interfaces, any reference will be accepted
@@ -679,7 +678,7 @@ sealed class InstructionState
 		return type;
 	}
 
-	internal TypeWrapper PeekType()
+	public TypeWrapper PeekType()
 	{
 		if(stackSize == 0)
 		{
@@ -688,7 +687,7 @@ sealed class InstructionState
 		return stack[stackSize - 1];
 	}
 
-	internal void MultiPopAnyType(int count)
+	public void MultiPopAnyType(int count)
 	{
 		while(count-- != 0)
 		{
@@ -696,12 +695,12 @@ sealed class InstructionState
 		}
 	}
 
-	internal TypeWrapper PopFaultBlockException()
+	public TypeWrapper PopFaultBlockException()
 	{
 		return stack[--stackSize];
 	}
 
-	internal TypeWrapper PopAnyType()
+	public TypeWrapper PopAnyType()
 	{
 		if(stackSize == 0)
 		{
@@ -725,12 +724,12 @@ sealed class InstructionState
 	}
 
 	// NOTE this can *not* be used to pop double or long
-	internal TypeWrapper PopType()
+	public TypeWrapper PopType()
 	{
 		return PopTypeImpl(PopAnyType());
 	}
 
-	internal static TypeWrapper PopTypeImpl(TypeWrapper type)
+	public static TypeWrapper PopTypeImpl(TypeWrapper type)
 	{
 		if(type.IsWidePrimitive || type == VerifierTypeWrapper.ExtendedDouble)
 		{
@@ -742,12 +741,12 @@ sealed class InstructionState
 	// this will accept null, a primitive type of the specified type or an initialized reference of the
 	// specified type or derived from it
 	// NOTE this can also be used to pop double or long
-	internal TypeWrapper PopType(TypeWrapper baseType)
+	public TypeWrapper PopType(TypeWrapper baseType)
 	{
 		return PopTypeImpl(baseType, PopAnyType());
 	}
 
-	internal static TypeWrapper PopTypeImpl(TypeWrapper baseType, TypeWrapper type)
+	public static TypeWrapper PopTypeImpl(TypeWrapper baseType, TypeWrapper type)
 	{
 		if(baseType.IsIntOnStackPrimitive)
 		{
@@ -761,15 +760,15 @@ sealed class InstructionState
 		{
 			return type;
 		}
-		else if(type == VerifierTypeWrapper.ExtendedDouble && baseType == PrimitiveTypeWrapper.DOUBLE)
+		if(type == VerifierTypeWrapper.ExtendedDouble && baseType == PrimitiveTypeWrapper.DOUBLE)
 		{
 			return type;
 		}
-		else if(type == VerifierTypeWrapper.ExtendedFloat && baseType == PrimitiveTypeWrapper.FLOAT)
+		if(type == VerifierTypeWrapper.ExtendedFloat && baseType == PrimitiveTypeWrapper.FLOAT)
 		{
 			return type;
 		}
-		else if(type.IsPrimitive || baseType.IsPrimitive)
+		if(type.IsPrimitive || baseType.IsPrimitive)
 		{
 			// throw at the end of the method
 		}
@@ -813,12 +812,12 @@ sealed class InstructionState
 		return false;
 	}
 
-	internal int GetStackHeight()
+	public int GetStackHeight()
 	{
 		return stackSize;
 	}
 
-	internal TypeWrapper GetStackSlot(int pos)
+	public TypeWrapper GetStackSlot(int pos)
 	{
 		TypeWrapper tw = stack[stackSize - 1 - pos];
 		if(tw == VerifierTypeWrapper.ExtendedDouble)
@@ -832,12 +831,12 @@ sealed class InstructionState
 		return tw;
 	}
 
-	internal TypeWrapper GetStackSlotEx(int pos)
+	public TypeWrapper GetStackSlotEx(int pos)
 	{
 		return stack[stackSize - 1 - pos];
 	}
 
-	internal TypeWrapper GetStackByIndex(int index)
+	public TypeWrapper GetStackByIndex(int index)
 	{
 		return stack[index];
 	}
@@ -856,7 +855,7 @@ sealed class InstructionState
 		stack[stackSize++] = type;
 	}
 
-	internal void MarkInitialized(TypeWrapper type, TypeWrapper initType, int instructionIndex)
+	public void MarkInitialized(TypeWrapper type, TypeWrapper initType, int instructionIndex)
 	{
 		System.Diagnostics.Debug.Assert(type != null && initType != null);
 
@@ -896,7 +895,7 @@ sealed class InstructionState
 		}
 	}
 
-	internal void DumpLocals()
+	public void DumpLocals()
 	{
 		Console.Write("// ");
 		string sep = "";
@@ -909,7 +908,7 @@ sealed class InstructionState
 		Console.WriteLine();
 	}
 
-	internal void DumpStack()
+	public void DumpStack()
 	{
 		Console.Write("// ");
 		string sep = "";
@@ -922,7 +921,7 @@ sealed class InstructionState
 		Console.WriteLine();
 	}
 
-	internal void ClearFaultBlockException()
+	public void ClearFaultBlockException()
 	{
 		if(VerifierTypeWrapper.IsFaultBlockException(stack[0]))
 		{
@@ -933,18 +932,18 @@ sealed class InstructionState
 	}
 }
 
-struct StackState
+public struct StackState
 {
 	private InstructionState state;
 	private int sp;
 
-	internal StackState(InstructionState state)
+	public StackState(InstructionState state)
 	{
 		this.state = state;
 		sp = state.GetStackHeight();
 	}
 
-	internal TypeWrapper PeekType()
+	public TypeWrapper PeekType()
 	{
 		if(sp == 0)
 		{
@@ -958,7 +957,7 @@ struct StackState
 		return type;
 	}
 
-	internal TypeWrapper PopAnyType()
+	public TypeWrapper PopAnyType()
 	{
 		if(sp == 0)
 		{
@@ -977,56 +976,56 @@ struct StackState
 		return type;
 	}
 
-	internal TypeWrapper PopType(TypeWrapper baseType)
+	public TypeWrapper PopType(TypeWrapper baseType)
 	{
 		return InstructionState.PopTypeImpl(baseType, PopAnyType());
 	}
 
 	// NOTE this can *not* be used to pop double or long
-	internal TypeWrapper PopType()
+	public TypeWrapper PopType()
 	{
 		return InstructionState.PopTypeImpl(PopAnyType());
 	}
 
-	internal void PopInt()
+	public void PopInt()
 	{
 		InstructionState.PopIntImpl(PopAnyType());
 	}
 
-	internal void PopFloat()
+	public void PopFloat()
 	{
 		InstructionState.PopFloatImpl(PopAnyType());
 	}
 
-	internal void PopDouble()
+	public void PopDouble()
 	{
 		InstructionState.PopDoubleImpl(PopAnyType());
 	}
 
-	internal void PopLong()
+	public void PopLong()
 	{
 		InstructionState.PopLongImpl(PopAnyType());
 	}
 
-	internal TypeWrapper PopArrayType()
+	public TypeWrapper PopArrayType()
 	{
 		return InstructionState.PopArrayTypeImpl(PopAnyType());
 	}
 
 	// either null or an initialized object reference
-	internal TypeWrapper PopObjectType()
+	public TypeWrapper PopObjectType()
 	{
 		return InstructionState.PopObjectTypeImpl(PopAnyType());
 	}
 
 	// null or an initialized object reference derived from baseType (or baseType)
-	internal TypeWrapper PopObjectType(TypeWrapper baseType)
+	public TypeWrapper PopObjectType(TypeWrapper baseType)
 	{
 		return InstructionState.PopObjectTypeImpl(baseType, PopObjectType());
 	}
 }
 
-sealed class ExceptionSorter : IComparer<ExceptionTableEntry>
+public sealed class ExceptionSorter : IComparer<ExceptionTableEntry>
 {
 	public int Compare(ExceptionTableEntry e1, ExceptionTableEntry e2)
 	{
@@ -1057,11 +1056,11 @@ sealed class ExceptionSorter : IComparer<ExceptionTableEntry>
 	}
 }
 
-struct UntangledExceptionTable
+public struct UntangledExceptionTable
 {
 	private readonly ExceptionTableEntry[] exceptions;
 
-	internal UntangledExceptionTable(ExceptionTableEntry[] exceptions)
+	public UntangledExceptionTable(ExceptionTableEntry[] exceptions)
 	{
 #if DEBUG
 		for (int i = 0; i < exceptions.Length; i++)
@@ -1088,42 +1087,42 @@ struct UntangledExceptionTable
 		this.exceptions = exceptions;
 	}
 
-	internal ExceptionTableEntry this[int index]
+	public ExceptionTableEntry this[int index]
 	{
 		get { return exceptions[index]; }
 	}
 
-	internal int Length
+	public int Length
 	{
 		get { return exceptions.Length; }
 	}
 
-	internal void SetFinally(int index)
+	public void SetFinally(int index)
 	{
 		exceptions[index] = new ExceptionTableEntry(exceptions[index].startIndex, exceptions[index].endIndex, exceptions[index].handlerIndex, exceptions[index].catch_type, exceptions[index].ordinal, true);
 	}
 }
 
-struct CodeInfo
+public struct CodeInfo
 {
 	private readonly InstructionState[] state;
 
-	internal CodeInfo(InstructionState[] state)
+	public CodeInfo(InstructionState[] state)
 	{
 		this.state = state;
 	}
 
-	internal bool HasState(int index)
+	public bool HasState(int index)
 	{
 		return state[index] != null;
 	}
 
-	internal int GetStackHeight(int index)
+	public int GetStackHeight(int index)
 	{
 		return state[index].GetStackHeight();
 	}
 
-	internal TypeWrapper GetStackTypeWrapper(int index, int pos)
+	public TypeWrapper GetStackTypeWrapper(int index, int pos)
 	{
 		TypeWrapper type = state[index].GetStackSlot(pos);
 		if (VerifierTypeWrapper.IsThis(type))
@@ -1133,33 +1132,33 @@ struct CodeInfo
 		return type;
 	}
 
-	internal TypeWrapper GetRawStackTypeWrapper(int index, int pos)
+	public TypeWrapper GetRawStackTypeWrapper(int index, int pos)
 	{
 		return state[index].GetStackSlot(pos);
 	}
 
-	internal bool IsStackTypeExtendedDouble(int index, int pos)
+	public bool IsStackTypeExtendedDouble(int index, int pos)
 	{
 		return state[index].GetStackSlotEx(pos) == VerifierTypeWrapper.ExtendedDouble;
 	}
 
-	internal TypeWrapper GetLocalTypeWrapper(int index, int local)
+	public TypeWrapper GetLocalTypeWrapper(int index, int local)
 	{
 		return state[index].GetLocalTypeEx(local);
 	}
 }
 
-sealed class MethodAnalyzer
+public sealed class MethodAnalyzer
 {
-	private readonly static TypeWrapper ByteArrayType;
-	private readonly static TypeWrapper BooleanArrayType;
-	private readonly static TypeWrapper ShortArrayType;
-	private readonly static TypeWrapper CharArrayType;
-	private readonly static TypeWrapper IntArrayType;
-	private readonly static TypeWrapper FloatArrayType;
-	private readonly static TypeWrapper DoubleArrayType;
-	private readonly static TypeWrapper LongArrayType;
-	private readonly static TypeWrapper java_lang_ThreadDeath;
+	private static readonly TypeWrapper ByteArrayType;
+	private static readonly TypeWrapper BooleanArrayType;
+	private static readonly TypeWrapper ShortArrayType;
+	private static readonly TypeWrapper CharArrayType;
+	private static readonly TypeWrapper IntArrayType;
+	private static readonly TypeWrapper FloatArrayType;
+	private static readonly TypeWrapper DoubleArrayType;
+	private static readonly TypeWrapper LongArrayType;
+	private static readonly TypeWrapper java_lang_ThreadDeath;
 	private readonly TypeWrapper host;	// used to by Unsafe.defineAnonymousClass() to provide access to private members of the host
 	private readonly TypeWrapper wrapper;
 	private readonly MethodWrapper mw;
@@ -1185,7 +1184,7 @@ sealed class MethodAnalyzer
 		java_lang_ThreadDeath = ClassLoaderWrapper.LoadClassCritical("java.lang.ThreadDeath");
 	}
 
-	internal MethodAnalyzer(TypeWrapper host, TypeWrapper wrapper, MethodWrapper mw, ClassFile classFile, ClassFile.Method method, ClassLoaderWrapper classLoader)
+	public MethodAnalyzer(TypeWrapper host, TypeWrapper wrapper, MethodWrapper mw, ClassFile classFile, ClassFile.Method method, ClassLoaderWrapper classLoader)
 	{
 		if(method.VerifyError != null)
 		{
@@ -1288,7 +1287,7 @@ sealed class MethodAnalyzer
 		}
 	}
 
-	internal CodeInfo GetCodeInfoAndErrors(UntangledExceptionTable exceptions, out List<string> errors)
+	public CodeInfo GetCodeInfoAndErrors(UntangledExceptionTable exceptions, out List<string> errors)
 	{
 		CodeInfo codeInfo = new CodeInfo(state);
 		OptimizationPass(codeInfo, classFile, method, exceptions, wrapper, classLoader);
@@ -2845,7 +2844,7 @@ sealed class MethodAnalyzer
 		return sb.ToString();
 	}
 
-	internal static InstructionFlags[] ComputePartialReachability(CodeInfo codeInfo, ClassFile.Method.Instruction[] instructions, UntangledExceptionTable exceptions, int initialInstructionIndex, bool skipFaultBlocks)
+	public static InstructionFlags[] ComputePartialReachability(CodeInfo codeInfo, ClassFile.Method.Instruction[] instructions, UntangledExceptionTable exceptions, int initialInstructionIndex, bool skipFaultBlocks)
 	{
 		InstructionFlags[] flags = new InstructionFlags[instructions.Length];
 		flags[initialInstructionIndex] |= InstructionFlags.Reachable;
@@ -2914,7 +2913,7 @@ sealed class MethodAnalyzer
 		}
 	}
 
-	internal static UntangledExceptionTable UntangleExceptionBlocks(ClassFile classFile, ClassFile.Method method)
+	public static UntangledExceptionTable UntangleExceptionBlocks(ClassFile classFile, ClassFile.Method method)
 	{
 		ClassFile.Method.Instruction[] instructions = method.Instructions;
 		ExceptionTableEntry[] exceptionTable = method.ExceptionTable;

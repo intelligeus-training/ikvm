@@ -40,7 +40,7 @@ using Type = IKVM.Reflection.Type;
 
 namespace IKVM.Internal
 {
-	sealed class CompilerClassLoader : ClassLoaderWrapper
+	public sealed class CompilerClassLoader : ClassLoaderWrapper
 	{
 		private Dictionary<string, Jar.Item> classes;
 		private Dictionary<string, RemapperTypeWrapper> remapped = new Dictionary<string, RemapperTypeWrapper>();
@@ -71,7 +71,7 @@ namespace IKVM.Internal
 		private List<TypeWrapper> allwrappers;
 		private bool compilingCoreAssembly;
 
-		internal CompilerClassLoader(AssemblyClassLoader[] referencedAssemblies, CompilerOptions options, FileInfo assemblyPath, bool targetIsModule, string assemblyName, Dictionary<string, Jar.Item> classes, bool compilingCoreAssembly)
+		public CompilerClassLoader(AssemblyClassLoader[] referencedAssemblies, CompilerOptions options, FileInfo assemblyPath, bool targetIsModule, string assemblyName, Dictionary<string, Jar.Item> classes, bool compilingCoreAssembly)
 			: base(options.codegenoptions, null)
 		{
 			this.referencedAssemblies = referencedAssemblies;
@@ -85,27 +85,27 @@ namespace IKVM.Internal
 			Tracer.Info(Tracer.Compiler, "Instantiate CompilerClassLoader for {0}", assemblyName);
 		}
 
-		internal bool ReserveName(string javaName)
+		public bool ReserveName(string javaName)
 		{
 			return !classes.ContainsKey(javaName) && GetTypeWrapperFactory().ReserveName(javaName);
 		}
 
-		internal void AddNameMapping(string javaName, string typeName)
+		public void AddNameMapping(string javaName, string typeName)
 		{
 			nameMappings.Add(javaName, typeName);
 		}
 
-		internal void AddReference(AssemblyClassLoader acl)
+		public void AddReference(AssemblyClassLoader acl)
 		{
 			referencedAssemblies = ArrayUtil.Concat(referencedAssemblies, acl);
 		}
 
-		internal void AddReference(CompilerClassLoader ccl)
+		public void AddReference(CompilerClassLoader ccl)
 		{
 			peerReferences.Add(ccl);
 		}
 
-		internal AssemblyName GetAssemblyName()
+		public AssemblyName GetAssemblyName()
 		{
 			return assemblyBuilder.GetName();
 		}
@@ -123,7 +123,7 @@ namespace IKVM.Internal
 			return p1.Union(p2);
 		}
 
-		internal ModuleBuilder CreateModuleBuilder()
+		public ModuleBuilder CreateModuleBuilder()
 		{
 			AssemblyName name = new AssemblyName();
 			name.Name = assemblyName;
@@ -401,7 +401,7 @@ namespace IKVM.Internal
 
 		// HACK when we're compiling multiple targets with -sharedclassloader, each target will have its own CompilerClassLoader,
 		// so we need to consider them equivalent (because they represent the same class loader).
-		internal bool IsEquivalentTo(ClassLoaderWrapper other)
+		public bool IsEquivalentTo(ClassLoaderWrapper other)
 		{
 			if (this == other)
 			{
@@ -419,7 +419,7 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		internal override bool InternalsVisibleToImpl(TypeWrapper wrapper, TypeWrapper friend)
+		public override bool InternalsVisibleToImpl(TypeWrapper wrapper, TypeWrapper friend)
 		{
 			Debug.Assert(wrapper.GetClassLoader() == this);
 			ClassLoaderWrapper other = friend.GetClassLoader();
@@ -437,7 +437,7 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		private void AddInternalsVisibleToAttribute(CompilerClassLoader ccl)
+		public void AddInternalsVisibleToAttribute(CompilerClassLoader ccl)
 		{
 			internalsVisibleTo.Add(ccl);
 			AssemblyBuilder asm = ccl.assemblyBuilder;
@@ -461,7 +461,7 @@ namespace IKVM.Internal
 			AttributeHelper.SetInternalsVisibleToAttribute(this.assemblyBuilder, name);
 		}
 
-		internal void SetMain(MethodInfo m, PEFileKinds target, Dictionary<string, string> props, bool noglobbing, Type apartmentAttributeType)
+		public void SetMain(MethodInfo m, PEFileKinds target, Dictionary<string, string> props, bool noglobbing, Type apartmentAttributeType)
 		{
 			MethodBuilder mainStub = this.GetTypeWrapperFactory().ModuleBuilder.DefineGlobalMethod("main", MethodAttributes.Public | MethodAttributes.Static, Types.Int32, new Type[] { Types.String.MakeArrayType() });
 			if(apartmentAttributeType != null)
@@ -839,18 +839,12 @@ namespace IKVM.Internal
 			private TypeWrapper baseTypeWrapper;
 			private TypeWrapper[] interfaceWrappers;
 
-			internal override ClassLoaderWrapper GetClassLoader()
+			public override ClassLoaderWrapper GetClassLoader()
 			{
 				return classLoader;
 			}
 
-			internal override bool IsRemapped
-			{
-				get
-				{
-					return true;
-				}
-			}
+			public override bool IsRemapped => true;
 
 			private static TypeWrapper GetBaseWrapper(IKVM.Internal.MapXml.Class c)
 			{
@@ -865,7 +859,7 @@ namespace IKVM.Internal
 				return CoreClasses.java.lang.Object.Wrapper;
 			}
 
-			internal RemapperTypeWrapper(CompilerClassLoader classLoader, IKVM.Internal.MapXml.Class c, IKVM.Internal.MapXml.Root map)
+			public RemapperTypeWrapper(CompilerClassLoader classLoader, IKVM.Internal.MapXml.Class c, IKVM.Internal.MapXml.Root map)
 				: base(TypeFlags.None, (Modifiers)c.Modifiers, c.Name)
 			{
 				this.classLoader = classLoader;
@@ -969,12 +963,12 @@ namespace IKVM.Internal
 				SetMethods(methods.ToArray());
 			}
 
-			internal sealed override TypeWrapper BaseTypeWrapper
+			public sealed override TypeWrapper BaseTypeWrapper
 			{
 				get { return baseTypeWrapper; }
 			}
 
-			internal void LoadInterfaces(IKVM.Internal.MapXml.Class c)
+			public void LoadInterfaces(IKVM.Internal.MapXml.Class c)
 			{
 				if (c.Interfaces != null)
 				{
@@ -1014,35 +1008,35 @@ namespace IKVM.Internal
 				return false;
 			}
 
-			abstract class RemappedMethodBaseWrapper : MethodWrapper
+			public abstract class RemappedMethodBaseWrapper : MethodWrapper
 			{
-				internal RemappedMethodBaseWrapper(RemapperTypeWrapper typeWrapper, string name, string sig, Modifiers modifiers)
+				public RemappedMethodBaseWrapper(RemapperTypeWrapper typeWrapper, string name, string sig, Modifiers modifiers)
 					: base(typeWrapper, name, sig, null, null, null, modifiers, MemberFlags.None)
 				{
 				}
 
-				internal abstract MethodBase DoLink();
+				public abstract MethodBase DoLink();
 
-				internal abstract void Finish();
+				public abstract void Finish();
 			}
 
-			sealed class RemappedConstructorWrapper : RemappedMethodBaseWrapper
+			private sealed class RemappedConstructorWrapper : RemappedMethodBaseWrapper
 			{
 				private IKVM.Internal.MapXml.Constructor m;
 				private MethodBuilder mbHelper;
 
-				internal RemappedConstructorWrapper(RemapperTypeWrapper typeWrapper, IKVM.Internal.MapXml.Constructor m)
+				public RemappedConstructorWrapper(RemapperTypeWrapper typeWrapper, IKVM.Internal.MapXml.Constructor m)
 					: base(typeWrapper, "<init>", m.Sig, (Modifiers)m.Modifiers)
 				{
 					this.m = m;
 				}
 
-				internal override void EmitCall(CodeEmitter ilgen)
+				public override void EmitCall(CodeEmitter ilgen)
 				{
 					ilgen.Emit(OpCodes.Call, GetMethod());
 				}
 
-				internal override void EmitNewobj(CodeEmitter ilgen)
+				public override void EmitNewobj(CodeEmitter ilgen)
 				{
 					if(mbHelper != null)
 					{
@@ -1054,7 +1048,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal override MethodBase DoLink()
+				public override MethodBase DoLink()
 				{
 					MethodAttributes attr = MapMethodAccessModifiers(m.Modifiers);
 					RemapperTypeWrapper typeWrapper = (RemapperTypeWrapper)DeclaringType;
@@ -1093,7 +1087,7 @@ namespace IKVM.Internal
 					return cbCore;
 				}
 				
-				internal override void Finish()
+				public override void Finish()
 				{
 					// TODO we should insert method tracing (if enabled)
 
@@ -1180,7 +1174,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			sealed class RemappedMethodWrapper : RemappedMethodBaseWrapper
+			public sealed class RemappedMethodWrapper : RemappedMethodBaseWrapper
 			{
 				private IKVM.Internal.MapXml.Method m;
 				private IKVM.Internal.MapXml.Root map;
@@ -1188,7 +1182,7 @@ namespace IKVM.Internal
 				private List<RemapperTypeWrapper> overriders = new List<RemapperTypeWrapper>();
 				private bool inherited;
 
-				internal RemappedMethodWrapper(RemapperTypeWrapper typeWrapper, IKVM.Internal.MapXml.Method m, IKVM.Internal.MapXml.Root map, bool inherited)
+				public RemappedMethodWrapper(RemapperTypeWrapper typeWrapper, IKVM.Internal.MapXml.Method m, IKVM.Internal.MapXml.Root map, bool inherited)
 					: base(typeWrapper, m.Name, m.Sig, (Modifiers)m.Modifiers)
 				{
 					this.m = m;
@@ -1196,15 +1190,9 @@ namespace IKVM.Internal
 					this.inherited = inherited;
 				}
 
-				internal IKVM.Internal.MapXml.Method XmlMethod
-				{
-					get
-					{
-						return m;
-					}
-				}
+				public IKVM.Internal.MapXml.Method XmlMethod => m;
 
-				internal override void EmitCall(CodeEmitter ilgen)
+				public override void EmitCall(CodeEmitter ilgen)
 				{
 					if(!IsStatic && IsFinal)
 					{
@@ -1219,7 +1207,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal override void EmitCallvirt(CodeEmitter ilgen)
+				public override void EmitCallvirt(CodeEmitter ilgen)
 				{
 					EmitCallvirtImpl(ilgen, this.IsProtected && !mbHelper.IsPublic);
 				}
@@ -1236,7 +1224,7 @@ namespace IKVM.Internal
 					}
 				}
 
-				internal override MethodBase DoLink()
+				public override MethodBase DoLink()
 				{
 					RemapperTypeWrapper typeWrapper = (RemapperTypeWrapper)DeclaringType;
 
@@ -1477,7 +1465,7 @@ namespace IKVM.Internal
 					return m.Name.StartsWith("__<", StringComparison.Ordinal);
 				}
 
-				internal override void Finish()
+				public override void Finish()
 				{
 					// TODO we should insert method tracing (if enabled)
 					Type[] paramTypes = this.GetParametersForDefineMethod();
@@ -1774,7 +1762,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal void Process2ndPassStep1()
+			public void Process2ndPassStep1()
 			{
 				if (!shadowType.IsSealed)
 				{
@@ -1786,7 +1774,7 @@ namespace IKVM.Internal
 				AttributeHelper.SetImplementsAttribute(typeBuilder, interfaceWrappers);
 			}
 
-			internal void Process2ndPassStep2(IKVM.Internal.MapXml.Root map)
+			public void Process2ndPassStep2(IKVM.Internal.MapXml.Root map)
 			{
 				IKVM.Internal.MapXml.Class c = classDef;
 				TypeBuilder tb = typeBuilder;
@@ -1845,7 +1833,7 @@ namespace IKVM.Internal
 				SetFields(fields.ToArray());
 			}
 
-			internal void Process3rdPass()
+			public void Process3rdPass()
 			{
 				foreach(RemappedMethodBaseWrapper m in GetMethods())
 				{
@@ -1853,7 +1841,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal void Process4thPass(ICollection<RemapperTypeWrapper> remappedTypes)
+			public void Process4thPass(ICollection<RemapperTypeWrapper> remappedTypes)
 			{
 				foreach(RemappedMethodBaseWrapper m in GetMethods())
 				{
@@ -2089,51 +2077,25 @@ namespace IKVM.Internal
 				ilgen.DoEmit();
 			}
 
-			internal override MethodBase LinkMethod(MethodWrapper mw)
+			public override MethodBase LinkMethod(MethodWrapper mw)
 			{
 				return ((RemappedMethodBaseWrapper)mw).DoLink();
 			}
 
-			internal override TypeWrapper[] Interfaces
-			{
-				get
-				{
-					return interfaceWrappers;
-				}
-			}
+			public override TypeWrapper[] Interfaces => interfaceWrappers;
 
-			internal override Type TypeAsTBD
-			{
-				get
-				{
-					return shadowType;
-				}
-			}
+			public override Type TypeAsTBD => shadowType;
 
-			internal override Type TypeAsBaseType
-			{
-				get
-				{
-					return typeBuilder;
-				}
-			}
+			public override Type TypeAsBaseType => typeBuilder;
 
-			internal override bool IsMapUnsafeException
-			{
-				get
-				{
-					// any remapped exceptions are automatically unsafe
-					return shadowType == Types.Exception || shadowType.IsSubclassOf(Types.Exception);
-				}
-			}
+			public override bool IsMapUnsafeException =>
+				// any remapped exceptions are automatically unsafe
+				shadowType == Types.Exception || shadowType.IsSubclassOf(Types.Exception);
 
-			internal override bool IsFastClassLiteralSafe
-			{
-				get { return true; }
-			}
+			public override bool IsFastClassLiteralSafe => true;
 		}
 
-		internal static void AddDeclaredExceptions(MethodBuilder mb, IKVM.Internal.MapXml.Throws[] throws)
+		public static void AddDeclaredExceptions(MethodBuilder mb, IKVM.Internal.MapXml.Throws[] throws)
 		{
 			if (throws != null)
 			{
@@ -2146,7 +2108,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal void EmitRemappedTypes()
+		public void EmitRemappedTypes()
 		{
 			Tracer.Info(Tracer.Compiler, "Emit remapped types");
 
@@ -2183,7 +2145,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal void EmitRemappedTypes2ndPass()
+		public void EmitRemappedTypes2ndPass()
 		{
 			if (map != null && map.assembly != null && map.assembly.Classes != null)
 			{
@@ -2207,7 +2169,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal bool IsMapUnsafeException(TypeWrapper tw)
+		public bool IsMapUnsafeException(TypeWrapper tw)
 		{
 			if(mappedExceptions != null)
 			{
@@ -2223,7 +2185,7 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		internal void LoadMappedExceptions(IKVM.Internal.MapXml.Root map)
+		public void LoadMappedExceptions(IKVM.Internal.MapXml.Root map)
 		{
 			if(map.exceptionMappings != null)
 			{
@@ -2263,16 +2225,16 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal sealed class ExceptionMapEmitter
+		public sealed class ExceptionMapEmitter
 		{
 			private IKVM.Internal.MapXml.ExceptionMapping[] map;
 
-			internal ExceptionMapEmitter(IKVM.Internal.MapXml.ExceptionMapping[] map)
+			public ExceptionMapEmitter(IKVM.Internal.MapXml.ExceptionMapping[] map)
 			{
 				this.map = map;
 			}
 
-			internal void Emit(IKVM.Internal.MapXml.CodeGenContext context, CodeEmitter ilgen)
+			public void Emit(IKVM.Internal.MapXml.CodeGenContext context, CodeEmitter ilgen)
 			{
 				MethodWrapper mwSuppressFillInStackTrace = CoreClasses.java.lang.Throwable.Wrapper.GetMethodWrapper("__<suppressFillInStackTrace>", "()V", false);
 				mwSuppressFillInStackTrace.Link();
@@ -2323,7 +2285,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal void LoadMapXml()
+		public void LoadMapXml()
 		{
 			if(map.assembly.Classes != null)
 			{
@@ -2376,7 +2338,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal IKVM.Internal.MapXml.InstructionList GetMethodPrologue(MethodKey method)
+		public IKVM.Internal.MapXml.InstructionList GetMethodPrologue(MethodKey method)
 		{
 			if(mapxml_MethodPrologues == null)
 			{
@@ -2387,7 +2349,7 @@ namespace IKVM.Internal
 			return prologue;
 		}
 
-		internal IKVM.Internal.MapXml.ReplaceMethodCall[] GetReplacedMethodsFor(MethodWrapper mw)
+		public IKVM.Internal.MapXml.ReplaceMethodCall[] GetReplacedMethodsFor(MethodWrapper mw)
 		{
 			if(mapxml_ReplacedMethods == null)
 			{
@@ -2398,17 +2360,17 @@ namespace IKVM.Internal
 			return rmc;
 		}
 
-		internal Dictionary<string, IKVM.Internal.MapXml.Class> GetMapXmlClasses()
+		public Dictionary<string, IKVM.Internal.MapXml.Class> GetMapXmlClasses()
 		{
 			return mapxml_Classes;
 		}
 
-		internal Dictionary<MethodKey, IKVM.Internal.MapXml.InstructionList> GetMapXmlMethodBodies()
+		public Dictionary<MethodKey, IKVM.Internal.MapXml.InstructionList> GetMapXmlMethodBodies()
 		{
 			return mapxml_MethodBodies;
 		}
 
-		internal IKVM.Internal.MapXml.Param[] GetXmlMapParameters(string classname, string method, string sig)
+		public IKVM.Internal.MapXml.Param[] GetXmlMapParameters(string classname, string method, string sig)
 		{
 			if(mapxml_Classes != null)
 			{
@@ -2440,7 +2402,7 @@ namespace IKVM.Internal
 			return null;
 		}
 
-		internal bool IsGhost(TypeWrapper tw)
+		public bool IsGhost(TypeWrapper tw)
 		{
 			return ghosts != null && tw.IsInterface && ghosts.ContainsKey(tw.Name);
 		}
@@ -2484,7 +2446,7 @@ namespace IKVM.Internal
 			list.Add(implementer);
 		}
 
-		internal TypeWrapper[] GetGhostImplementers(TypeWrapper wrapper)
+		public TypeWrapper[] GetGhostImplementers(TypeWrapper wrapper)
 		{
 			List<TypeWrapper> list;
 			if (!ghosts.TryGetValue(wrapper.Name, out list))
@@ -2494,7 +2456,7 @@ namespace IKVM.Internal
 			return list.ToArray();
 		}
 
-		internal void FinishRemappedTypes()
+		public void FinishRemappedTypes()
 		{
 			// 3rd pass, link the methods. Note that a side effect of the linking is the
 			// twiddling with the overriders array in the base methods, so we need to do this
@@ -2524,7 +2486,7 @@ namespace IKVM.Internal
 			return key != null && key.Length != 0;
 		}
 
-		internal static bool IsCoreAssembly(Assembly asm)
+		public static bool IsCoreAssembly(Assembly asm)
 		{
 			return asm.IsDefined(StaticCompiler.GetRuntimeType("IKVM.Attributes.RemappedClassAttribute"), false);
 		}
@@ -2544,7 +2506,7 @@ namespace IKVM.Internal
 			return false;
 		}
 
-		internal static int Compile(string runtimeAssembly, List<CompilerOptions> optionsList)
+		public static int Compile(string runtimeAssembly, List<CompilerOptions> optionsList)
 		{
 			try
 			{
@@ -3256,7 +3218,7 @@ namespace IKVM.Internal
 			return sig != null && (field ? ClassFile.IsValidFieldSig(sig) : ClassFile.IsValidMethodSig(sig));
 		}
 
-		internal Type GetTypeFromReferencedAssembly(string name)
+		public Type GetTypeFromReferencedAssembly(string name)
 		{
 			foreach (AssemblyClassLoader acl in referencedAssemblies)
 			{
@@ -3269,12 +3231,12 @@ namespace IKVM.Internal
 			return null;
 		}
 
-		internal override void IssueMessage(Message msgId, params string[] values)
+		public override void IssueMessage(Message msgId, params string[] values)
 		{
 			StaticCompiler.IssueMessage(options, msgId, values);
 		}
 
-		internal bool TryEnableUnmanagedExports()
+		public bool TryEnableUnmanagedExports()
 		{
 			// we only support -platform:x86 and -platform:x64
 			// (currently IKVM.Reflection doesn't support unmanaged exports for ARM)
@@ -3285,22 +3247,15 @@ namespace IKVM.Internal
 				options.pekind &= ~PortableExecutableKinds.ILOnly;
 				return true;
 			}
-			else
-			{
-				StaticCompiler.IssueMessage(options, Message.DllExportRequiresSupportedPlatform);
-				return false;
-			}
+			
+			StaticCompiler.IssueMessage(options, Message.DllExportRequiresSupportedPlatform);
+			return false;
+			
 		}
 
-		internal override bool WarningLevelHigh
-		{
-			get { return options.warningLevelHigh; }
-		}
+		public override bool WarningLevelHigh => options.warningLevelHigh;
 
-		internal override bool NoParameterReflection
-		{
-			get { return options.noParameterReflection; }
-		}
+		public override bool NoParameterReflection => options.noParameterReflection;
 
 		protected override void CheckProhibitedPackage(string className)
 		{
@@ -3311,31 +3266,31 @@ namespace IKVM.Internal
 		}
 	}
 
-	sealed class Jar
+	public sealed class Jar
 	{
-		internal readonly string Name;
-		internal readonly string Comment;
+		public readonly string Name;
+		public readonly string Comment;
 		private readonly List<JarItem> Items = new List<JarItem>();
 
-		internal Jar(string name, string comment)
+		public Jar(string name, string comment)
 		{
 			this.Name = name;
 			this.Comment = comment;
 		}
 
-		internal Jar Copy()
+		public Jar Copy()
 		{
 			Jar newJar = new Jar(Name, Comment);
 			newJar.Items.AddRange(Items);
 			return newJar;
 		}
 
-		internal void Add(ZipEntry ze, byte[] data)
+		public void Add(ZipEntry ze, byte[] data)
 		{
 			Items.Add(new JarItem(ze, data, null));
 		}
 
-		internal void Add(string name, byte[] data, FileInfo fileInfo)
+		public void Add(string name, byte[] data, FileInfo fileInfo)
 		{
 			ZipEntry zipEntry = new ZipEntry(name);
 			zipEntry.DateTime = fileInfo.LastWriteTimeUtc;
@@ -3345,11 +3300,11 @@ namespace IKVM.Internal
 
 		private struct JarItem
 		{
-			internal readonly ZipEntry zipEntry;
-			internal readonly byte[] data;
-			internal readonly FileInfo path;			// path of the original file, if it was individual file (used to construct source file path)
+			public readonly ZipEntry zipEntry;
+			public readonly byte[] data;
+			public readonly FileInfo path;			// path of the original file, if it was individual file (used to construct source file path)
 
-			internal JarItem(ZipEntry zipEntry, byte[] data, FileInfo path)
+			public JarItem(ZipEntry zipEntry, byte[] data, FileInfo path)
 			{
 				this.zipEntry = zipEntry;
 				this.data = data;
@@ -3359,31 +3314,25 @@ namespace IKVM.Internal
 
 		public struct Item
 		{
-			internal readonly Jar Jar;
+			public readonly Jar Jar;
 			private readonly int Index;
 
-			internal Item(Jar jar, int index)
+			public Item(Jar jar, int index)
 			{
-				this.Jar = jar;
-				this.Index = index;
+				Jar = jar;
+				Index = index;
 			}
 
-			internal string Name
-			{
-				get { return Jar.Items[Index].zipEntry.Name; }
-			}
+			public string Name => Jar.Items[Index].zipEntry.Name;
 
-			internal byte[] GetData()
+			public byte[] GetData()
 			{
 				return Jar.Items[Index].data;
 			}
 
-			internal FileInfo Path
-			{
-				get { return Jar.Items[Index].path; }
-			}
+			public FileInfo Path => Jar.Items[Index].path;
 
-			internal ZipEntry ZipEntry
+			public ZipEntry ZipEntry
 			{
 				get
 				{
@@ -3399,28 +3348,25 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal void Remove()
+			public void Remove()
 			{
 				Jar.Items[Index] = new JarItem();
 			}
 
-			internal void MarkAsStub()
+			public void MarkAsStub()
 			{
 				Jar.Items[Index] = new JarItem(Jar.Items[Index].zipEntry, null, null);
 			}
 
-			internal bool IsStub
-			{
-				get { return Jar.Items[Index].data == null; }
-			}
+			public bool IsStub => Jar.Items[Index].data == null;
 		}
 
-		internal struct JarEnumerator
+		public struct JarEnumerator
 		{
 			private readonly Jar jar;
 			private int index;
 
-			internal JarEnumerator(Jar jar)
+			public JarEnumerator(Jar jar)
 			{
 				this.jar = jar;
 				this.index = -1;
@@ -3450,61 +3396,61 @@ namespace IKVM.Internal
 		}
 	}
 
-	sealed class CompilerOptions
+	public sealed class CompilerOptions
 	{
-		internal List<Jar> jars = new List<Jar>();
+		public List<Jar> jars = new List<Jar>();
 		private Dictionary<string, int> jarMap = new Dictionary<string, int>();
-		internal int classesJar = -1;
-		internal int resourcesJar = -1;
-		internal bool nojarstubs;
-		internal FileInfo path;
-		internal FileInfo keyfile;
-		internal string keycontainer;
-		internal bool delaysign;
-		internal byte[] publicKey;
-		internal StrongNameKeyPair keyPair;
-		internal Version version;
-		internal string fileversion;
-		internal FileInfo iconfile;
-		internal FileInfo manifestFile;
-		internal bool targetIsModule;
-		internal string assembly;
-		internal string mainClass;
-		internal ApartmentState apartment;
-		internal PEFileKinds target;
-		internal bool guessFileKind;
-		internal string[] unresolvedReferences;	// only used during command line parsing
-		internal Dictionary<string, string> legacyStubReferences = new Dictionary<string,string>();	// only used during command line parsing
-		internal Assembly[] references;
-		internal string[] peerReferences;
-		internal bool crossReferenceAllPeers = true;
-		internal string[] classesToExclude;		// only used during command line parsing
-		internal FileInfo remapfile;
-		internal Dictionary<string, string> props;
-		internal bool noglobbing;
-		internal CodeGenOptions codegenoptions;
-		internal bool compressedResources;
-		internal string[] privatePackages;
-		internal string[] publicPackages;
-		internal string sourcepath;
-		internal Dictionary<string, string> externalResources;
-		internal string classLoader;
-		internal PortableExecutableKinds pekind = PortableExecutableKinds.ILOnly;
-		internal ImageFileMachine imageFileMachine = ImageFileMachine.I386;
-		internal long baseAddress;
-		internal int fileAlignment;
-		internal bool highentropyva;
-		internal List<CompilerClassLoader> sharedclassloader; // should *not* be deep copied in Copy(), because we want the list of all compilers that share a class loader
-		internal Dictionary<string, string> suppressWarnings = new Dictionary<string, string>();
-		internal Dictionary<string, string> errorWarnings = new Dictionary<string, string>();	// treat specific warnings as errors
-		internal bool warnaserror; // treat all warnings as errors
-		internal FileInfo writeSuppressWarningsFile;
-		internal List<string> proxies = new List<string>();
-		internal object[] assemblyAttributeAnnotations;
-		internal bool warningLevelHigh;
-		internal bool noParameterReflection;
+		public int classesJar = -1;
+		public int resourcesJar = -1;
+		public bool nojarstubs;
+		public FileInfo path;
+		public FileInfo keyfile;
+		public string keycontainer;
+		public bool delaysign;
+		public byte[] publicKey;
+		public StrongNameKeyPair keyPair;
+		public Version version;
+		public string fileversion;
+		public FileInfo iconfile;
+		public FileInfo manifestFile;
+		public bool targetIsModule;
+		public string assembly;
+		public string mainClass;
+		public ApartmentState apartment;
+		public PEFileKinds target;
+		public bool guessFileKind;
+		public string[] unresolvedReferences;	// only used during command line parsing
+		public Dictionary<string, string> legacyStubReferences = new Dictionary<string,string>();	// only used during command line parsing
+		public Assembly[] references;
+		public string[] peerReferences;
+		public bool crossReferenceAllPeers = true;
+		public string[] classesToExclude;		// only used during command line parsing
+		public FileInfo remapfile;
+		public Dictionary<string, string> props;
+		public bool noglobbing;
+		public CodeGenOptions codegenoptions;
+		public bool compressedResources;
+		public string[] privatePackages;
+		public string[] publicPackages;
+		public string sourcepath;
+		public Dictionary<string, string> externalResources;
+		public string classLoader;
+		public PortableExecutableKinds pekind = PortableExecutableKinds.ILOnly;
+		public ImageFileMachine imageFileMachine = ImageFileMachine.I386;
+		public long baseAddress;
+		public int fileAlignment;
+		public bool highentropyva;
+		public List<CompilerClassLoader> sharedclassloader; // should *not* be deep copied in Copy(), because we want the list of all compilers that share a class loader
+		public Dictionary<string, string> suppressWarnings = new Dictionary<string, string>();
+		public Dictionary<string, string> errorWarnings = new Dictionary<string, string>();	// treat specific warnings as errors
+		public bool warnaserror; // treat all warnings as errors
+		public FileInfo writeSuppressWarningsFile;
+		public List<string> proxies = new List<string>();
+		public object[] assemblyAttributeAnnotations;
+		public bool warningLevelHigh;
+		public bool noParameterReflection;
 
-		internal CompilerOptions Copy()
+		public CompilerOptions Copy()
 		{
 			CompilerOptions copy = (CompilerOptions)MemberwiseClone();
 			copy.jars = Copy(jars);
@@ -3532,7 +3478,7 @@ namespace IKVM.Internal
 			return newJars;
 		}
 
-		internal Jar GetJar(ZipFile zf)
+		public Jar GetJar(ZipFile zf)
 		{
 			int existingJar;
 			if (jarMap.TryGetValue(zf.Name, out existingJar))
@@ -3561,7 +3507,7 @@ namespace IKVM.Internal
 			return newJar;
 		}
 
-		internal Jar GetClassesJar()
+		public Jar GetClassesJar()
 		{
 			if (classesJar == -1)
 			{
@@ -3571,12 +3517,12 @@ namespace IKVM.Internal
 			return jars[classesJar];
 		}
 
-		internal bool IsClassesJar(Jar jar)
+		public bool IsClassesJar(Jar jar)
 		{
 			return classesJar != -1 && jars[classesJar] == jar;
 		}
 
-		internal Jar GetResourcesJar()
+		public Jar GetResourcesJar()
 		{
 			if (resourcesJar == -1)
 			{
@@ -3586,12 +3532,12 @@ namespace IKVM.Internal
 			return jars[resourcesJar];
 		}
 
-		internal bool IsResourcesJar(Jar jar)
+		public bool IsResourcesJar(Jar jar)
 		{
 			return resourcesJar != -1 && jars[resourcesJar] == jar;
 		}
 
-		internal bool IsExcludedClass(string className)
+		public bool IsExcludedClass(string className)
 		{
 			if (classesToExclude != null)
 			{
@@ -3607,7 +3553,7 @@ namespace IKVM.Internal
 		}
 	}
 
-	enum Message
+	public enum Message
 	{
 		// These are the informational messages
 		MainMethodFound = 1,
@@ -3735,15 +3681,15 @@ namespace IKVM.Internal
 		GhostInterfaceMethodMissing = 5058,
 	}
 
-	static class StaticCompiler
+	public static class StaticCompiler
 	{
 		private static Universe universe;
-		internal static Assembly runtimeAssembly;
-		internal static Assembly runtimeJniAssembly;
-		internal static CompilerOptions toplevel;
-		internal static int errorCount;
+		public static Assembly runtimeAssembly;
+		public static Assembly runtimeJniAssembly;
+		public static CompilerOptions toplevel;
+		public static int errorCount;
 
-		internal static Universe Universe
+		public static Universe Universe
 		{
 			get
 			{
@@ -3752,7 +3698,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static void Init(bool nonDeterministicOutput)
+		public static void Init(bool nonDeterministicOutput)
 		{
 			UniverseOptions options = UniverseOptions.ResolveMissingMembers | UniverseOptions.EnableFunctionPointers;
 			if (!nonDeterministicOutput)
@@ -3771,7 +3717,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static Assembly Load(string assemblyString)
+		public static Assembly Load(string assemblyString)
 		{
 			Assembly asm = Universe.Load(assemblyString);
 			if (asm.__IsMissing)
@@ -3781,12 +3727,12 @@ namespace IKVM.Internal
 			return asm;
 		}
 
-		internal static Assembly LoadFile(string path)
+		public static Assembly LoadFile(string path)
 		{
 			return Universe.LoadFile(path);
 		}
 
-		internal static Type GetRuntimeType(string name)
+		public static Type GetRuntimeType(string name)
 		{
 			Type type = runtimeAssembly.GetType(name);
 			if (type != null)
@@ -3803,7 +3749,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static Type GetTypeForMapXml(ClassLoaderWrapper loader, string name)
+		public static Type GetTypeForMapXml(ClassLoaderWrapper loader, string name)
 		{
 			Type type = GetType(loader, name);
 			if (type == null)
@@ -3813,7 +3759,7 @@ namespace IKVM.Internal
 			return type;
 		}
 
-		internal static TypeWrapper GetClassForMapXml(ClassLoaderWrapper loader, string name)
+		public static TypeWrapper GetClassForMapXml(ClassLoaderWrapper loader, string name)
 		{
 			TypeWrapper tw = loader.LoadClassByDottedNameFast(name);
 			if (tw == null)
@@ -3823,7 +3769,7 @@ namespace IKVM.Internal
 			return tw;
 		}
 
-		internal static FieldWrapper GetFieldForMapXml(ClassLoaderWrapper loader, string clazz, string name, string sig)
+		public static FieldWrapper GetFieldForMapXml(ClassLoaderWrapper loader, string clazz, string name, string sig)
 		{
 			FieldWrapper fw = GetClassForMapXml(loader, clazz).GetFieldWrapper(name, sig);
 			if (fw == null)
@@ -3834,18 +3780,18 @@ namespace IKVM.Internal
 			return fw;
 		}
 
-		internal static Type GetType(ClassLoaderWrapper loader, string name)
+		public static Type GetType(ClassLoaderWrapper loader, string name)
 		{
 			CompilerClassLoader ccl = (CompilerClassLoader)loader;
 			return ccl.GetTypeFromReferencedAssembly(name);
 		}
 
-		internal static void IssueMessage(Message msgId, params string[] values)
+		public static void IssueMessage(Message msgId, params string[] values)
 		{
 			IssueMessage(toplevel, msgId, values);
 		}
 
-		internal static void IssueMessage(CompilerOptions options, Message msgId, params string[] values)
+		public static void IssueMessage(CompilerOptions options, Message msgId, params string[] values)
 		{
 			if (errorCount != 0 && msgId < Message.StartErrors && !options.warnaserror)
 			{
@@ -4099,7 +4045,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal static void LinkageError(string msg, TypeWrapper actualType, TypeWrapper expectedType, params object[] values)
+		public static void LinkageError(string msg, TypeWrapper actualType, TypeWrapper expectedType, params object[] values)
 		{
 			object[] args = new object[values.Length + 2];
 			values.CopyTo(args, 2);
@@ -4129,24 +4075,24 @@ namespace IKVM.Internal
 			return tw.Name + " (unknown assembly)";
 		}
 
-		internal static void IssueMissingTypeMessage(Type type)
+		public static void IssueMissingTypeMessage(Type type)
 		{
 			type = ReflectUtil.GetMissingType(type);
 			StaticCompiler.IssueMessage(type.Assembly.__IsMissing ? Message.MissingReference : Message.MissingType, type.FullName, type.Assembly.FullName);
 		}
 
-		internal static void SuppressWarning(CompilerOptions options, Message message, string name)
+		public static void SuppressWarning(CompilerOptions options, Message message, string name)
 		{
 			options.suppressWarnings[(int)message + ":" + name] = null;
 		}
 	}
 
-	sealed class Packages
+	public sealed class Packages
 	{
 		private readonly List<string> packages = new List<string>();
 		private readonly Dictionary<string, string> packagesSet = new Dictionary<string, string>();
 
-		internal void DefinePackage(string packageName, string jar)
+		public void DefinePackage(string packageName, string jar)
 		{
 			if (!packagesSet.ContainsKey(packageName))
 			{
@@ -4156,7 +4102,7 @@ namespace IKVM.Internal
 		}
 
 		// returns an array of PackageListAttribute constructor argument arrays
-		internal object[][] ToArray()
+		public object[][] ToArray()
 		{
 			List<object[]> list = new List<object[]>();
 			// we use an empty string to indicate we don't yet have a jar,

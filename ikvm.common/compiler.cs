@@ -41,49 +41,49 @@ using LocalVariableTableEntry = IKVM.Internal.ClassFile.Method.LocalVariableTabl
 using Instruction = IKVM.Internal.ClassFile.Method.Instruction;
 using InstructionFlags = IKVM.Internal.ClassFile.Method.InstructionFlags;
 
-static class ByteCodeHelperMethods
+public static class ByteCodeHelperMethods
 {
-	internal static readonly MethodInfo multianewarray;
-	internal static readonly MethodInfo multianewarray_ghost;
-	internal static readonly MethodInfo anewarray_ghost;
-	internal static readonly MethodInfo f2i;
-	internal static readonly MethodInfo d2i;
-	internal static readonly MethodInfo f2l;
-	internal static readonly MethodInfo d2l;
-	internal static readonly MethodInfo arraycopy_fast;
-	internal static readonly MethodInfo arraycopy_primitive_8;
-	internal static readonly MethodInfo arraycopy_primitive_4;
-	internal static readonly MethodInfo arraycopy_primitive_2;
-	internal static readonly MethodInfo arraycopy_primitive_1;
-	internal static readonly MethodInfo arraycopy;
-	internal static readonly MethodInfo DynamicCast;
-	internal static readonly MethodInfo DynamicAaload;
-	internal static readonly MethodInfo DynamicAastore;
-	internal static readonly MethodInfo DynamicClassLiteral;
-	internal static readonly MethodInfo DynamicMultianewarray;
-	internal static readonly MethodInfo DynamicNewarray;
-	internal static readonly MethodInfo DynamicNewCheckOnly;
-	internal static readonly MethodInfo DynamicCreateDelegate;
-	internal static readonly MethodInfo DynamicLoadMethodType;
-	internal static readonly MethodInfo DynamicLoadMethodHandle;
-	internal static readonly MethodInfo DynamicBinderMemberLookup;
-	internal static readonly MethodInfo DynamicMapException;
-	internal static readonly MethodInfo DynamicCallerID;
-	internal static readonly MethodInfo DynamicLinkIndyCallSite;
-	internal static readonly MethodInfo DynamicEraseInvokeExact;
-	internal static readonly MethodInfo VerboseCastFailure;
-	internal static readonly MethodInfo SkipFinalizer;
-	internal static readonly MethodInfo DynamicInstanceOf;
-	internal static readonly MethodInfo volatileReadDouble;
-	internal static readonly MethodInfo volatileReadLong;
-	internal static readonly MethodInfo volatileWriteDouble;
-	internal static readonly MethodInfo volatileWriteLong;
-	internal static readonly MethodInfo mapException;
-	internal static readonly MethodInfo GetDelegateForInvokeExact;
-	internal static readonly MethodInfo GetDelegateForInvoke;
-	internal static readonly MethodInfo GetDelegateForInvokeBasic;
-	internal static readonly MethodInfo LoadMethodType;
-	internal static readonly MethodInfo LinkIndyCallSite;
+	public static readonly MethodInfo multianewarray;
+	public static readonly MethodInfo multianewarray_ghost;
+	public static readonly MethodInfo anewarray_ghost;
+	public static readonly MethodInfo f2i;
+	public static readonly MethodInfo d2i;
+	public static readonly MethodInfo f2l;
+	public static readonly MethodInfo d2l;
+	public static readonly MethodInfo arraycopy_fast;
+	public static readonly MethodInfo arraycopy_primitive_8;
+	public static readonly MethodInfo arraycopy_primitive_4;
+	public static readonly MethodInfo arraycopy_primitive_2;
+	public static readonly MethodInfo arraycopy_primitive_1;
+	public static readonly MethodInfo arraycopy;
+	public static readonly MethodInfo DynamicCast;
+	public static readonly MethodInfo DynamicAaload;
+	public static readonly MethodInfo DynamicAastore;
+	public static readonly MethodInfo DynamicClassLiteral;
+	public static readonly MethodInfo DynamicMultianewarray;
+	public static readonly MethodInfo DynamicNewarray;
+	public static readonly MethodInfo DynamicNewCheckOnly;
+	public static readonly MethodInfo DynamicCreateDelegate;
+	public static readonly MethodInfo DynamicLoadMethodType;
+	public static readonly MethodInfo DynamicLoadMethodHandle;
+	public static readonly MethodInfo DynamicBinderMemberLookup;
+	public static readonly MethodInfo DynamicMapException;
+	public static readonly MethodInfo DynamicCallerID;
+	public static readonly MethodInfo DynamicLinkIndyCallSite;
+	public static readonly MethodInfo DynamicEraseInvokeExact;
+	public static readonly MethodInfo VerboseCastFailure;
+	public static readonly MethodInfo SkipFinalizer;
+	public static readonly MethodInfo DynamicInstanceOf;
+	public static readonly MethodInfo volatileReadDouble;
+	public static readonly MethodInfo volatileReadLong;
+	public static readonly MethodInfo volatileWriteDouble;
+	public static readonly MethodInfo volatileWriteLong;
+	public static readonly MethodInfo mapException;
+	public static readonly MethodInfo GetDelegateForInvokeExact;
+	public static readonly MethodInfo GetDelegateForInvoke;
+	public static readonly MethodInfo GetDelegateForInvokeBasic;
+	public static readonly MethodInfo LoadMethodType;
+	public static readonly MethodInfo LinkIndyCallSite;
 
 	static ByteCodeHelperMethods()
 	{
@@ -153,13 +153,13 @@ static class ByteCodeHelperMethods
 	}
 }
 
-struct MethodKey : IEquatable<MethodKey>
+public struct MethodKey : IEquatable<MethodKey>
 {
 	private readonly string className;
 	private readonly string methodName;
 	private readonly string methodSig;
 
-	internal MethodKey(string className, string methodName, string methodSig)
+	public MethodKey(string className, string methodName, string methodSig)
 	{
 		this.className = className;
 		this.methodName = methodName;
@@ -177,9 +177,9 @@ struct MethodKey : IEquatable<MethodKey>
 	}
 }
 
-static partial class MethodHandleUtil
+public static partial class MethodHandleUtil
 {
-	internal static void EmitCallDelegateInvokeMethod(CodeEmitter ilgen, Type delegateType)
+	public static void EmitCallDelegateInvokeMethod(CodeEmitter ilgen, Type delegateType)
 	{
 		if (delegateType.IsGenericType)
 		{
@@ -207,19 +207,18 @@ static partial class MethodHandleUtil
 		ilgen.Emit(OpCodes.Newobj, GetDelegateOrPackedArgsConstructor(type));
 	}
 
-	internal static MethodInfo GetDelegateInvokeMethod(Type delegateType)
+	public static MethodInfo GetDelegateInvokeMethod(Type delegateType)
 	{
 		if (ReflectUtil.ContainsTypeBuilder(delegateType))
 		{
 			return TypeBuilder.GetMethod(delegateType, delegateType.GetGenericTypeDefinition().GetMethod("Invoke"));
 		}
-		else
-		{
-			return delegateType.GetMethod("Invoke");
-		}
+		
+		return delegateType.GetMethod("Invoke");
+		
 	}
 
-	internal static ConstructorInfo GetDelegateConstructor(Type delegateType)
+	public static ConstructorInfo GetDelegateConstructor(Type delegateType)
 	{
 		return GetDelegateOrPackedArgsConstructor(delegateType);
 	}
@@ -237,7 +236,7 @@ static partial class MethodHandleUtil
 	}
 
 	// for delegate types used for "ldc <MethodType>" we don't want ghost arrays to be erased
-	internal static Type CreateDelegateTypeForLoadConstant(TypeWrapper[] args, TypeWrapper ret)
+	public static Type CreateDelegateTypeForLoadConstant(TypeWrapper[] args, TypeWrapper ret)
 	{
 		Type[] typeArgs = new Type[args.Length];
 		for (int i = 0; i < args.Length; i++)
@@ -265,7 +264,7 @@ static partial class MethodHandleUtil
 	}
 }
 
-sealed class Compiler
+public sealed class Compiler
 {
 	internal static readonly MethodInfo unmapExceptionMethod;
 	private static readonly MethodInfo fixateExceptionMethod;
@@ -599,15 +598,15 @@ sealed class Compiler
 
 		internal BranchCookie(Compiler compiler, int stackHeight, int targetIndex)
 		{
-			this.Stub = compiler.ilGenerator.DefineLabel();
-			this.TargetIndex = targetIndex;
-			this.dh = new DupHelper(compiler, stackHeight);
+			Stub = compiler.ilGenerator.DefineLabel();
+			TargetIndex = targetIndex;
+			dh = new DupHelper(compiler, stackHeight);
 		}
 
 		internal BranchCookie(CodeEmitterLabel label, int targetIndex)
 		{
-			this.Stub = label;
-			this.TargetIndex = targetIndex;
+			Stub = label;
+			TargetIndex = targetIndex;
 		}
 	}
 
@@ -626,14 +625,14 @@ sealed class Compiler
 		private readonly StackType[] types;
 		private readonly CodeEmitterLocal[] locals;
 
-		internal DupHelper(Compiler compiler, int count)
+		public DupHelper(Compiler compiler, int count)
 		{
 			this.compiler = compiler;
 			types = new StackType[count];
 			locals = new CodeEmitterLocal[count];
 		}
 
-		internal void Release()
+		public void Release()
 		{
 			foreach (CodeEmitterLocal lb in locals)
 			{
@@ -644,7 +643,7 @@ sealed class Compiler
 			}
 		}
 
-		internal int Count
+		public int Count
 		{
 			get
 			{
@@ -652,7 +651,7 @@ sealed class Compiler
 			}
 		}
 
-		internal void SetType(int i, TypeWrapper type)
+		public void SetType(int i, TypeWrapper type)
 		{
 			if(type == VerifierTypeWrapper.Null)
 			{
@@ -683,7 +682,7 @@ sealed class Compiler
 			}
 		}
 
-		internal void Load(int i)
+		public void Load(int i)
 		{
 			switch(types[i])
 			{
@@ -706,7 +705,7 @@ sealed class Compiler
 			}
 		}
 
-		internal void Store(int i)
+		public void Store(int i)
 		{
 			switch(types[i])
 			{
@@ -728,7 +727,7 @@ sealed class Compiler
 		}
 	}
 
-	internal static void Compile(DynamicTypeWrapper.FinishContext context, TypeWrapper host, DynamicTypeWrapper clazz, MethodWrapper mw, ClassFile classFile, ClassFile.Method m, CodeEmitter ilGenerator, ref bool nonleaf)
+	public static void Compile(DynamicTypeWrapper.FinishContext context, TypeWrapper host, DynamicTypeWrapper clazz, MethodWrapper mw, ClassFile classFile, ClassFile.Method m, CodeEmitter ilGenerator, ref bool nonleaf)
 	{
 		ClassLoaderWrapper classLoader = clazz.GetClassLoader();
 		if(classLoader.EmitDebugInfo)
@@ -839,7 +838,7 @@ sealed class Compiler
 		private readonly bool nested;
 		private readonly object[] labels;
 
-		internal Block(Compiler compiler, int beginIndex, int endIndex, int exceptionIndex, List<object> exits, bool nested)
+		public Block(Compiler compiler, int beginIndex, int endIndex, int exceptionIndex, List<object> exits, bool nested)
 		{
 			this.compiler = compiler;
 			this.ilgen = compiler.ilGenerator;
@@ -851,23 +850,11 @@ sealed class Compiler
 			labels = new object[compiler.m.Instructions.Length];
 		}
 
-		internal int EndIndex
-		{
-			get
-			{
-				return endIndex;
-			}
-		}
+		public int EndIndex => endIndex;
 
-		internal int ExceptionIndex
-		{
-			get
-			{
-				return exceptionIndex;
-			}
-		}
+		public int ExceptionIndex => exceptionIndex;
 
-		internal void SetBackwardBranchLabel(int instructionIndex, BranchCookie bc)
+		public void SetBackwardBranchLabel(int instructionIndex, BranchCookie bc)
 		{
 			// NOTE we're overwriting the label that is already there
 			labels[instructionIndex] = bc.Stub;
@@ -878,7 +865,7 @@ sealed class Compiler
 			exits.Add(bc);
 		}
 
-		internal CodeEmitterLabel GetLabel(int targetIndex)
+		public CodeEmitterLabel GetLabel(int targetIndex)
 		{
 			if(IsInRange(targetIndex))
 			{
@@ -913,12 +900,12 @@ sealed class Compiler
 			}
 		}
 
-		internal bool HasLabel(int instructionIndex)
+		public bool HasLabel(int instructionIndex)
 		{
 			return labels[instructionIndex] != null;
 		}
 
-		internal void MarkLabel(int instructionIndex)
+		public void MarkLabel(int instructionIndex)
 		{
 			object label = labels[instructionIndex];
 			if(label == null)
@@ -933,12 +920,12 @@ sealed class Compiler
 			}
 		}
 
-		internal bool IsInRange(int index)
+		public bool IsInRange(int index)
 		{
 			return beginIndex <= index && index < endIndex;
 		}
 
-		internal void Leave()
+		public void Leave()
 		{
 			if(exits != null)
 			{
@@ -979,7 +966,7 @@ sealed class Compiler
 			}
 		}
 
-		internal void LeaveStubs(Block newBlock)
+		public void LeaveStubs(Block newBlock)
 		{
 			if(exits != null)
 			{
@@ -1027,18 +1014,12 @@ sealed class Compiler
 			}
 		}
 
-		internal void AddExitHack(object bc)
+		public void AddExitHack(object bc)
 		{
 			exits.Add(bc);
 		}
 
-		internal bool IsNested
-		{
-			get
-			{
-				return nested;
-			}
-		}
+		public bool IsNested => nested;
 	}
 
 	private void Compile(Block block, int startIndex)
@@ -3285,7 +3266,7 @@ sealed class Compiler
 		private FieldBuilder field;
 		private bool dynamic;
 
-		internal void Emit(Compiler compiler, CodeEmitter ilgen, int index)
+		public void Emit(Compiler compiler, CodeEmitter ilgen, int index)
 		{
 			if (field == null)
 			{
@@ -3315,18 +3296,17 @@ sealed class Compiler
 				dynamic = true;
 				return compiler.context.DefineDynamicMethodTypeCacheField();
 			}
-			else
-			{
-				TypeBuilder tb = compiler.context.DefineMethodTypeConstantType(index);
-				FieldBuilder field = tb.DefineField("value", CoreClasses.java.lang.invoke.MethodType.Wrapper.TypeAsSignatureType, FieldAttributes.Assembly | FieldAttributes.Static | FieldAttributes.InitOnly);
-				CodeEmitter ilgen = CodeEmitter.Create(ReflectUtil.DefineTypeInitializer(tb, compiler.clazz.GetClassLoader()));
-				Type delegateType = MethodHandleUtil.CreateDelegateTypeForLoadConstant(args, ret);
-				ilgen.Emit(OpCodes.Call, ByteCodeHelperMethods.LoadMethodType.MakeGenericMethod(delegateType));
-				ilgen.Emit(OpCodes.Stsfld, field);
-				ilgen.Emit(OpCodes.Ret);
-				ilgen.DoEmit();
-				return field;
-			}
+			
+			TypeBuilder tb = compiler.context.DefineMethodTypeConstantType(index);
+			FieldBuilder field = tb.DefineField("value", CoreClasses.java.lang.invoke.MethodType.Wrapper.TypeAsSignatureType, FieldAttributes.Assembly | FieldAttributes.Static | FieldAttributes.InitOnly);
+			CodeEmitter ilgen = CodeEmitter.Create(ReflectUtil.DefineTypeInitializer(tb, compiler.clazz.GetClassLoader()));
+			Type delegateType = MethodHandleUtil.CreateDelegateTypeForLoadConstant(args, ret);
+			ilgen.Emit(OpCodes.Call, ByteCodeHelperMethods.LoadMethodType.MakeGenericMethod(delegateType));
+			ilgen.Emit(OpCodes.Stsfld, field);
+			ilgen.Emit(OpCodes.Ret);
+			ilgen.DoEmit();
+			return field;
+			
 		}
 	}
 
@@ -3604,13 +3584,13 @@ sealed class Compiler
 		}
 	}
 
-	internal sealed class MethodHandleMethodWrapper : MethodWrapper
+	public sealed class MethodHandleMethodWrapper : MethodWrapper
 	{
 		private readonly Compiler compiler;
 		private readonly TypeWrapper wrapper;
 		private readonly ClassFile.ConstantPoolItemMI cpi;
 
-		internal MethodHandleMethodWrapper(Compiler compiler, TypeWrapper wrapper, ClassFile.ConstantPoolItemMI cpi)
+		public MethodHandleMethodWrapper(Compiler compiler, TypeWrapper wrapper, ClassFile.ConstantPoolItemMI cpi)
 			: base(CoreClasses.java.lang.invoke.MethodHandle.Wrapper, cpi.Name, cpi.Signature, null, cpi.GetRetType(), cpi.GetArgTypes(), Modifiers.Public, MemberFlags.None)
 		{
 			this.compiler = compiler;
@@ -3646,13 +3626,13 @@ sealed class Compiler
 			}
 		}
 
-		internal override void EmitCall(CodeEmitter ilgen)
+		public override void EmitCall(CodeEmitter ilgen)
 		{
 			Debug.Assert(cpi.Name == "linkToVirtual" || cpi.Name == "linkToStatic" || cpi.Name == "linkToSpecial" || cpi.Name == "linkToInterface");
 			EmitLinkToCall(ilgen, cpi.GetArgTypes(), cpi.GetRetType());
 		}
 
-		internal static void EmitLinkToCall(CodeEmitter ilgen, TypeWrapper[] args, TypeWrapper retType)
+		public static void EmitLinkToCall(CodeEmitter ilgen, TypeWrapper[] args, TypeWrapper retType)
 		{
 #if !FIRST_PASS && !STATIC_COMPILER
 			CodeEmitterLocal[] temps = new CodeEmitterLocal[args.Length];
@@ -3808,7 +3788,7 @@ sealed class Compiler
 			MethodHandleUtil.EmitCallDelegateInvokeMethod(ilgen, delegateType);
 		}
 
-		internal override void EmitCallvirt(CodeEmitter ilgen)
+		public override void EmitCallvirt(CodeEmitter ilgen)
 		{
 			switch (cpi.Name)
 			{
@@ -3826,7 +3806,7 @@ sealed class Compiler
 			}
 		}
 
-		internal override void EmitNewobj(CodeEmitter ilgen)
+		public override void EmitNewobj(CodeEmitter ilgen)
 		{
 			throw new InvalidOperationException();
 		}
@@ -3905,7 +3885,7 @@ sealed class Compiler
 			return Emit(compiler, kind, cpi, ret, args, privileged);
 		}
 
-		internal static MethodInfo Emit(Compiler compiler, ClassFile.RefKind kind, ClassFile.ConstantPoolItemFMI cpi, TypeWrapper ret, TypeWrapper[] args, bool privileged)
+		public static MethodInfo Emit(Compiler compiler, ClassFile.RefKind kind, ClassFile.ConstantPoolItemFMI cpi, TypeWrapper ret, TypeWrapper[] args, bool privileged)
 		{
 			bool ghostTarget = (kind == ClassFile.RefKind.invokeSpecial || kind == ClassFile.RefKind.invokeVirtual || kind == ClassFile.RefKind.invokeInterface) && args[0].IsGhost;
 			Type delegateType = MethodHandleUtil.CreateMethodHandleDelegateType(args, ret);
@@ -3965,17 +3945,17 @@ sealed class Compiler
 				this.method = method;
 			}
 
-			internal override void EmitCall(CodeEmitter ilgen)
+			public override void EmitCall(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}
 
-			internal override void EmitCallvirt(CodeEmitter ilgen)
+			public override void EmitCallvirt(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}
 
-			internal override void EmitNewobj(CodeEmitter ilgen)
+			public override void EmitNewobj(CodeEmitter ilgen)
 			{
 				ilgen.Emit(OpCodes.Call, method);
 			}
@@ -4089,22 +4069,21 @@ sealed class Compiler
 		{
 			return clazz;
 		}
-		else if(VerifierTypeWrapper.IsNew(type))
+		if(VerifierTypeWrapper.IsNew(type))
 		{
 			return ((VerifierTypeWrapper)type).UnderlyingType;
 		}
-		else if(type == VerifierTypeWrapper.Null)
+		if(type == VerifierTypeWrapper.Null)
 		{
 			return method.DeclaringType;
 		}
-		else if(invoke == NormalizedByteCode.__invokevirtual && method.IsProtected && type.IsUnloadable)
+		if(invoke == NormalizedByteCode.__invokevirtual && method.IsProtected && type.IsUnloadable)
 		{
 			return clazz;
 		}
-		else
-		{
-			return type;
-		}
+		
+		return type;
+		
 	}
 
 	private LocalVar LoadLocal(int instructionIndex)
