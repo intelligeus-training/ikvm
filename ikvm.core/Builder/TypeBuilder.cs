@@ -42,12 +42,12 @@ namespace IKVM.Reflection.Emit
 		private Type baseType;
 		private GenericParameterAttributes attr;
 
-		internal GenericTypeParameterBuilder(string name, TypeBuilder type, int position)
+		public GenericTypeParameterBuilder(string name, TypeBuilder type, int position)
 			: this(name, type, null, position, Signature.ELEMENT_TYPE_VAR)
 		{
 		}
 
-		internal GenericTypeParameterBuilder(string name, MethodBuilder method, int position)
+		public GenericTypeParameterBuilder(string name, MethodBuilder method, int position)
 			: this(name, null, method, position, Signature.ELEMENT_TYPE_MVAR)
 		{
 		}
@@ -156,7 +156,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override void CheckBaked()
+		public override void CheckBaked()
 		{
 			if (type != null)
 			{
@@ -216,7 +216,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override int GetModuleBuilderToken()
+		public override int GetModuleBuilderToken()
 		{
 			if (typeToken == 0)
 			{
@@ -227,7 +227,7 @@ namespace IKVM.Reflection.Emit
 			return typeToken;
 		}
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			if (type != null)
 			{
@@ -239,7 +239,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			if (this.ModuleBuilder.IsSaved)
 			{
@@ -251,7 +251,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { return ((MemberInfo)type ?? method).IsBaked; }
 		}
@@ -280,7 +280,7 @@ namespace IKVM.Reflection.Emit
 		private short pack;
 		private bool hasLayout;
 
-		internal TypeBuilder(ITypeOwner owner, string ns, string name)
+		public TypeBuilder(ITypeOwner owner, string ns, string name)
 		{
 			this.owner = owner;
 			this.token = this.ModuleBuilder.TypeDef.AllocToken();
@@ -696,7 +696,7 @@ namespace IKVM.Reflection.Emit
 			return gtpb == null ? Empty<CustomModifiers>.Array : new CustomModifiers[gtpb.Length];
 		}
 
-		internal override Type GetGenericTypeArgument(int index)
+		public override Type GetGenericTypeArgument(int index)
 		{
 			return gtpb[index];
 		}
@@ -767,7 +767,7 @@ namespace IKVM.Reflection.Emit
 			return CreateTypeInfo();
 		}
 
-		internal void PopulatePropertyAndEventTables()
+		public void PopulatePropertyAndEventTables()
 		{
 			if (properties != null)
 			{
@@ -828,7 +828,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override TypeName TypeName
+		public override TypeName TypeName
 		{
 			get { return new TypeName(ns, name); }
 		}
@@ -946,7 +946,7 @@ namespace IKVM.Reflection.Emit
 			get { return new TypeToken(token); }
 		}
 
-		internal void WriteTypeDefRecord(MetadataWriter mw, ref int fieldList, ref int methodList)
+		public void WriteTypeDefRecord(MetadataWriter mw, ref int fieldList, ref int methodList)
 		{
 			mw.Write((int)attribs);
 			mw.WriteStringIndex(typeName);
@@ -958,7 +958,7 @@ namespace IKVM.Reflection.Emit
 			fieldList += fields.Count;
 		}
 
-		internal void WriteMethodDefRecords(int baseRVA, MetadataWriter mw, ref int paramList)
+		public void WriteMethodDefRecords(int baseRVA, MetadataWriter mw, ref int paramList)
 		{
 			foreach (MethodBuilder mb in methods)
 			{
@@ -966,7 +966,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void ResolveMethodAndFieldTokens(ref int methodToken, ref int fieldToken, ref int parameterToken)
+		public void ResolveMethodAndFieldTokens(ref int methodToken, ref int fieldToken, ref int parameterToken)
 		{
 			foreach (MethodBuilder method in methods)
 			{
@@ -978,7 +978,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteParamRecords(MetadataWriter mw)
+		public void WriteParamRecords(MetadataWriter mw)
 		{
 			foreach (MethodBuilder mb in methods)
 			{
@@ -986,7 +986,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteFieldRecords(MetadataWriter mw)
+		public void WriteFieldRecords(MetadataWriter mw)
 		{
 			foreach (FieldBuilder fb in fields)
 			{
@@ -994,7 +994,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal ModuleBuilder ModuleBuilder
+		public ModuleBuilder ModuleBuilder
 		{
 			get { return owner.ModuleBuilder; }
 		}
@@ -1004,18 +1004,18 @@ namespace IKVM.Reflection.Emit
 			get { return owner.ModuleBuilder; }
 		}
 
-		internal override int GetModuleBuilderToken()
+		public override int GetModuleBuilderToken()
 		{
 			return token;
 		}
 
-		internal bool HasNestedTypes
+		public bool HasNestedTypes
 		{
 			get { return (typeFlags & TypeFlags.HasNestedTypes) != 0; }
 		}
 
 		// helper for ModuleBuilder.ResolveMethod()
-		internal MethodBase LookupMethod(int token)
+		public MethodBase LookupMethod(int token)
 		{
 			foreach (MethodBuilder method in methods)
 			{
@@ -1032,7 +1032,7 @@ namespace IKVM.Reflection.Emit
 			return (typeFlags & TypeFlags.Baked) != 0;
 		}
 
-		internal override void CheckBaked()
+		public override void CheckBaked()
 		{
 			if ((typeFlags & TypeFlags.Baked) == 0)
 			{
@@ -1042,7 +1042,7 @@ namespace IKVM.Reflection.Emit
 
 		public override Type[] __GetDeclaredTypes()
 		{
-			if (this.HasNestedTypes)
+			if (HasNestedTypes)
 			{
 				List<Type> types = new List<Type>();
 				List<int> classes = this.ModuleBuilder.NestedClass.GetNestedClasses(token);
@@ -1052,10 +1052,9 @@ namespace IKVM.Reflection.Emit
 				}
 				return types.ToArray();
 			}
-			else
-			{
-				return Type.EmptyTypes;
-			}
+			
+			return Type.EmptyTypes;
+			
 		}
 
 		public override FieldInfo[] __GetDeclaredFields()
@@ -1073,15 +1072,9 @@ namespace IKVM.Reflection.Emit
 			return Util.ToArray(properties, Empty<PropertyInfo>.Array);
 		}
 
-		internal override bool IsModulePseudoType
-		{
-			get { return token == 0x02000001; }
-		}
+		public override bool IsModulePseudoType => token == 0x02000001;
 
-		internal override bool IsBaked
-		{
-			get { return IsCreated(); }
-		}
+		public override bool IsBaked => IsCreated();
 
 		protected override bool IsValueTypeImpl
 		{
@@ -1096,55 +1089,37 @@ namespace IKVM.Reflection.Emit
 					}
 					return true;
 				}
-				else
+				
+				if (IsCreated())
 				{
-					if (IsCreated())
-					{
-						typeFlags |= TypeFlags.NotValueType;
-					}
-					return false;
+					typeFlags |= TypeFlags.NotValueType;
 				}
+
+				return false;
 			}
 		}
 	}
 
 	sealed class BakedType : TypeInfo
 	{
-		internal BakedType(TypeBuilder typeBuilder)
+		public BakedType(TypeBuilder typeBuilder)
 			: base(typeBuilder)
 		{
 		}
 
-		public override string AssemblyQualifiedName
-		{
-			get { return underlyingType.AssemblyQualifiedName; }
-		}
+		public override string AssemblyQualifiedName => underlyingType.AssemblyQualifiedName;
 
-		public override Type BaseType
-		{
-			get { return underlyingType.BaseType; }
-		}
+		public override Type BaseType => underlyingType.BaseType;
 
-		internal override TypeName TypeName
-		{
-			get { return underlyingType.TypeName; }
-		}
+		public override TypeName TypeName => underlyingType.TypeName;
 
-		public override string Name
-		{
+		public override string Name =>
 			// we need to escape here, because TypeBuilder.Name does not escape
-			get { return TypeNameParser.Escape(underlyingType.__Name); }
-		}
+			TypeNameParser.Escape(underlyingType.__Name);
 
-		public override string FullName
-		{
-			get { return GetFullName(); }
-		}
+		public override string FullName => GetFullName();
 
-		public override TypeAttributes Attributes
-		{
-			get { return underlyingType.Attributes; }
-		}
+		public override TypeAttributes Attributes => underlyingType.Attributes;
 
 		public override Type[] __GetDeclaredInterfaces()
 		{
@@ -1196,7 +1171,7 @@ namespace IKVM.Reflection.Emit
 			return underlyingType.GetGenericArguments();
 		}
 
-		internal override Type GetGenericTypeArgument(int index)
+		public override Type GetGenericTypeArgument(int index)
 		{
 			return underlyingType.GetGenericTypeArgument(index);
 		}
@@ -1206,44 +1181,23 @@ namespace IKVM.Reflection.Emit
 			return underlyingType.__GetGenericArgumentsCustomModifiers();
 		}
 
-		public override bool IsGenericType
-		{
-			get { return underlyingType.IsGenericType; }
-		}
+		public override bool IsGenericType => underlyingType.IsGenericType;
 
-		public override bool IsGenericTypeDefinition
-		{
-			get { return underlyingType.IsGenericTypeDefinition; }
-		}
+		public override bool IsGenericTypeDefinition => underlyingType.IsGenericTypeDefinition;
 
-		public override bool ContainsGenericParameters
-		{
-			get { return underlyingType.ContainsGenericParameters; }
-		}
+		public override bool ContainsGenericParameters => underlyingType.ContainsGenericParameters;
 
-		public override int MetadataToken
-		{
-			get { return underlyingType.MetadataToken; }
-		}
+		public override int MetadataToken => underlyingType.MetadataToken;
 
-		public override Module Module
-		{
-			get { return underlyingType.Module; }
-		}
+		public override Module Module => underlyingType.Module;
 
-		internal override int GetModuleBuilderToken()
+		public override int GetModuleBuilderToken()
 		{
 			return underlyingType.GetModuleBuilderToken();
 		}
 
-		internal override bool IsBaked
-		{
-			get { return true; }
-		}
+		public override bool IsBaked => true;
 
-		protected override bool IsValueTypeImpl
-		{
-			get { return underlyingType.IsValueType; }
-		}
+		protected override bool IsValueTypeImpl => underlyingType.IsValueType;
 	}
 }

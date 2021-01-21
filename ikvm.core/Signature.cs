@@ -31,51 +31,51 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection
 {
-	abstract class Signature
+	public abstract class Signature
 	{
-		internal const byte DEFAULT = 0x00;
-		internal const byte VARARG = 0x05;
-		internal const byte GENERIC = 0x10;
-		internal const byte HASTHIS = 0x20;
-		internal const byte EXPLICITTHIS = 0x40;
-		internal const byte FIELD = 0x06;
-		internal const byte LOCAL_SIG = 0x07;
-		internal const byte PROPERTY = 0x08;
-		internal const byte GENERICINST = 0x0A;
-		internal const byte SENTINEL = 0x41;
-		internal const byte ELEMENT_TYPE_VOID = 0x01;
-		internal const byte ELEMENT_TYPE_BOOLEAN = 0x02;
-		internal const byte ELEMENT_TYPE_CHAR = 0x03;
-		internal const byte ELEMENT_TYPE_I1 = 0x04;
-		internal const byte ELEMENT_TYPE_U1 = 0x05;
-		internal const byte ELEMENT_TYPE_I2 = 0x06;
-		internal const byte ELEMENT_TYPE_U2 = 0x07;
-		internal const byte ELEMENT_TYPE_I4 = 0x08;
-		internal const byte ELEMENT_TYPE_U4 = 0x09;
-		internal const byte ELEMENT_TYPE_I8 = 0x0a;
-		internal const byte ELEMENT_TYPE_U8 = 0x0b;
-		internal const byte ELEMENT_TYPE_R4 = 0x0c;
-		internal const byte ELEMENT_TYPE_R8 = 0x0d;
-		internal const byte ELEMENT_TYPE_STRING = 0x0e;
-		internal const byte ELEMENT_TYPE_PTR = 0x0f;
-		internal const byte ELEMENT_TYPE_BYREF = 0x10;
-		internal const byte ELEMENT_TYPE_VALUETYPE = 0x11;
-		internal const byte ELEMENT_TYPE_CLASS = 0x12;
-		internal const byte ELEMENT_TYPE_VAR = 0x13;
-		internal const byte ELEMENT_TYPE_ARRAY = 0x14;
-		internal const byte ELEMENT_TYPE_GENERICINST = 0x15;
-		internal const byte ELEMENT_TYPE_TYPEDBYREF = 0x16;
-		internal const byte ELEMENT_TYPE_I = 0x18;
-		internal const byte ELEMENT_TYPE_U = 0x19;
-		internal const byte ELEMENT_TYPE_FNPTR = 0x1b;
-		internal const byte ELEMENT_TYPE_OBJECT = 0x1c;
-		internal const byte ELEMENT_TYPE_SZARRAY = 0x1d;
-		internal const byte ELEMENT_TYPE_MVAR = 0x1e;
-		internal const byte ELEMENT_TYPE_CMOD_REQD = 0x1f;
-		internal const byte ELEMENT_TYPE_CMOD_OPT = 0x20;
-		internal const byte ELEMENT_TYPE_PINNED = 0x45;
+		public const byte DEFAULT = 0x00;
+		public const byte VARARG = 0x05;
+		public const byte GENERIC = 0x10;
+		public const byte HASTHIS = 0x20;
+		public const byte EXPLICITTHIS = 0x40;
+		public const byte FIELD = 0x06;
+		public const byte LOCAL_SIG = 0x07;
+		public const byte PROPERTY = 0x08;
+		public const byte GENERICINST = 0x0A;
+		public const byte SENTINEL = 0x41;
+		public const byte ELEMENT_TYPE_VOID = 0x01;
+		public const byte ELEMENT_TYPE_BOOLEAN = 0x02;
+		public const byte ELEMENT_TYPE_CHAR = 0x03;
+		public const byte ELEMENT_TYPE_I1 = 0x04;
+		public const byte ELEMENT_TYPE_U1 = 0x05;
+		public const byte ELEMENT_TYPE_I2 = 0x06;
+		public const byte ELEMENT_TYPE_U2 = 0x07;
+		public const byte ELEMENT_TYPE_I4 = 0x08;
+		public const byte ELEMENT_TYPE_U4 = 0x09;
+		public const byte ELEMENT_TYPE_I8 = 0x0a;
+		public const byte ELEMENT_TYPE_U8 = 0x0b;
+		public const byte ELEMENT_TYPE_R4 = 0x0c;
+		public const byte ELEMENT_TYPE_R8 = 0x0d;
+		public const byte ELEMENT_TYPE_STRING = 0x0e;
+		public const byte ELEMENT_TYPE_PTR = 0x0f;
+		public const byte ELEMENT_TYPE_BYREF = 0x10;
+		public const byte ELEMENT_TYPE_VALUETYPE = 0x11;
+		public const byte ELEMENT_TYPE_CLASS = 0x12;
+		public const byte ELEMENT_TYPE_VAR = 0x13;
+		public const byte ELEMENT_TYPE_ARRAY = 0x14;
+		public const byte ELEMENT_TYPE_GENERICINST = 0x15;
+		public const byte ELEMENT_TYPE_TYPEDBYREF = 0x16;
+		public const byte ELEMENT_TYPE_I = 0x18;
+		public const byte ELEMENT_TYPE_U = 0x19;
+		public const byte ELEMENT_TYPE_FNPTR = 0x1b;
+		public const byte ELEMENT_TYPE_OBJECT = 0x1c;
+		public const byte ELEMENT_TYPE_SZARRAY = 0x1d;
+		public const byte ELEMENT_TYPE_MVAR = 0x1e;
+		public const byte ELEMENT_TYPE_CMOD_REQD = 0x1f;
+		public const byte ELEMENT_TYPE_CMOD_OPT = 0x20;
+		public const byte ELEMENT_TYPE_PINNED = 0x45;
 
-		internal abstract void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer);
+		public abstract void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer);
 
 		private static Type ReadGenericInst(ModuleReader module, ByteReader br, IGenericContext context)
 		{
@@ -109,7 +109,7 @@ namespace IKVM.Reflection
 			return GenericTypeInstance.Make(type, args, mods);
 		}
 
-		internal static Type ReadTypeSpec(ModuleReader module, ByteReader br, IGenericContext context)
+		public static Type ReadTypeSpec(ModuleReader module, ByteReader br, IGenericContext context)
 		{
 			// LAMESPEC a TypeSpec can contain custom modifiers (C++/CLI generates "newarr (TypeSpec with custom modifiers)")
 			CustomModifiers.Skip(br);
@@ -132,7 +132,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static Type[] ReadMethodSpec(ModuleReader module, ByteReader byteReader, IGenericContext context)
+		public static Type[] ReadMethodSpec(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			if (byteReader.ReadByte() != GENERICINST)
 			{
@@ -256,7 +256,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static void ReadLocalVarSig(ModuleReader module, 
+		public static void ReadLocalVarSig(ModuleReader module, 
 												ByteReader byteReader, 
 												IGenericContext context, 
 												List<LocalVariableInfo> list)
@@ -431,7 +431,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static Type ReadTypeDefOrRefEncoded(ModuleReader module, ByteReader br, IGenericContext context)
+		public static Type ReadTypeDefOrRefEncoded(ModuleReader module, ByteReader br, IGenericContext context)
 		{
 			var encoded = br.ReadCompressedUInt();
 			return (encoded & 3) switch
@@ -443,7 +443,7 @@ namespace IKVM.Reflection
 			};
 		}
 
-		internal static void WriteStandAloneMethodSig(ModuleBuilder module, 
+		public static void WriteStandAloneMethodSig(ModuleBuilder module, 
 														ByteBuffer byteBuffer, 
 														__StandAloneMethodSig signature)
 		{
@@ -513,12 +513,12 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal static void WriteTypeSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type type)
+		public static void WriteTypeSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type type)
 		{
 			WriteType(module, byteBuffer, type);
 		}
 
-		internal static void WriteMethodSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type[] genArgs)
+		public static void WriteMethodSpec(ModuleBuilder module, ByteBuffer byteBuffer, Type[] genArgs)
 		{
 			byteBuffer.Write(GENERICINST);
 			byteBuffer.WriteCompressedUInt(genArgs.Length);
@@ -529,7 +529,7 @@ namespace IKVM.Reflection
 		}
 
 		// this reads just the optional parameter types, from a MethodRefSig
-		internal static Type[] ReadOptionalParameterTypes(ModuleReader module, 
+		public static Type[] ReadOptionalParameterTypes(ModuleReader module, 
 															ByteReader byteReader, 
 															IGenericContext context, 
 															out CustomModifiers[] customModifiers)
@@ -573,7 +573,7 @@ namespace IKVM.Reflection
 			return expanded;
 		}
 
-		internal static void WriteSignatureHelper(ModuleBuilder module, 
+		public static void WriteSignatureHelper(ModuleBuilder module, 
 													ByteBuffer byteBuffer, 
 													byte flags, 
 													ushort paramCount, 

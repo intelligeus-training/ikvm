@@ -39,7 +39,7 @@ namespace IKVM.Reflection.Emit
 		private readonly int signature;
 		private readonly FieldSignature fieldSig;
 
-		internal FieldBuilder(TypeBuilder type, string name, Type fieldType, CustomModifiers customModifiers, FieldAttributes attribs)
+		public FieldBuilder(TypeBuilder type, string name, Type fieldType, CustomModifiers customModifiers, FieldAttributes attribs)
 		{
 			this.typeBuilder = type;
 			this.name = name;
@@ -183,43 +183,39 @@ namespace IKVM.Reflection.Emit
 			return new FieldToken(pseudoToken);
 		}
 
-		internal void WriteFieldRecords(MetadataWriter mw)
+		public void WriteFieldRecords(MetadataWriter mw)
 		{
 			mw.Write((short)attribs);
 			mw.WriteStringIndex(nameIndex);
 			mw.WriteBlobIndex(signature);
 		}
 
-		internal void FixupToken(int token)
+		public void FixupToken(int token)
 		{
 			typeBuilder.ModuleBuilder.RegisterTokenFixup(this.pseudoToken, token);
 		}
 
-		internal override FieldSignature FieldSignature
+		public override FieldSignature FieldSignature
 		{
 			get { return fieldSig; }
 		}
 
-		internal override int ImportTo(ModuleBuilder other)
+		public override int ImportTo(ModuleBuilder other)
 		{
 			return other.ImportMethodOrField(typeBuilder, name, fieldSig);
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			if (typeBuilder.ModuleBuilder.IsSaved)
 			{
 				return typeBuilder.ModuleBuilder.ResolvePseudoToken(pseudoToken);
 			}
-			else
-			{
-				return pseudoToken;
-			}
+			
+			return pseudoToken;
+			
 		}
 
-		internal override bool IsBaked
-		{
-			get { return typeBuilder.IsBaked; }
-		}
+		public override bool IsBaked => typeBuilder.IsBaked;
 	}
 }

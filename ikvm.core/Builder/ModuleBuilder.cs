@@ -28,7 +28,7 @@ using System.Diagnostics;
 #if !NO_SYMBOL_WRITER
 using System.Diagnostics.SymbolStore;
 #endif
-using System.Resources;
+
 using System.Runtime.InteropServices;
 using IKVM.Reflection.Impl;
 using IKVM.Reflection.Metadata;
@@ -46,30 +46,30 @@ namespace IKVM.Reflection.Emit
 		private int fileAlignment = 0x200;
 		private DllCharacteristics dllCharacteristics = DllCharacteristics.DynamicBase | DllCharacteristics.NoSEH | DllCharacteristics.NXCompat | DllCharacteristics.TerminalServerAware;
 		private readonly AssemblyBuilder asm;
-		internal readonly string moduleName;
-		internal readonly string fileName;
-		internal readonly ISymbolWriterImpl symbolWriter;
+		public readonly string moduleName;
+		public readonly string fileName;
+		public readonly ISymbolWriterImpl symbolWriter;
 		private readonly TypeBuilder moduleType;
 		private readonly List<TypeBuilder> types = new List<TypeBuilder>();
 		private readonly Dictionary<Type, int> typeTokens = new Dictionary<Type, int>();
 		private readonly Dictionary<Type, int> memberRefTypeTokens = new Dictionary<Type, int>();
-		internal readonly ByteBuffer methodBodies = new ByteBuffer(128 * 1024);
-		internal readonly List<int> tokenFixupOffsets = new List<int>();
-		internal readonly ByteBuffer initializedData = new ByteBuffer(512);
-		internal ResourceSection unmanagedResources;
+		public readonly ByteBuffer methodBodies = new ByteBuffer(128 * 1024);
+		public readonly List<int> tokenFixupOffsets = new List<int>();
+		public readonly ByteBuffer initializedData = new ByteBuffer(512);
+		public ResourceSection unmanagedResources;
 		private readonly Dictionary<MemberRefKey, int> importedMemberRefs = new Dictionary<MemberRefKey, int>();
 		private readonly Dictionary<MethodSpecKey, int> importedMethodSpecs = new Dictionary<MethodSpecKey, int>();
 		private readonly Dictionary<Assembly, int> referencedAssemblies = new Dictionary<Assembly, int>();
 		private List<AssemblyName> referencedAssemblyNames;
 		private int nextPseudoToken = -1;
 		private readonly List<int> resolvedTokens = new List<int>();
-		internal readonly TableHeap Tables = new TableHeap();
-		internal readonly StringHeap Strings = new StringHeap();
-		internal readonly UserStringHeap UserStrings = new UserStringHeap();
-		internal readonly GuidHeap Guids = new GuidHeap();
-		internal readonly BlobHeap Blobs = new BlobHeap();
-		internal readonly List<VTableFixups> vtablefixups = new List<VTableFixups>();
-		internal readonly List<UnmanagedExport> unmanagedExports = new List<UnmanagedExport>();
+		public readonly TableHeap Tables = new TableHeap();
+		public readonly StringHeap Strings = new StringHeap();
+		public readonly UserStringHeap UserStrings = new UserStringHeap();
+		public readonly GuidHeap Guids = new GuidHeap();
+		public readonly BlobHeap Blobs = new BlobHeap();
+		public readonly List<VTableFixups> vtablefixups = new List<VTableFixups>();
+		public readonly List<UnmanagedExport> unmanagedExports = new List<UnmanagedExport>();
 		private List<InterfaceImplCustomAttribute> interfaceImplCustomAttributes;
 		private readonly List<ResourceWriterRecord> resourceWriters = new List<ResourceWriterRecord>();
 		private bool saved;
@@ -84,19 +84,19 @@ namespace IKVM.Reflection.Emit
 			private readonly ResourceAttributes attributes;
 
 #if NETSTANDARD
-			internal ResourceWriterRecord(string name, Stream stream, ResourceAttributes attributes)
+			public ResourceWriterRecord(string name, Stream stream, ResourceAttributes attributes)
 			{
 				this.name = name;
 				this.stream = stream;
 				this.attributes = attributes;
 			}
 #else
-			internal ResourceWriterRecord(string name, Stream stream, ResourceAttributes attributes)
+			public ResourceWriterRecord(string name, Stream stream, ResourceAttributes attributes)
 				: this(name, null, stream, attributes)
 			{
 			}
 
-			internal ResourceWriterRecord(string name, ResourceWriter rw, Stream stream, ResourceAttributes attributes)
+			public ResourceWriterRecord(string name, ResourceWriter rw, Stream stream, ResourceAttributes attributes)
 			{
 				this.name = name;
 				this.rw = rw;
@@ -105,7 +105,7 @@ namespace IKVM.Reflection.Emit
 			}
 #endif
 
-			internal void Emit(ModuleBuilder mb, int offset)
+			public void Emit(ModuleBuilder mb, int offset)
 			{
 #if !NETSTANDARD
 				if (rw != null)
@@ -121,12 +121,12 @@ namespace IKVM.Reflection.Emit
 				mb.ManifestResource.AddRecord(rec);
 			}
 
-			internal int GetLength()
+			public int GetLength()
 			{
 				return 4 + (int)stream.Length;
 			}
 
-			internal void Write(MetadataWriter mw)
+			public void Write(MetadataWriter mw)
 			{
 				mw.Write((int)stream.Length);
 				stream.Position = 0;
@@ -138,7 +138,7 @@ namespace IKVM.Reflection.Emit
 				}
 			}
 
-			internal void Close()
+			public void Close()
 			{
 #if !NETSTANDARD
 				if (rw != null)
@@ -149,32 +149,32 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal struct VTableFixups
+		public struct VTableFixups
 		{
-			internal uint initializedDataOffset;
-			internal ushort count;
-			internal ushort type;
+			public uint initializedDataOffset;
+			public ushort count;
+			public ushort type;
 
-			internal int SlotWidth
+			public int SlotWidth
 			{
 				get { return (type & 0x02) == 0 ? 4 : 8; }
 			}
 		}
 
-		struct InterfaceImplCustomAttribute
+		public struct InterfaceImplCustomAttribute
 		{
-			internal int type;
-			internal int interfaceType;
-			internal int pseudoToken;
+			public int type;
+			public int interfaceType;
+			public int pseudoToken;
 		}
 
-		struct MemberRefKey : IEquatable<MemberRefKey>
+		public struct MemberRefKey : IEquatable<MemberRefKey>
 		{
 			private readonly Type type;
 			private readonly string name;
 			private readonly Signature signature;
 
-			internal MemberRefKey(Type type, string name, Signature signature)
+			public MemberRefKey(Type type, string name, Signature signature)
 			{
 				this.type = type;
 				this.name = name;
@@ -199,20 +199,20 @@ namespace IKVM.Reflection.Emit
 				return type.GetHashCode() + name.GetHashCode() + signature.GetHashCode();
 			}
 
-			internal MethodBase LookupMethod()
+			public MethodBase LookupMethod()
 			{
 				return type.FindMethod(name, (MethodSignature)signature);
 			}
 		}
 
-		struct MethodSpecKey : IEquatable<MethodSpecKey>
+		public struct MethodSpecKey : IEquatable<MethodSpecKey>
 		{
 			private readonly Type type;
 			private readonly string name;
 			private readonly MethodSignature signature;
 			private readonly Type[] genericParameters;
 
-			internal MethodSpecKey(Type type, string name, MethodSignature signature, Type[] genericParameters)
+			public MethodSpecKey(Type type, string name, MethodSignature signature, Type[] genericParameters)
 			{
 				this.type = type;
 				this.name = name;
@@ -240,7 +240,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal ModuleBuilder(AssemblyBuilder asm, string moduleName, string fileName, bool emitSymbolInfo)
+		public ModuleBuilder(AssemblyBuilder asm, string moduleName, string fileName, bool emitSymbolInfo)
 			: base(asm.universe)
 		{
 			this.asm = asm;
@@ -264,7 +264,7 @@ namespace IKVM.Reflection.Emit
 			types.Add(moduleType);
 		}
 
-		internal void PopulatePropertyAndEventTables()
+		public void PopulatePropertyAndEventTables()
 		{
 			// LAMESPEC the PropertyMap and EventMap tables are not required to be sorted by the CLI spec,
 			// but .NET sorts them and Mono requires them to be sorted, so we have to populate the
@@ -275,7 +275,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteTypeDefTable(MetadataWriter mw)
+		public void WriteTypeDefTable(MetadataWriter mw)
 		{
 			int fieldList = 1;
 			int methodList = 1;
@@ -285,7 +285,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteMethodDefTable(int baseRVA, MetadataWriter mw)
+		public void WriteMethodDefTable(int baseRVA, MetadataWriter mw)
 		{
 			int paramList = 1;
 			foreach (TypeBuilder type in types)
@@ -294,7 +294,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteParamTable(MetadataWriter mw)
+		public void WriteParamTable(MetadataWriter mw)
 		{
 			foreach (TypeBuilder type in types)
 			{
@@ -302,7 +302,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteFieldTable(MetadataWriter mw)
+		public void WriteFieldTable(MetadataWriter mw)
 		{
 			foreach (TypeBuilder type in types)
 			{
@@ -310,7 +310,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal int AllocPseudoToken()
+		public int AllocPseudoToken()
 		{
 			return nextPseudoToken--;
 		}
@@ -374,7 +374,7 @@ namespace IKVM.Reflection.Emit
 			return DefineType(this, ns, name);
 		}
 
-		internal TypeBuilder DefineType(ITypeOwner owner, string ns, string name)
+		public TypeBuilder DefineType(ITypeOwner owner, string ns, string name)
 		{
 			TypeBuilder typeBuilder = new TypeBuilder(owner, ns, name);
 			types.Add(typeBuilder);
@@ -446,7 +446,7 @@ namespace IKVM.Reflection.Emit
 			moduleType.CreateType();
 		}
 
-		internal void AddTypeForwarder(Type type, bool includeNested)
+		public void AddTypeForwarder(Type type, bool includeNested)
 		{
 			ExportType(type);
 			if (includeNested && !type.__IsMissing)
@@ -498,7 +498,7 @@ namespace IKVM.Reflection.Emit
 			SetCustomAttribute(0x00000001, customBuilder);
 		}
 
-		internal void SetCustomAttribute(int token, CustomAttributeBuilder customBuilder)
+		public void SetCustomAttribute(int token, CustomAttributeBuilder customBuilder)
 		{
 			CustomAttributeTable.Record rec = new CustomAttributeTable.Record();
 			rec.Parent = token;
@@ -517,14 +517,14 @@ namespace IKVM.Reflection.Emit
 		}
 
 #if !NETSTANDARD
-		internal void AddDeclarativeSecurity(int token, System.Security.Permissions.SecurityAction securityAction, System.Security.PermissionSet permissionSet)
+		public void AddDeclarativeSecurity(int token, System.Security.Permissions.SecurityAction securityAction, System.Security.PermissionSet permissionSet)
 		{
 			// like Ref.Emit, we're using the .NET 1.x xml format
 			AddDeclSecurityRecord(token, (int)securityAction, this.Blobs.Add(ByteBuffer.Wrap(System.Text.Encoding.Unicode.GetBytes(permissionSet.ToXml().ToString()))));
 		}
 #endif
 
-		internal void AddDeclarativeSecurity(int token, List<CustomAttributeBuilder> declarativeSecurity)
+		public void AddDeclarativeSecurity(int token, List<CustomAttributeBuilder> declarativeSecurity)
 		{
 			Dictionary<int, List<CustomAttributeBuilder>> ordered = new Dictionary<int, List<CustomAttributeBuilder>>();
 			foreach (CustomAttributeBuilder cab in declarativeSecurity)
@@ -601,7 +601,7 @@ namespace IKVM.Reflection.Emit
 		}
 #endif
 
-		internal void EmitResources()
+		public void EmitResources()
 		{
 			int offset = 0;
 			foreach (ResourceWriterRecord rwr in resourceWriters)
@@ -613,7 +613,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteResources(MetadataWriter mw)
+		public void WriteResources(MetadataWriter mw)
 		{
 			int offset = 0;
 			foreach (ResourceWriterRecord rwr in resourceWriters)
@@ -629,7 +629,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void CloseResources()
+		public void CloseResources()
 		{
 			foreach (ResourceWriterRecord rwr in resourceWriters)
 			{
@@ -637,7 +637,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal int GetManifestResourcesLength()
+		public int GetManifestResourcesLength()
 		{
 			int length = 0;
 			foreach (ResourceWriterRecord rwr in resourceWriters)
@@ -654,7 +654,7 @@ namespace IKVM.Reflection.Emit
 			get { return asm; }
 		}
 
-		internal override Type FindType(TypeName name)
+		public override Type FindType(TypeName name)
 		{
 			foreach (Type type in types)
 			{
@@ -666,7 +666,7 @@ namespace IKVM.Reflection.Emit
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			foreach (Type type in types)
 			{
@@ -678,7 +678,7 @@ namespace IKVM.Reflection.Emit
 			return null;
 		}
 
-		internal override void GetTypesImpl(List<Type> list)
+		public override void GetTypesImpl(List<Type> list)
 		{
 			foreach (Type type in types)
 			{
@@ -718,7 +718,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal int GetTypeTokenForMemberRef(Type type)
+		public int GetTypeTokenForMemberRef(Type type)
 		{
 			if (type.__IsMissing)
 			{
@@ -807,7 +807,7 @@ namespace IKVM.Reflection.Emit
 
 		// when we refer to a method on a generic type definition in the IL stream,
 		// we need to use a MemberRef (even if the method is in the same module)
-		internal MethodToken GetMethodTokenForIL(MethodInfo method)
+		public MethodToken GetMethodTokenForIL(MethodInfo method)
 		{
 			if (method.IsGenericMethodDefinition)
 			{
@@ -823,7 +823,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal int GetMethodTokenWinRT(MethodInfo method)
+		public int GetMethodTokenWinRT(MethodInfo method)
 		{
 			return asm.IsWindowsRuntime ? method.ImportTo(this) : GetMethodToken(method).Token;
 		}
@@ -844,7 +844,7 @@ namespace IKVM.Reflection.Emit
 			return __GetMethodToken(constructor.GetMethodInfo(), optionalParameterTypes, customModifiers);
 		}
 
-		internal int ImportMethodOrField(Type declaringType, string name, Signature sig)
+		public int ImportMethodOrField(Type declaringType, string name, Signature sig)
 		{
 			int token;
 			MemberRefKey key = new MemberRefKey(declaringType, name, sig);
@@ -862,7 +862,7 @@ namespace IKVM.Reflection.Emit
 			return token;
 		}
 
-		internal int ImportMethodSpec(Type declaringType, MethodInfo method, Type[] genericParameters)
+		public int ImportMethodSpec(Type declaringType, MethodInfo method, Type[] genericParameters)
 		{
 			Debug.Assert(method.__IsMissing || method.GetMethodOnTypeDefinition() == method);
 			int token;
@@ -890,7 +890,7 @@ namespace IKVM.Reflection.Emit
 			return token;
 		}
 
-		internal int ImportType(Type type)
+		public int ImportType(Type type)
 		{
 			int token;
 			if (!typeTokens.TryGetValue(type, out token))
@@ -937,7 +937,7 @@ namespace IKVM.Reflection.Emit
 			return token;
 		}
 
-		internal void FillAssemblyRefTable()
+		public void FillAssemblyRefTable()
 		{
 			foreach (KeyValuePair<Assembly, int> kv in referencedAssemblies)
 			{
@@ -995,7 +995,7 @@ namespace IKVM.Reflection.Emit
 			return 0x23000000 | (alwaysAdd ? this.AssemblyRef.AddRecord(rec) : this.AssemblyRef.FindOrAddRecord(rec));
 		}
 
-		internal void WriteSymbolTokenMap()
+		public void WriteSymbolTokenMap()
 		{
 			for (int i = 0; i < resolvedTokens.Count; i++)
 			{
@@ -1008,7 +1008,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void RegisterTokenFixup(int pseudoToken, int realToken)
+		public void RegisterTokenFixup(int pseudoToken, int realToken)
 		{
 			int index = -(pseudoToken + 1);
 			while (resolvedTokens.Count <= index)
@@ -1018,18 +1018,18 @@ namespace IKVM.Reflection.Emit
 			resolvedTokens[index] = realToken;
 		}
 
-		internal static bool IsPseudoToken(int token)
+		public static bool IsPseudoToken(int token)
 		{
 			return token < 0;
 		}
 
-		internal int ResolvePseudoToken(int pseudoToken)
+		public int ResolvePseudoToken(int pseudoToken)
 		{
 			int index = -(pseudoToken + 1);
 			return resolvedTokens[index];
 		}
 
-		internal void ApplyUnmanagedExports(ImageFileMachine imageFileMachine)
+		public void ApplyUnmanagedExports(ImageFileMachine imageFileMachine)
 		{
 			if (unmanagedExports.Count != 0)
 			{
@@ -1073,7 +1073,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void FixupMethodBodyTokens()
+		public void FixupMethodBodyTokens()
 		{
 			int methodToken = 0x06000001;
 			int fieldToken = 0x04000001;
@@ -1129,15 +1129,9 @@ namespace IKVM.Reflection.Emit
 				));
 		}
 
-		internal int MetadataLength
-		{
-			get
-			{
-				return GetHeaderLength() + (Blobs.IsEmpty ? 0 : Blobs.Length) + Tables.Length + Strings.Length + UserStrings.Length + Guids.Length;
-			}
-		}
+		public int MetadataLength => GetHeaderLength() + (Blobs.IsEmpty ? 0 : Blobs.Length) + Tables.Length + Strings.Length + UserStrings.Length + Guids.Length;
 
-		internal void WriteMetadata(MetadataWriter mw, out uint guidHeapOffset)
+		public void WriteMetadata(MetadataWriter mw, out uint guidHeapOffset)
 		{
 			mw.Write(0x424A5342);			// Signature ("BSJB")
 			mw.Write((ushort)1);			// MajorVersion
@@ -1210,12 +1204,12 @@ namespace IKVM.Reflection.Emit
 			return buf;
 		}
 
-		internal override void ExportTypes(int fileToken, ModuleBuilder manifestModule)
+		public override void ExportTypes(int fileToken, ModuleBuilder manifestModule)
 		{
 			manifestModule.ExportTypes(types.ToArray(), fileToken);
 		}
 
-		internal void ExportTypes(Type[] types, int fileToken)
+		public void ExportTypes(Type[] types, int fileToken)
 		{
 			Dictionary<Type, int> declaringTypes = new Dictionary<Type, int>();
 			foreach (Type type in types)
@@ -1247,7 +1241,7 @@ namespace IKVM.Reflection.Emit
 			return type.IsPublic || ((type.IsNestedFamily || type.IsNestedFamORAssem || type.IsNestedPublic) && IsVisible(type.DeclaringType));
 		}
 
-		internal void AddConstant(int parentToken, object defaultValue)
+		public void AddConstant(int parentToken, object defaultValue)
 		{
 			ConstantTable.Record rec = new ConstantTable.Record();
 			rec.Parent = parentToken;
@@ -1343,7 +1337,7 @@ namespace IKVM.Reflection.Emit
 			get { return this; }
 		}
 
-		internal override Type ResolveType(int metadataToken, IGenericContext context)
+		public override Type ResolveType(int metadataToken, IGenericContext context)
 		{
 			if (metadataToken >> 24 != TypeDefTable.Index)
 			{
@@ -1405,12 +1399,9 @@ namespace IKVM.Reflection.Emit
 			get { return Path.GetFullPath(Path.Combine(asm.dir, fileName)); }
 		}
 
-		public override string Name
-		{
-			get { return fileName; }
-		}
+		public override string Name => fileName;
 
-		internal Guid GetModuleVersionIdOrEmpty()
+		public Guid GetModuleVersionIdOrEmpty()
 		{
 			return mvid;
 		}
@@ -1438,7 +1429,7 @@ namespace IKVM.Reflection.Emit
 			mvid = guid;
 		}
 
-		internal uint GetTimeDateStamp()
+		public uint GetTimeDateStamp()
 		{
 			return timestamp;
 		}
@@ -1526,17 +1517,17 @@ namespace IKVM.Reflection.Emit
 			return GetMethodToken(GetArrayMethod(arrayClass, methodName, callingConvention, returnType, parameterTypes));
 		}
 
-		internal override Type GetModuleType()
+		public override Type GetModuleType()
 		{
 			return moduleType;
 		}
 
-		internal override IKVM.Reflection.Reader.ByteReader GetBlob(int blobIndex)
+		public override IKVM.Reflection.Reader.ByteReader GetBlob(int blobIndex)
 		{
 			return Blobs.GetBlob(blobIndex);
 		}
 
-		internal int GetSignatureBlobIndex(Signature sig)
+		public int GetSignatureBlobIndex(Signature sig)
 		{
 			ByteBuffer bb = new ByteBuffer(16);
 			sig.WriteSig(this, bb);
@@ -1574,7 +1565,7 @@ namespace IKVM.Reflection.Emit
 		}
 #endif
 
-		internal ulong GetStackReserve(ulong defaultValue)
+		public ulong GetStackReserve(ulong defaultValue)
 		{
 			return stackReserve == -1 ? defaultValue : (ulong)stackReserve;
 		}
@@ -1798,7 +1789,7 @@ namespace IKVM.Reflection.Emit
 			AddUnmanagedExport(name, ordinal, null, rva);
 		}
 
-		internal void AddUnmanagedExport(string name, int ordinal, MethodBuilder methodBuilder, RelativeVirtualAddress rva)
+		public void AddUnmanagedExport(string name, int ordinal, MethodBuilder methodBuilder, RelativeVirtualAddress rva)
 		{
 			UnmanagedExport export;
 			export.name = name;
@@ -1808,7 +1799,7 @@ namespace IKVM.Reflection.Emit
 			unmanagedExports.Add(export);
 		}
 
-		internal void SetInterfaceImplementationCustomAttribute(TypeBuilder typeBuilder, Type interfaceType, CustomAttributeBuilder cab)
+		public void SetInterfaceImplementationCustomAttribute(TypeBuilder typeBuilder, Type interfaceType, CustomAttributeBuilder cab)
 		{
 			// NOTE since interfaceimpls are extremely common and custom attributes on them are extremely rare,
 			// we store (and resolve) the custom attributes in such away as to avoid impacting the common case performance
@@ -1839,7 +1830,7 @@ namespace IKVM.Reflection.Emit
 			SetCustomAttribute(rec.pseudoToken, cab);
 		}
 
-		internal void ResolveInterfaceImplPseudoTokens()
+		public void ResolveInterfaceImplPseudoTokens()
 		{
 			if (interfaceImplCustomAttributes != null)
 			{
@@ -1857,7 +1848,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void FixupPseudoToken(ref int token)
+		public void FixupPseudoToken(ref int token)
 		{
 			if (IsPseudoToken(token))
 			{
@@ -1865,7 +1856,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void SetIsSaved()
+		public void SetIsSaved()
 		{
 			if (saved)
 			{
@@ -1874,30 +1865,30 @@ namespace IKVM.Reflection.Emit
 			saved = true;
 		}
 
-		internal bool IsSaved
+		public bool IsSaved
 		{
 			get { return saved; }
 		}
 
-		internal override string GetString(int index)
+		public override string GetString(int index)
 		{
 			return this.Strings.Find(index);
 		}
 	}
 
-	struct UnmanagedExport
+	public struct UnmanagedExport
 	{
-		internal string name;
-		internal int ordinal;
-		internal RelativeVirtualAddress rva;
-		internal MethodBuilder mb;
+		public string name;
+		public int ordinal;
+		public RelativeVirtualAddress rva;
+		public MethodBuilder mb;
 	}
 
 	public struct RelativeVirtualAddress
 	{
-		internal readonly uint initializedDataOffset;
+		public readonly uint initializedDataOffset;
 
-		internal RelativeVirtualAddress(uint initializedDataOffset)
+		public RelativeVirtualAddress(uint initializedDataOffset)
 		{
 			this.initializedDataOffset = initializedDataOffset;
 		}
@@ -1918,7 +1909,7 @@ namespace IKVM.Reflection.Emit
 		protected readonly Type[] parameterTypes;
 		private MethodSignature methodSignature;
 
-		internal ArrayMethod(Module module, Type arrayClass, string methodName, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
+		public ArrayMethod(Module module, Type arrayClass, string methodName, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
 		{
 			this.module = module;
 			this.arrayClass = arrayClass;
@@ -1933,10 +1924,7 @@ namespace IKVM.Reflection.Emit
 			throw new InvalidOperationException();
 		}
 
-		public override int __MethodRVA
-		{
-			get { throw new InvalidOperationException(); }
-		}
+		public override int __MethodRVA => throw new InvalidOperationException();
 
 		public override MethodImplAttributes GetMethodImplementationFlags()
 		{
@@ -1948,27 +1936,18 @@ namespace IKVM.Reflection.Emit
 			throw new NotSupportedException();
 		}
 
-		internal override int ImportTo(ModuleBuilder module)
+		public override int ImportTo(ModuleBuilder module)
 		{
 			return module.ImportMethodOrField(arrayClass, methodName, MethodSignature);
 		}
 
-		public override MethodAttributes Attributes
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override MethodAttributes Attributes => throw new NotSupportedException();
 
-		public override CallingConventions CallingConvention
-		{
-			get { return callingConvention; }
-		}
+		public override CallingConventions CallingConvention => callingConvention;
 
-		public override Type DeclaringType
-		{
-			get { return arrayClass; }
-		}
+		public override Type DeclaringType => arrayClass;
 
-		internal override MethodSignature MethodSignature
+		public override MethodSignature MethodSignature
 		{
 			get
 			{
@@ -1980,46 +1959,27 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		public override Module Module
-		{
+		public override Module Module =>
 			// FXBUG like .NET, we return the module that GetArrayMethod was called on, not the module associated with the array type
-			get { return module; }
-		}
+			module;
 
-		public override string Name
-		{
-			get { return methodName; }
-		}
+		public override string Name => methodName;
 
-		internal override int ParameterCount
-		{
-			get { return parameterTypes.Length; }
-		}
+		public override int ParameterCount => parameterTypes.Length;
 
-		public override ParameterInfo ReturnParameter
-		{
+		public override ParameterInfo ReturnParameter => throw
 			// FXBUG like .NET, we throw NotImplementedException
-			get { throw new NotImplementedException(); }
-		}
+			new NotImplementedException();
 
-		public override Type ReturnType
-		{
-			get { return returnType; }
-		}
+		public override Type ReturnType => returnType;
 
-		internal override bool HasThis
-		{
-			get { return (callingConvention & (CallingConventions.HasThis | CallingConventions.ExplicitThis)) == CallingConventions.HasThis; }
-		}
+		public override bool HasThis => (callingConvention & (CallingConventions.HasThis | CallingConventions.ExplicitThis)) == CallingConventions.HasThis;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return this.MetadataToken;
 		}
 
-		internal override bool IsBaked
-		{
-			get { return arrayClass.IsBaked; }
-		}
+		public override bool IsBaked => arrayClass.IsBaked;
 	}
 }

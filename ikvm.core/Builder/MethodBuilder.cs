@@ -54,7 +54,7 @@ namespace IKVM.Reflection.Emit
 		private MethodSignature methodSignature;
 		private bool initLocals = true;
 
-		internal MethodBuilder(TypeBuilder typeBuilder, string name, MethodAttributes attributes, CallingConventions callingConvention)
+		public MethodBuilder(TypeBuilder typeBuilder, string name, MethodAttributes attributes, CallingConventions callingConvention)
 		{
 			this.typeBuilder = typeBuilder;
 			this.name = name;
@@ -126,7 +126,7 @@ namespace IKVM.Reflection.Emit
 				(bool?)customBuilder.GetFieldValue("ExactSpelling"));
 		}
 
-		internal void SetDllImportPseudoCustomAttribute(string dllName, string entryName, CallingConvention? nativeCallConv, CharSet? nativeCharSet,
+		public void SetDllImportPseudoCustomAttribute(string dllName, string entryName, CallingConvention? nativeCallConv, CharSet? nativeCharSet,
 			bool? bestFitMapping, bool? throwOnUnmappableChar, bool? setLastError, bool? preserveSig, bool? exactSpelling)
 		{
 			const short NoMangle = 0x0001;
@@ -419,12 +419,12 @@ namespace IKVM.Reflection.Emit
 			return Util.Copy(gtpb);
 		}
 
-		internal override Type GetGenericMethodArgument(int index)
+		public override Type GetGenericMethodArgument(int index)
 		{
 			return gtpb[index];
 		}
 
-		internal override int GetGenericMethodArgumentCount()
+		public override int GetGenericMethodArgumentCount()
 		{
 			return gtpb == null ? 0 : gtpb.Length;
 		}
@@ -465,7 +465,7 @@ namespace IKVM.Reflection.Emit
 			private readonly MethodBuilder method;
 			private readonly int parameter;
 
-			internal ParameterInfoImpl(MethodBuilder method, int parameter)
+			public ParameterInfoImpl(MethodBuilder method, int parameter)
 			{
 				this.method = method;
 				this.parameter = parameter;
@@ -560,7 +560,7 @@ namespace IKVM.Reflection.Emit
 				}
 			}
 
-			internal override Module Module
+			public override Module Module
 			{
 				get { return method.Module; }
 			}
@@ -576,7 +576,7 @@ namespace IKVM.Reflection.Emit
 			return parameters;
 		}
 
-		internal override int ParameterCount
+		public override int ParameterCount
 		{
 			get { return parameterTypes.Length; }
 		}
@@ -695,7 +695,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void Bake()
+		public void Bake()
 		{
 			this.nameIndex = this.ModuleBuilder.Strings.Add(name);
 			this.signature = this.ModuleBuilder.GetSignatureBlobIndex(this.MethodSignature);
@@ -708,12 +708,12 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal ModuleBuilder ModuleBuilder
+		public ModuleBuilder ModuleBuilder
 		{
 			get { return typeBuilder.ModuleBuilder; }
 		}
 
-		internal void WriteMethodDefRecord(int baseRVA, MetadataWriter mw, ref int paramList)
+		public void WriteMethodDefRecord(int baseRVA, MetadataWriter mw, ref int paramList)
 		{
 			if (rva != -1)
 			{
@@ -734,7 +734,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void WriteParamRecords(MetadataWriter mw)
+		public void WriteParamRecords(MetadataWriter mw)
 		{
 			if (parameters != null)
 			{
@@ -745,7 +745,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal void FixupToken(int token, ref int parameterToken)
+		public void FixupToken(int token, ref int parameterToken)
 		{
 			typeBuilder.ModuleBuilder.RegisterTokenFixup(this.pseudoToken, token);
 			if (parameters != null)
@@ -757,7 +757,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override MethodSignature MethodSignature
+		public override MethodSignature MethodSignature
 		{
 			get
 			{
@@ -770,31 +770,27 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override int ImportTo(ModuleBuilder other)
+		public override int ImportTo(ModuleBuilder other)
 		{
 			return other.ImportMethodOrField(typeBuilder, name, this.MethodSignature);
 		}
 
-		internal void CheckBaked()
+		public void CheckBaked()
 		{
 			typeBuilder.CheckBaked();
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			if (typeBuilder.ModuleBuilder.IsSaved)
 			{
 				return typeBuilder.ModuleBuilder.ResolvePseudoToken(pseudoToken);
 			}
-			else
-			{
-				return pseudoToken;
-			}
+			
+			return pseudoToken;
+			
 		}
 
-		internal override bool IsBaked
-		{
-			get { return typeBuilder.IsBaked; }
-		}
+		public override bool IsBaked => typeBuilder.IsBaked;
 	}
 }

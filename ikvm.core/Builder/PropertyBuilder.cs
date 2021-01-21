@@ -43,11 +43,11 @@ namespace IKVM.Reflection.Emit
 
 		private struct Accessor
 		{
-			internal short Semantics;
-			internal MethodBuilder Method;
+			public short Semantics;
+			public MethodBuilder Method;
 		}
 
-		internal PropertyBuilder(TypeBuilder typeBuilder, string name, PropertyAttributes attributes, PropertySignature sig, bool patchCallingConvention)
+		public PropertyBuilder(TypeBuilder typeBuilder, string name, PropertyAttributes attributes, PropertySignature sig, bool patchCallingConvention)
 		{
 			this.typeBuilder = typeBuilder;
 			this.name = name;
@@ -56,7 +56,7 @@ namespace IKVM.Reflection.Emit
 			this.patchCallingConvention = patchCallingConvention;
 		}
 
-		internal override PropertySignature PropertySignature
+		public override PropertySignature PropertySignature
 		{
 			get { return sig; }
 		}
@@ -185,7 +185,7 @@ namespace IKVM.Reflection.Emit
 			typeBuilder.ModuleBuilder.AddConstant(lazyPseudoToken, defaultValue);
 		}
 
-		internal void Bake()
+		public void Bake()
 		{
 			if (patchCallingConvention)
 			{
@@ -222,7 +222,7 @@ namespace IKVM.Reflection.Emit
 			typeBuilder.ModuleBuilder.MethodSemantics.AddRecord(rec);
 		}
 
-		internal override bool IsPublic
+		public override bool IsPublic
 		{
 			get
 			{
@@ -237,7 +237,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsNonPrivate
+		public override bool IsNonPrivate
 		{
 			get
 			{
@@ -252,7 +252,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsStatic
+		public override bool IsStatic
 		{
 			get
 			{
@@ -267,21 +267,17 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal override bool IsBaked
-		{
-			get { return typeBuilder.IsBaked; }
-		}
+		public override bool IsBaked => typeBuilder.IsBaked;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			if (typeBuilder.ModuleBuilder.IsSaved && ModuleBuilder.IsPseudoToken(lazyPseudoToken))
 			{
 				return typeBuilder.ModuleBuilder.ResolvePseudoToken(lazyPseudoToken);
 			}
-			else
-			{
-				return lazyPseudoToken;
-			}
+			
+			return lazyPseudoToken;
+			
 		}
 	}
 }

@@ -31,14 +31,14 @@ using IKVM.Reflection.Reader;
 
 namespace IKVM.Reflection
 {
-	sealed class PropertySignature : Signature
+	public sealed class PropertySignature : Signature
 	{
 		private CallingConventions callingConvention;
 		private readonly Type propertyType;
 		private readonly Type[] parameterTypes;
 		private readonly PackedCustomModifiers customModifiers;
 
-		internal static PropertySignature Create(CallingConventions callingConvention, 
+		public static PropertySignature Create(CallingConventions callingConvention, 
 													Type propertyType, 
 													Type[] parameterTypes, 
 													PackedCustomModifiers customModifiers)
@@ -73,9 +73,9 @@ namespace IKVM.Reflection
 			return propertyType.GetHashCode() ^ customModifiers.GetHashCode();
 		}
 
-		internal int ParameterCount => parameterTypes.Length;
+		public int ParameterCount => parameterTypes.Length;
 
-		internal bool HasThis
+		public bool HasThis
 		{
 			set
 			{
@@ -90,14 +90,14 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type PropertyType => propertyType;
+		public Type PropertyType => propertyType;
 
-		internal CustomModifiers GetCustomModifiers()
+		public CustomModifiers GetCustomModifiers()
 		{
 			return customModifiers.GetReturnTypeCustomModifiers();
 		}
 
-		internal PropertySignature ExpandTypeParameters(Type declaringType)
+		public PropertySignature ExpandTypeParameters(Type declaringType)
 		{
 			return new PropertySignature(
 				callingConvention,
@@ -106,7 +106,7 @@ namespace IKVM.Reflection
 				customModifiers.Bind(declaringType));
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
+		public override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
 			var flags = PROPERTY;
 			if ((callingConvention & CallingConventions.HasThis) != 0)
@@ -135,24 +135,24 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal Type GetParameter(int parameter)
+		public Type GetParameter(int parameter)
 		{
 			return parameterTypes[parameter];
 		}
 
-		internal CustomModifiers GetParameterCustomModifiers(int parameter)
+		public CustomModifiers GetParameterCustomModifiers(int parameter)
 		{
 			return customModifiers.GetParameterCustomModifiers(parameter);
 		}
 
-		internal CallingConventions CallingConvention => callingConvention;
+		public CallingConventions CallingConvention => callingConvention;
 
-		internal bool MatchParameterTypes(Type[] types)
+		public bool MatchParameterTypes(Type[] types)
 		{
 			return Util.ArrayEquals(types, parameterTypes);
 		}
 
-		internal static PropertySignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
+		public static PropertySignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			var flags = byteReader.ReadByte();
 			if ((flags & PROPERTY) == 0)

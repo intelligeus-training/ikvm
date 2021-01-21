@@ -41,7 +41,7 @@ using LocalVariableTableEntry = IKVM.Internal.ClassFile.Method.LocalVariableTabl
 using Instruction = IKVM.Internal.ClassFile.Method.Instruction;
 using InstructionFlags = IKVM.Internal.ClassFile.Method.InstructionFlags;
 
-public static class ByteCodeHelperMethods
+public class ByteCodeHelperMethods
 {
 	public static readonly MethodInfo multianewarray;
 	public static readonly MethodInfo multianewarray_ghost;

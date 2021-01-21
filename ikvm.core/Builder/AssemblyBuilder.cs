@@ -50,7 +50,7 @@ namespace IKVM.Reflection.Emit
 		private AssemblyHashAlgorithm hashAlgorithm;
 		private StrongNameKeyPair keyPair;
 		private byte[] publicKey;
-		internal readonly string dir;
+		public readonly string dir;
 		private PEFileKinds fileKind = PEFileKinds.Dll;
 		private MethodInfo entryPoint;
 		private VersionInfo versionInfo;
@@ -58,7 +58,7 @@ namespace IKVM.Reflection.Emit
 		private byte[] win32manifest;
 		private byte[] win32resources;
 		private string imageRuntimeVersion;
-		internal int mdStreamVersion = 0x20000;
+		public int mdStreamVersion = 0x20000;
 		private Module pseudoManifestModule;
 		private readonly List<ResourceFile> resourceFiles = new List<ResourceFile>();
 		private readonly List<ModuleBuilder> modules = new List<ModuleBuilder>();
@@ -67,12 +67,12 @@ namespace IKVM.Reflection.Emit
 		private readonly List<CustomAttributeBuilder> declarativeSecurity = new List<CustomAttributeBuilder>();
 		private readonly List<TypeForwarder> typeForwarders = new List<TypeForwarder>();
 
-		struct TypeForwarder
+		public struct TypeForwarder
 		{
-			internal readonly Type Type;
-			internal readonly bool IncludeNested;
+			public readonly Type Type;
+			public readonly bool IncludeNested;
 
-			internal TypeForwarder(Type type, bool includeNested)
+			public TypeForwarder(Type type, bool includeNested)
 			{
 				this.Type = type;
 				this.IncludeNested = includeNested;
@@ -81,15 +81,15 @@ namespace IKVM.Reflection.Emit
 
 		private struct ResourceFile
 		{
-			internal string Name;
-			internal string FileName;
-			internal ResourceAttributes Attributes;
+			public string Name;
+			public string FileName;
+			public ResourceAttributes Attributes;
 #if !NETSTANDARD
-			internal ResourceWriter Writer;
+			public ResourceWriter Writer;
 #endif
 		}
 
-		internal AssemblyBuilder(Universe universe, AssemblyName name, string dir, IEnumerable<CustomAttributeBuilder> customAttributes)
+		public AssemblyBuilder(Universe universe, AssemblyName name, string dir, IEnumerable<CustomAttributeBuilder> customAttributes)
 			: base(universe)
 		{
 			this.name = name.Name;
@@ -227,7 +227,7 @@ namespace IKVM.Reflection.Emit
 			}
 		}
 
-		internal string Name
+		public string Name
 		{
 			get { return name; }
 		}
@@ -612,7 +612,7 @@ namespace IKVM.Reflection.Emit
 			return list.ToArray();
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			foreach (ModuleBuilder mb in modules)
 			{
@@ -633,7 +633,7 @@ namespace IKVM.Reflection.Emit
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			foreach (ModuleBuilder mb in modules)
 			{
@@ -768,7 +768,7 @@ namespace IKVM.Reflection.Emit
 			return new Universe().DefineDynamicAssembly(name, access, assemblyAttributes);
 		}
 
-		internal override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
+		public override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
 		{
 			List<CustomAttributeData> list = new List<CustomAttributeData>();
 			foreach (CustomAttributeBuilder cab in customAttributes)
@@ -781,18 +781,18 @@ namespace IKVM.Reflection.Emit
 			return list;
 		}
 
-		internal bool IsWindowsRuntime
+		public bool IsWindowsRuntime
 		{
 			get { return (flags & (AssemblyNameFlags)0x200) != 0; }
 		}
 	}
 
-	sealed class ManifestModule : NonPEModule
+	public sealed class ManifestModule : NonPEModule
 	{
 		private readonly AssemblyBuilder assembly;
 		private readonly Guid guid = Guid.NewGuid();
 
-		internal ManifestModule(AssemblyBuilder assembly)
+		public ManifestModule(AssemblyBuilder assembly)
 			: base(assembly.universe)
 		{
 			this.assembly = assembly;
@@ -808,17 +808,17 @@ namespace IKVM.Reflection.Emit
 			get { return assembly; }
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			return null;
 		}
 
-		internal override void  GetTypesImpl(List<Type> list)
+		public override void  GetTypesImpl(List<Type> list)
 		{
 		}
 

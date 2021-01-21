@@ -30,17 +30,14 @@ namespace IKVM.Reflection
 	public abstract class FieldInfo : MemberInfo
 	{
 		// prevent external subclasses
-		internal FieldInfo()
-		{
-		}
-
+		
 		public sealed override MemberTypes MemberType => MemberTypes.Field;
 
 		public abstract FieldAttributes Attributes { get; }
 		public abstract void __GetDataFromRVA(byte[] data, int offset, int length);
 		public abstract int __FieldRVA { get; }
 		public abstract Object GetRawConstantValue();
-		internal abstract FieldSignature FieldSignature { get; }
+		public abstract FieldSignature FieldSignature { get; }
 
 		public Type FieldType => this.FieldSignature.FieldType;
 
@@ -98,32 +95,32 @@ namespace IKVM.Reflection
 			return FieldMarshal.ReadFieldMarshal(this.Module, GetCurrentToken(), out fieldMarshal);
 		}
 
-		internal abstract int ImportTo(Emit.ModuleBuilder module);
+		public abstract int ImportTo(Emit.ModuleBuilder module);
 
-		internal virtual FieldInfo BindTypeParameters(Type type)
+		public virtual FieldInfo BindTypeParameters(Type type)
 		{
 			return new GenericFieldInstance(this.DeclaringType.BindTypeParameters(type), this);
 		}
 
-		internal sealed override bool BindingFlagsMatch(BindingFlags flags)
+		public sealed override bool BindingFlagsMatch(BindingFlags flags)
 		{
 			return BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
 				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static, BindingFlags.Instance);
 		}
 
-		internal sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
+		public sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
 		{
 			return (Attributes & FieldAttributes.FieldAccessMask) > FieldAttributes.Private
 				&& BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
 				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static | BindingFlags.FlattenHierarchy, BindingFlags.Instance);
 		}
 
-		internal sealed override MemberInfo SetReflectedType(Type type)
+		public sealed override MemberInfo SetReflectedType(Type type)
 		{
 			return new FieldInfoWithReflectedType(type, this);
 		}
 
-		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
+		public sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
 			var module = this.Module;
 			var customAttributeDatas = new List<CustomAttributeData>();
@@ -155,7 +152,7 @@ namespace IKVM.Reflection
 		private readonly Type reflectedType;
 		private readonly FieldInfo field;
 
-		internal FieldInfoWithReflectedType(Type reflectedType, FieldInfo field)
+		public FieldInfoWithReflectedType(Type reflectedType, FieldInfo field)
 		{
 			Debug.Assert(reflectedType != field.DeclaringType);
 			this.reflectedType = reflectedType;
@@ -181,7 +178,7 @@ namespace IKVM.Reflection
 			return field.GetRawConstantValue();
 		}
 
-		internal override FieldSignature FieldSignature
+		public override FieldSignature FieldSignature
 		{
 			get { return field.FieldSignature; }
 		}
@@ -191,12 +188,12 @@ namespace IKVM.Reflection
 			return field.__GetFieldOnTypeDefinition();
 		}
 
-		internal override int ImportTo(Emit.ModuleBuilder module)
+		public override int ImportTo(Emit.ModuleBuilder module)
 		{
 			return field.ImportTo(module);
 		}
 
-		internal override FieldInfo BindTypeParameters(Type type)
+		public override FieldInfo BindTypeParameters(Type type)
 		{
 			return field.BindTypeParameters(type);
 		}
@@ -234,11 +231,11 @@ namespace IKVM.Reflection
 			return field.ToString();
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return field.GetCurrentToken();
 		}
 
-		internal override bool IsBaked => field.IsBaked;
+		public override bool IsBaked => field.IsBaked;
 	}
 }

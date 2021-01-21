@@ -363,55 +363,22 @@ namespace IKVM.Internal
 			}
 		}
 
-		public sealed override TypeWrapper BaseTypeWrapper
-		{
-			get { return baseTypeWrapper; }
-		}
+		public sealed override TypeWrapper BaseTypeWrapper => baseTypeWrapper;
 
 		public override ClassLoaderWrapper GetClassLoader()
 		{
 			return classLoader;
 		}
 
-		public override Modifiers ReflectiveModifiers
-		{
-			get
-			{
-				return impl.ReflectiveModifiers;
-			}
-		}
+		public override Modifiers ReflectiveModifiers => impl.ReflectiveModifiers;
 
-		public override TypeWrapper[] Interfaces
-		{
-			get
-			{
-				return interfaces;
-			}
-		}
+		public override TypeWrapper[] Interfaces => interfaces;
 
-		public override TypeWrapper[] InnerClasses
-		{
-			get
-			{
-				return impl.InnerClasses;
-			}
-		}
+		public override TypeWrapper[] InnerClasses => impl.InnerClasses;
 
-		public override TypeWrapper DeclaringTypeWrapper
-		{
-			get
-			{
-				return impl.DeclaringTypeWrapper;
-			}
-		}
+		public override TypeWrapper DeclaringTypeWrapper => impl.DeclaringTypeWrapper;
 
-		public override Type TypeAsTBD
-		{
-			get
-			{
-				return impl.Type;
-			}
-		}
+		public override Type TypeAsTBD => impl.Type;
 
 		public override void Finish()
 		{
@@ -429,13 +396,7 @@ namespace IKVM.Internal
 			((JavaTypeImpl)impl).CreateStep2();
 		}
 
-		private bool IsSerializable
-		{
-			get
-			{
-				return this.IsSubTypeOf(CoreClasses.java.io.Serializable.Wrapper);
-			}
-		}
+		private bool IsSerializable => this.IsSubTypeOf(CoreClasses.java.io.Serializable.Wrapper);
 
 		private abstract class DynamicImpl
 		{

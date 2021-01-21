@@ -45,17 +45,17 @@ namespace IKVM.Reflection
 		public abstract MethodInfo GetSetMethod(bool nonPublic);
 		public abstract MethodInfo[] GetAccessors(bool nonPublic);
 		public abstract object GetRawConstantValue();
-		internal abstract bool IsPublic { get; }
-		internal abstract bool IsNonPrivate { get; }
-		internal abstract bool IsStatic { get; }
-		internal abstract PropertySignature PropertySignature { get; }
+		public abstract bool IsPublic { get; }
+		public abstract bool IsNonPrivate { get; }
+		public abstract bool IsStatic { get; }
+		public abstract PropertySignature PropertySignature { get; }
 
 		private sealed class ParameterInfoImpl : ParameterInfo
 		{
 			private readonly PropertyInfo property;
 			private readonly int parameter;
 
-			internal ParameterInfoImpl(PropertyInfo property, int parameter)
+			public ParameterInfoImpl(PropertyInfo property, int parameter)
 			{
 				this.property = property;
 				this.parameter = parameter;
@@ -86,7 +86,7 @@ namespace IKVM.Reflection
 
 			public override int MetadataToken => 0x08000000;
 
-			internal override Module Module => property.Module;
+			public override Module Module => property.Module;
 		}
 
 		public virtual ParameterInfo[] GetIndexParameters()
@@ -139,7 +139,7 @@ namespace IKVM.Reflection
 
 		public CallingConventions __CallingConvention => PropertySignature.CallingConvention;
 
-		internal virtual PropertyInfo BindTypeParameters(Type type)
+		public virtual PropertyInfo BindTypeParameters(Type type)
 		{
 			return new GenericPropertyInfo(this.DeclaringType.BindTypeParameters(type), this);
 		}
@@ -149,13 +149,13 @@ namespace IKVM.Reflection
 			return $"{DeclaringType} {Name}" ;
 		}
 
-		internal sealed override bool BindingFlagsMatch(BindingFlags flags)
+		public sealed override bool BindingFlagsMatch(BindingFlags flags)
 		{
 			return BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
 				&& BindingFlagsMatch(IsStatic, flags, BindingFlags.Static, BindingFlags.Instance);
 		}
 
-		internal sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
+		public sealed override bool BindingFlagsMatchInherited(BindingFlags flags)
 		{
 			return IsNonPrivate
 				&& BindingFlagsMatch(IsPublic, flags, BindingFlags.Public, BindingFlags.NonPublic)
@@ -163,24 +163,24 @@ namespace IKVM.Reflection
 					BindingFlags.Instance);
 		}
 
-		internal sealed override MemberInfo SetReflectedType(Type type)
+		public sealed override MemberInfo SetReflectedType(Type type)
 		{
 			return new PropertyInfoWithReflectedType(type, this);
 		}
 
-		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
+		public sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
 			// properties don't have pseudo custom attributes
 			return null;
 		}
 	}
 
-	sealed class PropertyInfoWithReflectedType : PropertyInfo
+	public sealed class PropertyInfoWithReflectedType : PropertyInfo
 	{
 		private readonly Type reflectedType;
 		private readonly PropertyInfo property;
 
-		internal PropertyInfoWithReflectedType(Type reflectedType, PropertyInfo property)
+		public PropertyInfoWithReflectedType(Type reflectedType, PropertyInfo property)
 		{
 			this.reflectedType = reflectedType;
 			this.property = property;
@@ -212,13 +212,13 @@ namespace IKVM.Reflection
 			return property.GetRawConstantValue();
 		}
 
-		internal override bool IsPublic => property.IsPublic;
+		public override bool IsPublic => property.IsPublic;
 
-		internal override bool IsNonPrivate => property.IsNonPrivate;
+		public override bool IsNonPrivate => property.IsNonPrivate;
 
-		internal override bool IsStatic => property.IsStatic;
+		public override bool IsStatic => property.IsStatic;
 
-		internal override PropertySignature PropertySignature => property.PropertySignature;
+		public override PropertySignature PropertySignature => property.PropertySignature;
 
 		public override ParameterInfo[] GetIndexParameters()
 		{
@@ -230,7 +230,7 @@ namespace IKVM.Reflection
 			return parameterInfos;
 		}
 
-		internal override PropertyInfo BindTypeParameters(Type type)
+		public override PropertyInfo BindTypeParameters(Type type)
 		{
 			return property.BindTypeParameters(type);
 		}
@@ -265,9 +265,9 @@ namespace IKVM.Reflection
 
 		public override string Name => property.Name;
 
-		internal override bool IsBaked => property.IsBaked;
+		public override bool IsBaked => property.IsBaked;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return property.GetCurrentToken();
 		}

@@ -38,7 +38,7 @@ using System.Reflection;
 
 namespace IKVM.Internal
 {
-	class AssemblyClassLoader : ClassLoaderWrapper
+	public class AssemblyClassLoader : ClassLoaderWrapper
 	{
 		private static readonly Dictionary<Assembly, AssemblyClassLoader> AssemblyClassLoaders 
 			= new Dictionary<Assembly, AssemblyClassLoader>();
@@ -69,7 +69,7 @@ namespace IKVM.Internal
 			private sun.misc.URLClassPath urlClassPath;
 #endif
 
-			internal AssemblyLoader(Assembly assembly)
+			public AssemblyLoader(Assembly assembly)
 			{
 				_assembly = assembly;
 				_modules = assembly.GetModules(false);
@@ -122,7 +122,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal bool HasJavaModule
+			public bool HasJavaModule
 			{
 				get
 				{
@@ -137,7 +137,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal Assembly Assembly
+			public Assembly Assembly
 			{
 				get { return _assembly; }
 			}
@@ -218,7 +218,7 @@ namespace IKVM.Internal
 				return null;
 			}
 
-			internal TypeWrapper DoLoad(string name)
+			public TypeWrapper DoLoad(string name)
 			{
 				for (int i = 0; i < _modules.Length; i++)
 				{
@@ -288,7 +288,7 @@ namespace IKVM.Internal
 				return null;
 			}
 
-			internal string GetTypeNameAndType(Type type, out bool isJavaType)
+			public string GetTypeNameAndType(Type type, out bool isJavaType)
 			{
 				Module mod = type.Module;
 				int moduleIndex = -1;
@@ -320,7 +320,7 @@ namespace IKVM.Internal
 				}
 			}
 
-			internal TypeWrapper CreateWrapperForAssemblyType(Type type)
+			public TypeWrapper CreateWrapperForAssemblyType(Type type)
 			{
 				bool isJavaType;
 				string name = GetTypeNameAndType(type, out isJavaType);
@@ -342,7 +342,7 @@ namespace IKVM.Internal
 				
 			}
 
-			internal bool InternalsVisibleTo(AssemblyName otherName)
+			public bool InternalsVisibleTo(AssemblyName otherName)
 			{
 				if (_internalsVisibleTo == null)
 				{
@@ -361,7 +361,7 @@ namespace IKVM.Internal
 			}
 
 #if !STATIC_COMPILER && !STUB_GENERATOR && !FIRST_PASS
-			internal java.util.Enumeration FindResources(string name)
+			public java.util.Enumeration FindResources(string name)
 			{
 				if (urlClassPath == null)
 				{
@@ -381,12 +381,12 @@ namespace IKVM.Internal
 #endif
 		}
 
-		internal AssemblyClassLoader(Assembly assembly)
+		public AssemblyClassLoader(Assembly assembly)
 			: this(assembly, null)
 		{
 		}
 
-		internal AssemblyClassLoader(Assembly assembly, string[] fixedReferences)
+		public AssemblyClassLoader(Assembly assembly, string[] fixedReferences)
 			: base(CodeGenOptions.None, null)
 		{
 			this._assemblyLoader = new AssemblyLoader(assembly);
@@ -394,7 +394,7 @@ namespace IKVM.Internal
 		}
 
 #if STATIC_COMPILER
-		internal static void PreloadExportedAssemblies(Assembly assembly)
+		public static void PreloadExportedAssemblies(Assembly assembly)
 		{
 			if (assembly.GetManifestResourceInfo("ikvm.exports") != null)
 			{
@@ -489,7 +489,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal Assembly MainAssembly
+		public Assembly MainAssembly
 		{
 			get
 			{
@@ -497,7 +497,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal Assembly GetAssembly(TypeWrapper wrapper)
+		public Assembly GetAssembly(TypeWrapper wrapper)
 		{
 			Debug.Assert(wrapper.GetClassLoader() == this);
 			while (wrapper.IsFakeNestedType)
@@ -531,7 +531,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal TypeWrapper DoLoad(string name)
+		public TypeWrapper DoLoad(string name)
 		{
 			TypeWrapper tw = _assemblyLoader.DoLoad(name);
 			if (tw != null)
@@ -561,7 +561,7 @@ namespace IKVM.Internal
 			return null;
 		}
 
-		internal string GetTypeNameAndType(Type type, out bool isJavaType)
+		public string GetTypeNameAndType(Type type, out bool isJavaType)
 		{
 			return GetLoader(type.Assembly).GetTypeNameAndType(type, out isJavaType);
 		}
@@ -580,7 +580,7 @@ namespace IKVM.Internal
 			return loader;
 		}
 
-		internal List<Assembly> GetAllAvailableAssemblies()
+		public List<Assembly> GetAllAvailableAssemblies()
 		{
 			List<Assembly> list = new List<Assembly>();
 			list.Add(_assemblyLoader.Assembly);
@@ -636,7 +636,7 @@ namespace IKVM.Internal
 			return loader;
 		}
 
-		internal virtual TypeWrapper GetWrapperFromAssemblyType(Type type)
+		public virtual TypeWrapper GetWrapperFromAssemblyType(Type type)
 		{
 			//Tracer.Info(Tracer.Runtime, "GetWrapperFromAssemblyType: {0}", type.FullName);
 			Debug.Assert(!type.Name.EndsWith("[]"), "!type.IsArray", type.FullName);
@@ -703,7 +703,7 @@ namespace IKVM.Internal
 		// this implements ikvm.runtime.AssemblyClassLoader.loadClass(),
 		// so unlike the above LoadClassImpl, it doesn't delegate to Java,
 		// but otherwise it should be the same algorithm
-		internal TypeWrapper LoadClass(string name)
+		public TypeWrapper LoadClass(string name)
 		{
 			return FindLoadedClass(name)
 				?? LoadBootstrapIfNonJavaAssembly(name)
@@ -807,7 +807,7 @@ namespace IKVM.Internal
 #endif
 		}
 
-		internal IEnumerable<java.net.URL> FindResources(string unmangledName)
+		public IEnumerable<java.net.URL> FindResources(string unmangledName)
 		{
 			if (ReflectUtil.IsDynamicAssembly(assemblyLoader.Assembly))
 			{
@@ -892,10 +892,10 @@ namespace IKVM.Internal
 
 		protected struct Resource
 		{
-			internal readonly java.net.URL URL;
-			internal readonly AssemblyClassLoader Loader;
+			public readonly java.net.URL URL;
+			public readonly AssemblyClassLoader Loader;
 
-			internal Resource(java.net.URL url, AssemblyClassLoader loader)
+			public Resource(java.net.URL url, AssemblyClassLoader loader)
 			{
 				this.URL = url;
 				this.Loader = loader;
@@ -925,7 +925,7 @@ namespace IKVM.Internal
 			}
 		}
 
-		internal virtual IEnumerable<java.net.URL> GetResources(string name)
+		public virtual IEnumerable<java.net.URL> GetResources(string name)
 		{
 			foreach (java.net.URL url in GetBootstrapClassLoader().GetResources(name))
 			{
@@ -945,9 +945,9 @@ namespace IKVM.Internal
 #if !STATIC_COMPILER && !FIRST_PASS && !STUB_GENERATOR
 		private sealed class JavaClassLoaderConstructionInProgress
 		{
-			internal readonly Thread Thread = Thread.CurrentThread;
-			internal java.lang.ClassLoader javaClassLoader;
-			internal int recursion;
+			public readonly Thread Thread = Thread.CurrentThread;
+			public java.lang.ClassLoader javaClassLoader;
+			public int recursion;
 		}
 
 		private java.lang.ClassLoader WaitInitializeJavaClassLoader(Type customClassLoader)
@@ -1001,7 +1001,7 @@ namespace IKVM.Internal
 			return javaClassLoader;
 		}
 
-		internal override java.lang.ClassLoader GetJavaClassLoader()
+		public override java.lang.ClassLoader GetJavaClassLoader()
 		{
 			if (javaClassLoader == null)
 			{
@@ -1010,7 +1010,7 @@ namespace IKVM.Internal
 			return javaClassLoader;
 		}
 
-		internal virtual java.security.ProtectionDomain GetProtectionDomain()
+		public virtual java.security.ProtectionDomain GetProtectionDomain()
 		{
 			if (protectionDomain == null)
 			{
@@ -1027,7 +1027,7 @@ namespace IKVM.Internal
 				?? FindOrLoadGenericClass(name, LoadMode.Find);
 		}
 
-		internal override bool InternalsVisibleToImpl(TypeWrapper wrapper, TypeWrapper friend)
+		public override bool InternalsVisibleToImpl(TypeWrapper wrapper, TypeWrapper friend)
 		{
 			ClassLoaderWrapper other = friend.GetClassLoader();
 			if (this == other)
@@ -1061,7 +1061,7 @@ namespace IKVM.Internal
 		}
 
 		// this method should not be used with dynamic Java assemblies
-		internal static AssemblyClassLoader FromAssembly(Assembly assembly)
+		public static AssemblyClassLoader FromAssembly(Assembly assembly)
 		{
 			AssemblyClassLoader loader;
 			lock (AssemblyClassLoaders)
@@ -1119,7 +1119,7 @@ namespace IKVM.Internal
 			return new AssemblyClassLoader(assembly);
 		}
 
-		internal void AddDelegate(AssemblyClassLoader acl)
+		public void AddDelegate(AssemblyClassLoader acl)
 		{
 			LazyInitExports();
 			lock (this)
@@ -1129,7 +1129,7 @@ namespace IKVM.Internal
 		}
 
 #if !STATIC_COMPILER && !STUB_GENERATOR
-		internal List<KeyValuePair<string, string[]>> GetPackageInfo()
+		public List<KeyValuePair<string, string[]>> GetPackageInfo()
 		{
 			List<KeyValuePair<string, string[]>> list = new List<KeyValuePair<string, string[]>>();
 			foreach (Module m in assemblyLoader.Assembly.GetModules(false))
@@ -1278,7 +1278,7 @@ namespace IKVM.Internal
 			private object classLoader;
 			private Assembly assembly;
 
-			internal CustomClassLoaderCtorCaller(ConstructorInfo ctor, object classLoader, Assembly assembly)
+			public CustomClassLoaderCtorCaller(ConstructorInfo ctor, object classLoader, Assembly assembly)
 			{
 				this.ctor = ctor;
 				this.classLoader = classLoader;
@@ -1296,7 +1296,7 @@ namespace IKVM.Internal
 
 	sealed class BootstrapClassLoader : AssemblyClassLoader
 	{
-		internal BootstrapClassLoader()
+		public BootstrapClassLoader()
 			: base(JVM.CoreAssembly, new string[] {
 				typeof(object).Assembly.FullName,		// mscorlib
 				typeof(System.Uri).Assembly.FullName	// System
@@ -1304,7 +1304,7 @@ namespace IKVM.Internal
 		{
 		}
 
-		internal override TypeWrapper GetWrapperFromAssemblyType(Type type)
+		public override TypeWrapper GetWrapperFromAssemblyType(Type type)
 		{
 			// we have to special case the fake types here
 			if (type.IsGenericType && !type.IsGenericTypeDefinition)
@@ -1334,17 +1334,17 @@ namespace IKVM.Internal
 		}
 
 #if !FIRST_PASS && !STATIC_COMPILER && !STUB_GENERATOR
-		internal override java.lang.ClassLoader GetJavaClassLoader()
+		public override java.lang.ClassLoader GetJavaClassLoader()
 		{
 			return null;
 		}
 
-		internal override java.security.ProtectionDomain GetProtectionDomain()
+		public override java.security.ProtectionDomain GetProtectionDomain()
 		{
 			return null;
 		}
 
-		internal override IEnumerable<java.net.URL> GetResources(string name)
+		public override IEnumerable<java.net.URL> GetResources(string name)
 		{
 			foreach (java.net.URL url in FindResources(name))
 			{

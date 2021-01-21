@@ -75,13 +75,13 @@ namespace IKVM.Reflection
 		public abstract ManifestResourceInfo GetManifestResourceInfo(string resourceName);
 		public abstract System.IO.Stream GetManifestResourceStream(string name);
 
-		internal abstract Type FindType(TypeName name);
-		internal abstract Type FindTypeIgnoreCase(TypeName lowerCaseName);
+		public abstract Type FindType(TypeName name);
+		public abstract Type FindTypeIgnoreCase(TypeName lowerCaseName);
 
 		// The differences between ResolveType and FindType are:
 		// - ResolveType is only used when a type is assumed to exist (because another module's metadata claims it)
 		// - ResolveType can return a MissingType
-		internal Type ResolveType(Module requester, TypeName typeName)
+		public Type ResolveType(Module requester, TypeName typeName)
 		{
 			return FindType(typeName) ?? 
 			       universe.GetMissingTypeOrThrow(requester, ManifestModule, null, typeName);
@@ -231,6 +231,6 @@ namespace IKVM.Reflection
 			return GetName().Flags;
 		}
 
-		internal abstract IList<CustomAttributeData> GetCustomAttributesData(Type attributeType);
+		public abstract IList<CustomAttributeData> GetCustomAttributesData(Type attributeType);
 	}
 }

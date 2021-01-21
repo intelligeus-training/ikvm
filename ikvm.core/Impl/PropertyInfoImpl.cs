@@ -39,7 +39,7 @@ namespace IKVM.Reflection.Reader
 		private bool isStatic;
 		private bool flagsCached;
 
-		internal PropertyInfoImpl(ModuleReader module, Type declaringType, int index)
+		public PropertyInfoImpl(ModuleReader module, Type declaringType, int index)
 		{
 			this.module = module;
 			this.declaringType = declaringType;
@@ -57,7 +57,7 @@ namespace IKVM.Reflection.Reader
 			return declaringType.GetHashCode() * 77 + index;
 		}
 
-		internal override PropertySignature PropertySignature
+		public override PropertySignature PropertySignature
 		{
 			get
 			{
@@ -124,7 +124,7 @@ namespace IKVM.Reflection.Reader
 			get { return module.GetString(module.Property.records[index].Name); }
 		}
 
-		internal override bool IsPublic
+		public override bool IsPublic
 		{
 			get
 			{
@@ -136,7 +136,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override bool IsNonPrivate
+		public override bool IsNonPrivate
 		{
 			get
 			{
@@ -148,7 +148,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override bool IsStatic
+		public override bool IsStatic
 		{
 			get
 			{
@@ -166,12 +166,12 @@ namespace IKVM.Reflection.Reader
 			flagsCached = true;
 		}
 
-		internal override bool IsBaked
+		public override bool IsBaked
 		{
 			get { return true; }
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return this.MetadataToken;
 		}

@@ -21,9 +21,6 @@
   jeroen@frijters.net
   
 */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace IKVM.Reflection.Emit
 {
@@ -32,42 +29,27 @@ namespace IKVM.Reflection.Emit
 		private readonly TypeBuilder typeBuilder;
 		private readonly FieldBuilder fieldBuilder;
 
-		internal EnumBuilder(TypeBuilder typeBuilder, FieldBuilder fieldBuilder)
+		public EnumBuilder(TypeBuilder typeBuilder, FieldBuilder fieldBuilder)
 			: base(typeBuilder)
 		{
 			this.typeBuilder = typeBuilder;
 			this.fieldBuilder = fieldBuilder;
 		}
 
-		internal override TypeName TypeName
-		{
-			get { return typeBuilder.TypeName; }
-		}
+		public override TypeName TypeName => typeBuilder.TypeName;
 
-		public override string Name
-		{
-			get { return typeBuilder.Name; }
-		}
+		public override string Name => typeBuilder.Name;
 
 		public override string FullName
 		{
 			get { return typeBuilder.FullName; }
 		}
 
-		public override Type BaseType
-		{
-			get { return typeBuilder.BaseType; }
-		}
+		public override Type BaseType => typeBuilder.BaseType;
 
-		public override TypeAttributes Attributes
-		{
-			get { return typeBuilder.Attributes; }
-		}
+		public override TypeAttributes Attributes => typeBuilder.Attributes;
 
-		public override Module Module
-		{
-			get { return typeBuilder.Module; }
-		}
+		public override Module Module => typeBuilder.Module;
 
 		public FieldBuilder DefineLiteral(string literalName, object literalValue)
 		{
@@ -86,15 +68,9 @@ namespace IKVM.Reflection.Emit
 			return typeBuilder.CreateTypeInfo();
 		}
 
-		public TypeToken TypeToken
-		{
-			get { return typeBuilder.TypeToken; }
-		}
+		public TypeToken TypeToken => typeBuilder.TypeToken;
 
-		public FieldBuilder UnderlyingField
-		{
-			get { return fieldBuilder; }
-		}
+		public FieldBuilder UnderlyingField => fieldBuilder;
 
 		public void SetCustomAttribute(ConstructorInfo con, byte[] binaryAttribute)
 		{
@@ -111,14 +87,8 @@ namespace IKVM.Reflection.Emit
 			return fieldBuilder.FieldType;
 		}
 
-		protected override bool IsValueTypeImpl
-		{
-			get { return true; }
-		}
+		protected override bool IsValueTypeImpl => true;
 
-		internal override bool IsBaked
-		{
-			get { return typeBuilder.IsBaked; }
-		}
+		public override bool IsBaked => typeBuilder.IsBaked;
 	}
 }

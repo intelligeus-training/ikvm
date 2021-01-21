@@ -28,7 +28,7 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class EventInfoImpl : EventInfo
+	public sealed class EventInfoImpl : EventInfo
 	{
 		private readonly ModuleReader module;
 		private readonly Type declaringType;
@@ -38,7 +38,7 @@ namespace IKVM.Reflection.Reader
 		private bool isStatic;
 		private bool flagsCached;
 
-		internal EventInfoImpl(ModuleReader module, Type declaringType, int index)
+		public EventInfoImpl(ModuleReader module, Type declaringType, int index)
 		{
 			this.module = module;
 			this.declaringType = declaringType;
@@ -56,10 +56,7 @@ namespace IKVM.Reflection.Reader
 			return declaringType.GetHashCode() * 123 + index;
 		}
 
-		public override EventAttributes Attributes
-		{
-			get { return (EventAttributes)module.Event.records[index].EventFlags; }
-		}
+		public override EventAttributes Attributes => (EventAttributes)module.Event.records[index].EventFlags;
 
 		public override MethodInfo GetAddMethod(bool nonPublic)
 		{
@@ -86,32 +83,17 @@ namespace IKVM.Reflection.Reader
 			return module.MethodSemantics.GetMethods(module, this.MetadataToken, true, -1);
 		}
 
-		public override Type EventHandlerType
-		{
-			get { return module.ResolveType(module.Event.records[index].EventType, declaringType); }
-		}
+		public override Type EventHandlerType => module.ResolveType(module.Event.records[index].EventType, declaringType);
 
-		public override string Name
-		{
-			get { return module.GetString(module.Event.records[index].Name); }
-		}
+		public override string Name => module.GetString(module.Event.records[index].Name);
 
-		public override Type DeclaringType
-		{
-			get { return declaringType; }
-		}
+		public override Type DeclaringType => declaringType;
 
-		public override Module Module
-		{
-			get { return module; }
-		}
+		public override Module Module => module;
 
-		public override int MetadataToken
-		{
-			get { return (EventTable.Index << 24) + index + 1; }
-		}
+		public override int MetadataToken => (EventTable.Index << 24) + index + 1;
 
-		internal override bool IsPublic
+		public override bool IsPublic
 		{
 			get
 			{
@@ -123,7 +105,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override bool IsNonPrivate
+		public override bool IsNonPrivate
 		{
 			get
 			{
@@ -135,7 +117,7 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal override bool IsStatic
+		public override bool IsStatic
 		{
 			get
 			{
@@ -153,12 +135,9 @@ namespace IKVM.Reflection.Reader
 			flagsCached = true;
 		}
 
-		internal override bool IsBaked
-		{
-			get { return true; }
-		}
+		public override bool IsBaked => true;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return this.MetadataToken;
 		}

@@ -31,12 +31,12 @@ using IKVM.Reflection.Reader;
 
 namespace IKVM.Reflection
 {
-	sealed class FieldSignature : Signature
+	public sealed class FieldSignature : Signature
 	{
 		private readonly Type fieldType;
 		private readonly CustomModifiers mods;
 
-		internal static FieldSignature Create(Type fieldType, CustomModifiers customModifiers)
+		public static FieldSignature Create(Type fieldType, CustomModifiers customModifiers)
 		{
 			return new FieldSignature(fieldType, customModifiers);
 		}
@@ -59,21 +59,21 @@ namespace IKVM.Reflection
 			return fieldType.GetHashCode() ^ mods.GetHashCode();
 		}
 
-		internal Type FieldType => fieldType;
+		public Type FieldType => fieldType;
 
-		internal CustomModifiers GetCustomModifiers()
+		public CustomModifiers GetCustomModifiers()
 		{
 			return mods;
 		}
 
-		internal FieldSignature ExpandTypeParameters(Type declaringType)
+		public FieldSignature ExpandTypeParameters(Type declaringType)
 		{
 			return new FieldSignature(
 				fieldType.BindTypeParameters(declaringType),
 				mods.Bind(declaringType));
 		}
 
-		internal static FieldSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
+		public static FieldSignature ReadSig(ModuleReader module, ByteReader byteReader, IGenericContext context)
 		{
 			if (byteReader.ReadByte() != FIELD)
 			{
@@ -84,7 +84,7 @@ namespace IKVM.Reflection
 			return new FieldSignature(fieldType, mods);
 		}
 
-		internal override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
+		public override void WriteSig(ModuleBuilder module, ByteBuffer byteBuffer)
 		{
 			byteBuffer.Write(FIELD);
 			WriteCustomModifiers(module, byteBuffer, mods);
