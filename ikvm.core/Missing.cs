@@ -36,7 +36,7 @@ namespace IKVM.Reflection
 #endif
 		private readonly MissingAssembly assembly;
 
-		internal MissingAssemblyException(MissingAssembly assembly)
+		public MissingAssemblyException(MissingAssembly assembly)
 			: base("Assembly '" + assembly.FullName +
 			       "' is a missing assembly and does not support the requested operation.")
 		{
@@ -64,7 +64,7 @@ namespace IKVM.Reflection
 #endif
 		private readonly MissingModule module;
 
-		internal MissingModuleException(MissingModule module)
+		public MissingModuleException(MissingModule module)
 			: base("Module from missing assembly '" + module.Assembly.FullName + 
 			       "' does not support the requested operation.")
 		{
@@ -92,7 +92,7 @@ namespace IKVM.Reflection
 #endif
 		private readonly MemberInfo member;
 
-		internal MissingMemberException(MemberInfo member)
+		public MissingMemberException(MemberInfo member)
 			: base("Member '" + member + "' is a missing member and does not support the requested operation.")
 		{
 			this.member = member;
@@ -166,11 +166,11 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class MissingAssembly : Assembly
+	public sealed class MissingAssembly : Assembly
 	{
 		private readonly MissingModule module;
 
-		internal MissingAssembly(Universe universe, string name)
+		public MissingAssembly(Universe universe, string name)
 			: base(universe)
 		{
 			module = new MissingModule(this, -1);
@@ -247,28 +247,28 @@ namespace IKVM.Reflection
 			get { return true; }
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			return null;
 		}
 
-		internal override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
+		public override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
 		{
 			throw new MissingAssemblyException(this);
 		}
 	}
 
-	sealed class MissingModule : NonPEModule
+	public sealed class MissingModule : NonPEModule
 	{
 		private readonly Assembly assembly;
 		private readonly int index;
 
-		internal MissingModule(Assembly assembly, int index)
+		public MissingModule(Assembly assembly, int index)
 			: base(assembly.universe)
 		{
 			this.assembly = assembly;
@@ -300,17 +300,17 @@ namespace IKVM.Reflection
 
 		public override string ScopeName => throw new MissingModuleException(this);
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			return null;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			return null;
 		}
 
-		internal override void GetTypesImpl(System.Collections.Generic.List<Type> list)
+		public override void GetTypesImpl(System.Collections.Generic.List<Type> list)
 		{
 			throw new MissingModuleException(this);
 		}
@@ -340,7 +340,7 @@ namespace IKVM.Reflection
 
 		public override int __Subsystem => throw new MissingModuleException(this);
 
-		internal override void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
+		public override void ExportTypes(int fileToken, IKVM.Reflection.Emit.ModuleBuilder manifestModule)
 		{
 			throw new MissingModuleException(this);
 		}
@@ -385,7 +385,7 @@ namespace IKVM.Reflection
 		}
 	}
 
-	sealed class MissingType : Type
+	public sealed class MissingType : Type
 	{
 		private readonly Module module;
 		private readonly Type declaringType;
@@ -397,7 +397,7 @@ namespace IKVM.Reflection
 		private bool cyclicTypeForwarder;
 		private bool cyclicTypeSpec;
 
-		internal MissingType(Module module, Type declaringType, string ns, string name)
+		public MissingType(Module module, Type declaringType, string ns, string name)
 		{
 			this.module = module;
 			this.declaringType = declaringType;
@@ -416,7 +416,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal override MethodBase FindMethod(string name, MethodSignature signature)
+		public override MethodBase FindMethod(string name, MethodSignature signature)
 		{
 			var missingMethod = new MissingMethod(this, name, signature);
 			if (name == ".ctor")
@@ -426,17 +426,17 @@ namespace IKVM.Reflection
 			return missingMethod;
 		}
 
-		internal override FieldInfo FindField(string name, FieldSignature signature)
+		public override FieldInfo FindField(string name, FieldSignature signature)
 		{
 			return new MissingField(this, name, signature);
 		}
 
-		internal override Type FindNestedType(TypeName name)
+		public override Type FindNestedType(TypeName name)
 		{
 			return null;
 		}
 
-		internal override Type FindNestedTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindNestedTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			return null;
 		}
@@ -445,7 +445,7 @@ namespace IKVM.Reflection
 
 		public override Type DeclaringType => declaringType;
 
-		internal override TypeName TypeName => new TypeName(ns, name);
+		public override TypeName TypeName => new TypeName(ns, name);
 
 		public override string Name => TypeNameParser.Escape(name);
 
@@ -557,7 +557,7 @@ namespace IKVM.Reflection
 
 		public override bool IsGenericTypeDefinition => throw new MissingMemberException(this);
 
-		internal override Type GetGenericTypeArgument(int index)
+		public override Type GetGenericTypeArgument(int index)
 		{
 			if (typeArgs == null)
 			{
@@ -570,31 +570,31 @@ namespace IKVM.Reflection
 			return typeArgs[index] ?? (typeArgs[index] = new MissingTypeParameter(this, index));
 		}
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			return this;
 		}
 
-		internal override Type SetMetadataTokenForMissing(int token, int flags)
+		public override Type SetMetadataTokenForMissing(int token, int flags)
 		{
 			this.token = token;
 			this.flags = flags;
 			return this;
 		}
 
-		internal override Type SetCyclicTypeForwarder()
+		public override Type SetCyclicTypeForwarder()
 		{
 			cyclicTypeForwarder = true;
 			return this;
 		}
 
-		internal override Type SetCyclicTypeSpec()
+		public override Type SetCyclicTypeSpec()
 		{
 			cyclicTypeSpec = true;
 			return this;
 		}
 
-		internal override bool IsBaked => throw new MissingMemberException(this);
+		public override bool IsBaked => throw new MissingMemberException(this);
 
 		public override bool __IsTypeForwarder
 		{
@@ -607,17 +607,17 @@ namespace IKVM.Reflection
 		public override bool __IsCyclicTypeSpec => cyclicTypeSpec;
 	}
 
-	sealed class MissingTypeParameter : IKVM.Reflection.Reader.TypeParameterType
+	public sealed class MissingTypeParameter : IKVM.Reflection.Reader.TypeParameterType
 	{
 		private readonly MemberInfo owner;
 		private readonly int index;
 
-		internal MissingTypeParameter(Type owner, int index)
+		public MissingTypeParameter(Type owner, int index)
 			: this(owner, index, Signature.ELEMENT_TYPE_VAR)
 		{
 		}
 
-		internal MissingTypeParameter(MethodInfo owner, int index)
+		public MissingTypeParameter(MethodInfo owner, int index)
 			: this(owner, index, Signature.ELEMENT_TYPE_MVAR)
 		{
 		}
@@ -642,7 +642,7 @@ namespace IKVM.Reflection
 
 		public override Type DeclaringType => owner as Type;
 
-		internal override Type BindTypeParameters(IGenericBinder binder)
+		public override Type BindTypeParameters(IGenericBinder binder)
 		{
 			if (owner is MethodBase)
 			{
@@ -653,18 +653,18 @@ namespace IKVM.Reflection
 			
 		}
 
-		internal override bool IsBaked => owner.IsBaked;
+		public override bool IsBaked => owner.IsBaked;
 	}
 
-	sealed class MissingMethod : MethodInfo
+	public sealed class MissingMethod : MethodInfo
 	{
 		private readonly Type declaringType;
 		private readonly string name;
-		internal MethodSignature signature;
+		public MethodSignature signature;
 		private MethodInfo forwarder;
 		private Type[] typeArgs;
 
-		internal MissingMethod(Type declaringType, string name, MethodSignature signature)
+		public MissingMethod(Type declaringType, string name, MethodSignature signature)
 		{
 			this.declaringType = declaringType;
 			this.name = name;
@@ -711,16 +711,16 @@ namespace IKVM.Reflection
 
 		public override ParameterInfo ReturnParameter => new ParameterInfoImpl(this, -1);
 
-		internal override MethodSignature MethodSignature => signature;
+		public override MethodSignature MethodSignature => signature;
 
-		internal override int ParameterCount => signature.GetParameterCount();
+		public override int ParameterCount => signature.GetParameterCount();
 
 		private sealed class ParameterInfoImpl : ParameterInfo
 		{
 			private readonly MissingMethod method;
 			private readonly int index;
 
-			internal ParameterInfoImpl(MissingMethod method, int index)
+			public ParameterInfoImpl(MissingMethod method, int index)
 			{
 				this.method = method;
 				this.index = index;
@@ -754,7 +754,7 @@ namespace IKVM.Reflection
 
 			public override int MetadataToken => Forwarder.MetadataToken;
 
-			internal override Module Module => method.Module;
+			public override Module Module => method.Module;
 
 			public override string ToString()
 			{
@@ -791,7 +791,7 @@ namespace IKVM.Reflection
 
 		public override CallingConventions CallingConvention => signature.CallingConvention;
 
-		internal override int ImportTo(IKVM.Reflection.Emit.ModuleBuilder module)
+		public override int ImportTo(IKVM.Reflection.Emit.ModuleBuilder module)
 		{
 			var methodInfo = TryGetForwarder();
 			if (methodInfo != null)
@@ -821,7 +821,7 @@ namespace IKVM.Reflection
 			return declaringType.GetHashCode() ^ name.GetHashCode() ^ signature.GetHashCode();
 		}
 
-		internal override MethodBase BindTypeParameters(Type type)
+		public override MethodBase BindTypeParameters(Type type)
 		{
 			var forwarder = TryGetForwarder();
 			if (forwarder != null)
@@ -851,12 +851,12 @@ namespace IKVM.Reflection
 			return Util.Copy(typeArgs);
 		}
 
-		internal override Type GetGenericMethodArgument(int index)
+		public override Type GetGenericMethodArgument(int index)
 		{
 			return GetGenericArguments()[index];
 		}
 
-		internal override int GetGenericMethodArgumentCount()
+		public override int GetGenericMethodArgumentCount()
 		{
 			return Forwarder.GetGenericMethodArgumentCount();
 		}
@@ -866,12 +866,12 @@ namespace IKVM.Reflection
 			return Forwarder.GetGenericMethodDefinition();
 		}
 
-		internal override MethodInfo GetMethodOnTypeDefinition()
+		public override MethodInfo GetMethodOnTypeDefinition()
 		{
 			return Forwarder.GetMethodOnTypeDefinition();
 		}
 
-		internal override bool HasThis => (signature.CallingConvention 
+		public override bool HasThis => (signature.CallingConvention 
 		                                   & (CallingConventions.HasThis 
 		                                      | CallingConventions.ExplicitThis)) == CallingConventions.HasThis;
 
@@ -891,22 +891,22 @@ namespace IKVM.Reflection
 
 		public override int MetadataToken => Forwarder.MetadataToken;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return Forwarder.GetCurrentToken();
 		}
 
-		internal override bool IsBaked => Forwarder.IsBaked;
+		public override bool IsBaked => Forwarder.IsBaked;
 	}
 
-	sealed class MissingField : FieldInfo
+	public sealed class MissingField : FieldInfo
 	{
 		private readonly Type declaringType;
 		private readonly string name;
 		private readonly FieldSignature signature;
 		private FieldInfo forwarder;
 
-		internal MissingField(Type declaringType, string name, FieldSignature signature)
+		public MissingField(Type declaringType, string name, FieldSignature signature)
 		{
 			this.declaringType = declaringType;
 			this.name = name;
@@ -956,9 +956,9 @@ namespace IKVM.Reflection
 			return Forwarder.GetRawConstantValue();
 		}
 
-		internal override FieldSignature FieldSignature => signature;
+		public override FieldSignature FieldSignature => signature;
 
-		internal override int ImportTo(IKVM.Reflection.Emit.ModuleBuilder module)
+		public override int ImportTo(IKVM.Reflection.Emit.ModuleBuilder module)
 		{
 			var fieldInfo = TryGetForwarder();
 			if (fieldInfo != null)
@@ -974,7 +974,7 @@ namespace IKVM.Reflection
 
 		public override Module Module => declaringType.Module;
 
-		internal override FieldInfo BindTypeParameters(Type type)
+		public override FieldInfo BindTypeParameters(Type type)
 		{
 			var forwarder = TryGetForwarder();
 			if (forwarder != null)
@@ -1005,22 +1005,22 @@ namespace IKVM.Reflection
 			return $"{FieldType.Name} {Name}";
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return Forwarder.GetCurrentToken();
 		}
 
-		internal override bool IsBaked => Forwarder.IsBaked;
+		public override bool IsBaked => Forwarder.IsBaked;
 	}
 
 	// NOTE this is currently only used by CustomAttributeData (because there is no other way to refer to a property)
-	sealed class MissingProperty : PropertyInfo
+	public sealed class MissingProperty : PropertyInfo
 	{
 		private readonly Type declaringType;
 		private readonly string name;
 		private readonly PropertySignature signature;
 
-		internal MissingProperty(Type declaringType, string name, PropertySignature signature)
+		public MissingProperty(Type declaringType, string name, PropertySignature signature)
 		{
 			this.declaringType = declaringType;
 			this.name = name;
@@ -1053,13 +1053,13 @@ namespace IKVM.Reflection
 			throw new MissingMemberException(this);
 		}
 
-		internal override bool IsPublic => throw new MissingMemberException(this);
+		public override bool IsPublic => throw new MissingMemberException(this);
 
-		internal override bool IsNonPrivate => throw new MissingMemberException(this);
+		public override bool IsNonPrivate => throw new MissingMemberException(this);
 
-		internal override bool IsStatic => throw new MissingMemberException(this);
+		public override bool IsStatic => throw new MissingMemberException(this);
 
-		internal override PropertySignature PropertySignature => signature;
+		public override PropertySignature PropertySignature => signature;
 
 		public override string Name => name;
 
@@ -1067,9 +1067,9 @@ namespace IKVM.Reflection
 
 		public override Module Module => declaringType.Module;
 
-		internal override bool IsBaked => declaringType.IsBaked;
+		public override bool IsBaked => declaringType.IsBaked;
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			throw new MissingMemberException(this);
 		}

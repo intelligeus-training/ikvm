@@ -29,11 +29,6 @@ namespace IKVM.Reflection
 {
 	public abstract class ConstructorInfo : MethodBase
 	{
-		// prevent external subclasses
-		internal ConstructorInfo()
-		{
-		}
-
 		public sealed override string ToString()
 		{
 			return GetMethodInfo().ToString();
@@ -42,9 +37,9 @@ namespace IKVM.Reflection
 		public static readonly string ConstructorName = ".ctor";
 		public static readonly string TypeConstructorName = ".cctor";
 
-		internal abstract MethodInfo GetMethodInfo();
+		public abstract MethodInfo GetMethodInfo();
 
-		internal override MethodBase BindTypeParameters(Type type)
+		public override MethodBase BindTypeParameters(Type type)
 		{
 			return new ConstructorInfoImpl((MethodInfo)GetMethodInfo().BindTypeParameters(type));
 		}
@@ -99,70 +94,39 @@ namespace IKVM.Reflection
 
 		public sealed override bool __IsMissing => GetMethodInfo().__IsMissing;
 
-		internal sealed override int ParameterCount => GetMethodInfo().ParameterCount;
+		public sealed override int ParameterCount => GetMethodInfo().ParameterCount;
 
-		internal sealed override MemberInfo SetReflectedType(Type type)
+		public sealed override MemberInfo SetReflectedType(Type type)
 		{
 			return new ConstructorInfoWithReflectedType(type, this);
 		}
 
-		internal sealed override int GetCurrentToken()
+		public sealed override int GetCurrentToken()
 		{
 			return GetMethodInfo().GetCurrentToken();
 		}
 
-		internal sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
+		public sealed override List<CustomAttributeData> GetPseudoCustomAttributes(Type attributeType)
 		{
 			return GetMethodInfo().GetPseudoCustomAttributes(attributeType);
 		}
 
-		internal sealed override bool IsBaked => GetMethodInfo().IsBaked;
+		public sealed override bool IsBaked => GetMethodInfo().IsBaked;
 
-		internal sealed override MethodSignature MethodSignature => GetMethodInfo().MethodSignature;
+		public sealed override MethodSignature MethodSignature => GetMethodInfo().MethodSignature;
 
-		internal sealed override int ImportTo(Emit.ModuleBuilder module)
+		public sealed override int ImportTo(Emit.ModuleBuilder module)
 		{
 			return GetMethodInfo().ImportTo(module);
 		}
 	}
 
-	sealed class ConstructorInfoImpl : ConstructorInfo
-	{
-		private readonly MethodInfo method;
-
-		internal ConstructorInfoImpl(MethodInfo method)
-		{
-			this.method = method;
-		}
-
-		public override bool Equals(object obj)
-		{
-			var other = obj as ConstructorInfoImpl;
-			return other != null && other.method.Equals(method);
-		}
-
-		public override int GetHashCode()
-		{
-			return method.GetHashCode();
-		}
-
-		internal override MethodInfo GetMethodInfo()
-		{
-			return method;
-		}
-
-		internal override MethodInfo GetMethodOnTypeDefinition()
-		{
-			return method.GetMethodOnTypeDefinition();
-		}
-	}
-
-	sealed class ConstructorInfoWithReflectedType : ConstructorInfo
+	public sealed class ConstructorInfoWithReflectedType : ConstructorInfo
 	{
 		private readonly Type reflectedType;
 		private readonly ConstructorInfo ctor;
 
-		internal ConstructorInfoWithReflectedType(Type reflectedType, ConstructorInfo ctor)
+		public ConstructorInfoWithReflectedType(Type reflectedType, ConstructorInfo ctor)
 		{
 			Debug.Assert(reflectedType != ctor.DeclaringType);
 			this.reflectedType = reflectedType;
@@ -184,12 +148,12 @@ namespace IKVM.Reflection
 
 		public override Type ReflectedType => reflectedType;
 
-		internal override MethodInfo GetMethodInfo()
+		public override MethodInfo GetMethodInfo()
 		{
 			return ctor.GetMethodInfo();
 		}
 
-		internal override MethodInfo GetMethodOnTypeDefinition()
+		public override MethodInfo GetMethodOnTypeDefinition()
 		{
 			return ctor.GetMethodOnTypeDefinition();
 		}

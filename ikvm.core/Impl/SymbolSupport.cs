@@ -31,7 +31,7 @@ using IKVM.Reflection.Emit;
 namespace IKVM.Reflection.Impl
 {
 	[StructLayout(LayoutKind.Sequential)]
-	struct IMAGE_DEBUG_DIRECTORY
+	public struct IMAGE_DEBUG_DIRECTORY
 	{
 		public uint Characteristics;
 		public uint TimeDateStamp;
@@ -44,7 +44,7 @@ namespace IKVM.Reflection.Impl
 	}
 
 #if NO_SYMBOL_WRITER
-	struct SymbolToken
+	public struct SymbolToken
 	{
 		internal SymbolToken(int value) { }
 	}
@@ -58,7 +58,7 @@ namespace IKVM.Reflection.Impl
 		bool IsDeterministic { get; }
 	}
 #else
-	interface ISymbolWriterImpl : ISymbolWriter
+	public interface ISymbolWriterImpl : ISymbolWriter
 	{
 		byte[] GetDebugInfo(ref IMAGE_DEBUG_DIRECTORY idd);
 		void RemapToken(int oldToken, int newToken);
@@ -68,9 +68,9 @@ namespace IKVM.Reflection.Impl
 	}
 #endif
 
-	static class SymbolSupport
+	public static class SymbolSupport
 	{
-		internal static ISymbolWriterImpl CreateSymbolWriterFor(ModuleBuilder moduleBuilder)
+		public static ISymbolWriterImpl CreateSymbolWriterFor(ModuleBuilder moduleBuilder)
 		{
 #if NO_SYMBOL_WRITER
 			throw new NotSupportedException("IKVM.Reflection compiled with NO_SYMBOL_WRITER does not support writing debugging symbols.");
@@ -90,12 +90,12 @@ namespace IKVM.Reflection.Impl
 #endif
 		}
 
-		internal static byte[] GetDebugInfo(ISymbolWriterImpl writer, ref IMAGE_DEBUG_DIRECTORY idd)
+		public static byte[] GetDebugInfo(ISymbolWriterImpl writer, ref IMAGE_DEBUG_DIRECTORY idd)
 		{
 			return writer.GetDebugInfo(ref idd);
 		}
 
-		internal static void RemapToken(ISymbolWriterImpl writer, int oldToken, int newToken)
+		public static void RemapToken(ISymbolWriterImpl writer, int oldToken, int newToken)
 		{
 			writer.RemapToken(oldToken, newToken);
 		}

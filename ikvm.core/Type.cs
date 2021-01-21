@@ -2197,7 +2197,7 @@ namespace IKVM.Reflection
 		public virtual bool __IsCyclicTypeSpec => false;
 	}
 
-	abstract class ElementHolderType : TypeInfo
+	public abstract class ElementHolderType : TypeInfo
 	{
 		protected readonly Type elementType;
 		private int token;
@@ -2309,7 +2309,7 @@ namespace IKVM.Reflection
 		protected abstract Type Wrap(Type type, CustomModifiers mods);
 	}
 
-	sealed class ArrayType : ElementHolderType
+	public sealed class ArrayType : ElementHolderType
 	{
 		public static Type Make(Type type, CustomModifiers mods)
 		{

@@ -28,7 +28,9 @@ using System.Diagnostics;
 #if !NO_SYMBOL_WRITER
 using System.Diagnostics.SymbolStore;
 #endif
-
+using System.Security.Cryptography;
+using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using IKVM.Reflection.Impl;
 using IKVM.Reflection.Metadata;
@@ -775,10 +777,9 @@ namespace IKVM.Reflection.Emit
 			{
 				return new MethodToken(mb.MetadataToken);
 			}
-			else
-			{
-				return new MethodToken(method.ImportTo(this));
-			}
+			
+			return new MethodToken(method.ImportTo(this));
+			
 		}
 
 		// new in .NET 4.5
@@ -1899,7 +1900,7 @@ namespace IKVM.Reflection.Emit
 		}
 	}
 
-	class ArrayMethod : MethodInfo
+	public class ArrayMethod : MethodInfo
 	{
 		private readonly Module module;
 		private readonly Type arrayClass;

@@ -31,14 +31,14 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class AssemblyReader : Assembly
+	public sealed class AssemblyReader : Assembly
 	{
 		private const int ContainsNoMetaData = 0x0001;
 		private readonly string location;
 		private readonly ModuleReader manifestModule;
 		private readonly Module[] externalModules;
 
-		internal AssemblyReader(string location, ModuleReader manifestModule)
+		public AssemblyReader(string location, ModuleReader manifestModule)
 			: base(manifestModule.universe)
 		{
 			this.location = location;
@@ -46,10 +46,7 @@ namespace IKVM.Reflection.Reader
 			externalModules = new Module[manifestModule.File.records.Length];
 		}
 
-		public override string Location
-		{
-			get { return location ?? ""; }
-		}
+		public override string Location => location ?? "";
 
 		public override AssemblyName GetName()
 		{
@@ -129,7 +126,7 @@ namespace IKVM.Reflection.Reader
 			return list.ToArray();
 		}
 
-		internal override Type FindType(TypeName typeName)
+		public override Type FindType(TypeName typeName)
 		{
 			Type type = manifestModule.FindType(typeName);
 			for (int i = 0; type == null && i < externalModules.Length; i++)
@@ -142,7 +139,7 @@ namespace IKVM.Reflection.Reader
 			return type;
 		}
 
-		internal override Type FindTypeIgnoreCase(TypeName lowerCaseName)
+		public override Type FindTypeIgnoreCase(TypeName lowerCaseName)
 		{
 			Type type = manifestModule.FindTypeIgnoreCase(lowerCaseName);
 			for (int i = 0; type == null && i < externalModules.Length; i++)
@@ -319,12 +316,12 @@ namespace IKVM.Reflection.Reader
 			return (AssemblyNameFlags)manifestModule.AssemblyTable.records[0].Flags;
 		}
 
-		internal string Name
+		public string Name
 		{
 			get { return manifestModule.GetString(manifestModule.AssemblyTable.records[0].Name); }
 		}
 
-		internal override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
+		public override IList<CustomAttributeData> GetCustomAttributesData(Type attributeType)
 		{
 			return CustomAttributeData.GetCustomAttributesImpl(null, manifestModule, 0x20000001, attributeType) ?? CustomAttributeData.EmptyList;
 		}

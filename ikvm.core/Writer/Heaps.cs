@@ -29,12 +29,12 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Writer
 {
-	abstract class Heap
+	public abstract class Heap
 	{
 		protected bool frozen;
 		protected int unalignedlength;
 
-		internal void Write(MetadataWriter mw)
+		public void Write(MetadataWriter mw)
 		{
 			uint pos = mw.Position;
 			WriteImpl(mw);
@@ -46,12 +46,12 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal bool IsBig
+		public bool IsBig
 		{
 			get { return Length > 65535; }
 		}
 
-		internal int Length
+		public int Length
 		{
 			get
 			{
@@ -64,9 +64,9 @@ namespace IKVM.Reflection.Writer
 		protected abstract void WriteImpl(MetadataWriter mw);
 	}
 
-	abstract class SimpleHeap : Heap
+	public abstract class SimpleHeap : Heap
 	{
-		internal void Freeze()
+		public void Freeze()
 		{
 			if (frozen)
 				throw new InvalidOperationException();
@@ -77,9 +77,9 @@ namespace IKVM.Reflection.Writer
 		protected abstract int GetLength();
 	}
 
-	sealed class TableHeap : Heap
+	public sealed class TableHeap : Heap
 	{
-		internal void Freeze(MetadataWriter mw)
+		public void Freeze(MetadataWriter mw)
 		{
 			if (frozen)
 				throw new InvalidOperationException();
@@ -161,18 +161,18 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	sealed class StringHeap : SimpleHeap
+	public sealed class StringHeap : SimpleHeap
 	{
 		private List<string> list = new List<string>();
 		private Dictionary<string, int> strings = new Dictionary<string, int>();
 		private int nextOffset;
 
-		internal StringHeap()
+		public StringHeap()
 		{
 			Add("");
 		}
 
-		internal int Add(string str)
+		public int Add(string str)
 		{
 			Debug.Assert(!frozen);
 			int offset;
@@ -186,7 +186,7 @@ namespace IKVM.Reflection.Writer
 			return offset;
 		}
 
-		internal string Find(int index)
+		public string Find(int index)
 		{
 			foreach (KeyValuePair<string, int> kv in strings)
 			{
@@ -213,23 +213,23 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	sealed class UserStringHeap : SimpleHeap
+	public sealed class UserStringHeap : SimpleHeap
 	{
 		private List<string> list = new List<string>();
 		private Dictionary<string, int> strings = new Dictionary<string, int>();
 		private int nextOffset;
 
-		internal UserStringHeap()
+		public UserStringHeap()
 		{
 			nextOffset = 1;
 		}
 
-		internal bool IsEmpty
+		public bool IsEmpty
 		{
 			get { return nextOffset == 1; }
 		}
 
-		internal int Add(string str)
+		public int Add(string str)
 		{
 			Debug.Assert(!frozen);
 			int offset;
@@ -280,15 +280,11 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	sealed class GuidHeap : SimpleHeap
+	public sealed class GuidHeap : SimpleHeap
 	{
 		private List<Guid> list = new List<Guid>();
-
-		internal GuidHeap()
-		{
-		}
-
-		internal int Add(Guid guid)
+		
+		public int Add(Guid guid)
 		{
 			Debug.Assert(!frozen);
 			list.Add(guid);
@@ -309,25 +305,25 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	sealed class BlobHeap : SimpleHeap
+	public sealed class BlobHeap : SimpleHeap
 	{
 		private Key[] map = new Key[8179];
 		private readonly ByteBuffer buf = new ByteBuffer(32);
 
 		private struct Key
 		{
-			internal Key[] next;
-			internal int len;
-			internal int hash;
-			internal int offset;
+			public Key[] next;
+			public int len;
+			public int hash;
+			public int offset;
 		}
 
-		internal BlobHeap()
+		public BlobHeap()
 		{
 			buf.Write((byte)0);
 		}
 
-		internal int Add(ByteBuffer bb)
+		public int Add(ByteBuffer bb)
 		{
 			Debug.Assert(!frozen);
 			int bblen = bb.Length;
@@ -382,12 +378,9 @@ namespace IKVM.Reflection.Writer
 			mw.Write(buf);
 		}
 
-		internal bool IsEmpty
-		{
-			get { return buf.Position == 1; }
-		}
+		public bool IsEmpty => buf.Position == 1;
 
-		internal IKVM.Reflection.Reader.ByteReader GetBlob(int blobIndex)
+		public IKVM.Reflection.Reader.ByteReader GetBlob(int blobIndex)
 		{
 			return buf.GetBlob(blobIndex);
 		}

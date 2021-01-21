@@ -29,7 +29,7 @@ using IKVM.Reflection.Reader;
 
 namespace IKVM.Reflection.Writer
 {
-	sealed class ResourceSection
+	public sealed class ResourceSection
 	{
 		private const int RT_ICON = 3;
 		private const int RT_GROUP_ICON = 14;
@@ -39,12 +39,12 @@ namespace IKVM.Reflection.Writer
 		private ByteBuffer bb;
 		private List<int> linkOffsets;
 
-		internal void AddVersionInfo(ByteBuffer versionInfo)
+		public void AddVersionInfo(ByteBuffer versionInfo)
 		{
 			root[new OrdinalOrName(RT_VERSION)][new OrdinalOrName(1)][new OrdinalOrName(0)].Data = versionInfo;
 		}
 
-		internal void AddIcon(byte[] iconFile)
+		public void AddIcon(byte[] iconFile)
 		{
 			BinaryReader br = new BinaryReader(new MemoryStream(iconFile));
 			ushort idReserved = br.ReadUInt16();
@@ -88,12 +88,12 @@ namespace IKVM.Reflection.Writer
 			root[new OrdinalOrName(RT_GROUP_ICON)][new OrdinalOrName(32512)][new OrdinalOrName(0)].Data = group;
 		}
 
-		internal void AddManifest(byte[] manifest, ushort resourceID)
+		public void AddManifest(byte[] manifest, ushort resourceID)
 		{
 			root[new OrdinalOrName(RT_MANIFEST)][new OrdinalOrName(resourceID)][new OrdinalOrName(0)].Data = ByteBuffer.Wrap(manifest);
 		}
 
-		internal void ExtractResources(byte[] buf)
+		public void ExtractResources(byte[] buf)
 		{
 			ByteReader br = new ByteReader(buf, 0, buf.Length);
 			while (br.Length >= 32)
@@ -107,7 +107,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void Finish()
+		public void Finish()
 		{
 			if (bb != null)
 			{
@@ -119,12 +119,12 @@ namespace IKVM.Reflection.Writer
 			root = null;
 		}
 
-		internal int Length
+		public int Length
 		{
 			get { return bb.Length; }
 		}
 
-		internal void Write(MetadataWriter mw, uint rva)
+		public void Write(MetadataWriter mw, uint rva)
 		{
 			foreach (int offset in linkOffsets)
 			{
@@ -135,19 +135,19 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	sealed class ResourceDirectoryEntry
+	public sealed class ResourceDirectoryEntry
 	{
-		internal readonly OrdinalOrName OrdinalOrName;
-		internal ByteBuffer Data;
+		public readonly OrdinalOrName OrdinalOrName;
+		public ByteBuffer Data;
 		private int namedEntries;
 		private readonly List<ResourceDirectoryEntry> entries = new List<ResourceDirectoryEntry>();
 
-		internal ResourceDirectoryEntry(OrdinalOrName id)
+		public ResourceDirectoryEntry(OrdinalOrName id)
 		{
 			this.OrdinalOrName = id;
 		}
 
-		internal ResourceDirectoryEntry this[OrdinalOrName id]
+		public ResourceDirectoryEntry this[OrdinalOrName id]
 		{
 			get
 			{
@@ -210,7 +210,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void Write(ByteBuffer bb, List<int> linkOffsets)
+		public void Write(ByteBuffer bb, List<int> linkOffsets)
 		{
 			if (entries.Count != 0)
 			{
@@ -331,31 +331,31 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	struct OrdinalOrName
+	public struct OrdinalOrName
 	{
-		internal readonly ushort Ordinal;
-		internal readonly string Name;
+		public readonly ushort Ordinal;
+		public readonly string Name;
 
-		internal OrdinalOrName(ushort value)
+		public OrdinalOrName(ushort value)
 		{
 			Ordinal = value;
 			Name = null;
 		}
 
-		internal OrdinalOrName(string value)
+		public OrdinalOrName(string value)
 		{
 			Ordinal = 0xFFFF;
 			Name = value;
 		}
 
-		internal bool IsGreaterThan(OrdinalOrName other)
+		public bool IsGreaterThan(OrdinalOrName other)
 		{
 			return this.Name == null
 				? this.Ordinal > other.Ordinal
 				: String.Compare(this.Name, other.Name, StringComparison.OrdinalIgnoreCase) > 0;
 		}
 
-		internal bool IsEqual(OrdinalOrName other)
+		public bool IsEqual(OrdinalOrName other)
 		{
 			return this.Name == null
 				? this.Ordinal == other.Ordinal
@@ -363,19 +363,19 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	struct RESOURCEHEADER
+	public struct RESOURCEHEADER
 	{
-		internal int DataSize;
-		internal int HeaderSize;
-		internal OrdinalOrName TYPE;
-		internal OrdinalOrName NAME;
-		internal int DataVersion;
-		internal ushort MemoryFlags;
-		internal ushort LanguageId;
-		internal int Version;
-		internal int Characteristics;
+		public int DataSize;
+		public int HeaderSize;
+		public OrdinalOrName TYPE;
+		public OrdinalOrName NAME;
+		public int DataVersion;
+		public ushort MemoryFlags;
+		public ushort LanguageId;
+		public int Version;
+		public int Characteristics;
 
-		internal RESOURCEHEADER(ByteReader br)
+		public RESOURCEHEADER(ByteReader br)
 		{
 			DataSize = br.ReadInt32();
 			HeaderSize = br.ReadInt32();

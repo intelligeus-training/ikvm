@@ -32,7 +32,7 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Writer
 {
-	sealed class TextSection
+	public sealed class TextSection
 	{
 		private readonly PEWriter peWriter;
 		private readonly CliHeader cliHeader;
@@ -42,7 +42,7 @@ namespace IKVM.Reflection.Writer
 		private readonly ExportTables exportTables;
 		private readonly List<RelocationBlock> relocations = new List<RelocationBlock>();
 
-		internal TextSection(PEWriter peWriter, CliHeader cliHeader, ModuleBuilder moduleBuilder, int strongNameSignatureLength)
+		public TextSection(PEWriter peWriter, CliHeader cliHeader, ModuleBuilder moduleBuilder, int strongNameSignatureLength)
 		{
 			this.peWriter = peWriter;
 			this.cliHeader = cliHeader;
@@ -55,45 +55,24 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal uint PointerToRawData
-		{
-			get { return peWriter.ToFileAlignment(peWriter.HeaderSize); }
-		}
+		public uint PointerToRawData => peWriter.ToFileAlignment(peWriter.HeaderSize);
 
-		internal uint BaseRVA
-		{
-			get { return peWriter.Headers.OptionalHeader.SectionAlignment; }
-		}
+		public uint BaseRVA => peWriter.Headers.OptionalHeader.SectionAlignment;
 
-		internal uint ImportAddressTableRVA
+		public uint ImportAddressTableRVA
 		{
 			get { return BaseRVA; }
 		}
 
-		internal uint ImportAddressTableLength
-		{
-			get { return peWriter.Is32Bit ? 8u : 16u; }
-		}
+		public uint ImportAddressTableLength => peWriter.Is32Bit ? 8u : 16u;
 
-		internal uint ComDescriptorRVA
-		{
-			get { return ImportAddressTableRVA + ImportAddressTableLength; }
-		}
+		public uint ComDescriptorRVA => ImportAddressTableRVA + ImportAddressTableLength;
 
-		internal uint ComDescriptorLength
-		{
-			get { return cliHeader.Cb; }
-		}
+		public uint ComDescriptorLength => cliHeader.Cb;
 
-		internal uint MethodBodiesRVA
-		{
-			get { return (ComDescriptorRVA + ComDescriptorLength + 7) & ~7U; }
-		}
+		public uint MethodBodiesRVA => (ComDescriptorRVA + ComDescriptorLength + 7) & ~7U;
 
-		private uint MethodBodiesLength
-		{
-			get { return (uint)moduleBuilder.methodBodies.Length; }
-		}
+		private uint MethodBodiesLength => (uint)moduleBuilder.methodBodies.Length;
 
 		private uint ResourcesRVA
 		{
@@ -110,56 +89,23 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		private uint ResourcesLength
-		{
-			get { return manifestResourcesLength; }
-		}
+		private uint ResourcesLength => manifestResourcesLength;
 
-		internal uint StrongNameSignatureRVA
-		{
-			get
-			{
-				return (ResourcesRVA + ResourcesLength + 3) & ~3U;
-			}
-		}
+		public uint StrongNameSignatureRVA => (ResourcesRVA + ResourcesLength + 3) & ~3U;
 
-		internal uint StrongNameSignatureLength
-		{
-			get
-			{
-				return strongNameSignatureLength;
-			}
-		}
+		public uint StrongNameSignatureLength => strongNameSignatureLength;
 
-		private uint MetadataRVA
-		{
-			get
-			{
-				return (StrongNameSignatureRVA + StrongNameSignatureLength + 3) & ~3U;
-			}
-		}
+		private uint MetadataRVA => (StrongNameSignatureRVA + StrongNameSignatureLength + 3) & ~3U;
 
-		private uint MetadataLength
-		{
-			get { return (uint)moduleBuilder.MetadataLength; }
-		}
+		private uint MetadataLength => (uint)moduleBuilder.MetadataLength;
 
-		private uint VTableFixupsRVA
-		{
-			get { return (MetadataRVA + MetadataLength + 7) & ~7U; }
-		}
+		private uint VTableFixupsRVA => (MetadataRVA + MetadataLength + 7) & ~7U;
 
-		private uint VTableFixupsLength
-		{
-			get { return (uint)moduleBuilder.vtablefixups.Count * 8; }
-		}
+		private uint VTableFixupsLength => (uint)moduleBuilder.vtablefixups.Count * 8;
 
-		internal uint DebugDirectoryRVA
-		{
-			get { return VTableFixupsRVA + VTableFixupsLength; }
-		}
+		public uint DebugDirectoryRVA => VTableFixupsRVA + VTableFixupsLength;
 
-		internal uint DebugDirectoryLength
+		public uint DebugDirectoryLength
 		{
 			get
 			{
@@ -184,48 +130,26 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal uint ExportDirectoryRVA
-		{
-			get { return (DebugDirectoryRVA + DebugDirectoryLength + DebugDirectoryContentsLength + 15) & ~15U; }
-		}
+		public uint ExportDirectoryRVA => (DebugDirectoryRVA + DebugDirectoryLength + DebugDirectoryContentsLength + 15) & ~15U;
 
-		internal uint ExportDirectoryLength
-		{
-			get { return moduleBuilder.unmanagedExports.Count == 0 ? 0U : 40U; }
-		}
+		public uint ExportDirectoryLength => moduleBuilder.unmanagedExports.Count == 0 ? 0U : 40U;
 
-		private uint ExportTablesRVA
-		{
-			get { return ExportDirectoryRVA + ExportDirectoryLength; }
-		}
+		private uint ExportTablesRVA => ExportDirectoryRVA + ExportDirectoryLength;
 
-		private uint ExportTablesLength
-		{
-			get { return exportTables == null ? 0U : exportTables.Length; }
-		}
+		private uint ExportTablesLength => exportTables == null ? 0U : exportTables.Length;
 
-		internal uint ImportDirectoryRVA
-		{
+		public uint ImportDirectoryRVA =>
 			// on AMD64 (and probably IA64) the import directory needs to be 16 byte aligned (on I386 4 byte alignment is sufficient)
-			get { return (ExportTablesRVA + ExportTablesLength + 15) & ~15U; }
-		}
+			(ExportTablesRVA + ExportTablesLength + 15) & ~15U;
 
-		internal uint ImportDirectoryLength
-		{
-			get { return (ImportHintNameTableRVA - ImportDirectoryRVA) + 27; }
-		}
+		public uint ImportDirectoryLength => (ImportHintNameTableRVA - ImportDirectoryRVA) + 27;
 
-		private uint ImportHintNameTableRVA
-		{
-			get
-			{
-				return peWriter.Is32Bit
-					? (ImportDirectoryRVA + 48 + 15) & ~15U
-					: (ImportDirectoryRVA + 52 + 15) & ~15U;
-			}
-		}
+		private uint ImportHintNameTableRVA =>
+			peWriter.Is32Bit
+				? (ImportDirectoryRVA + 48 + 15) & ~15U
+				: (ImportDirectoryRVA + 52 + 15) & ~15U;
 
-		internal uint StartupStubRVA
+		public uint StartupStubRVA
 		{
 			get
 			{
@@ -242,7 +166,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal uint StartupStubLength
+		public uint StartupStubLength
 		{
 			get
 			{
@@ -275,7 +199,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal void Write(MetadataWriter mw, uint sdataRVA, out uint guidHeapOffset)
+		public void Write(MetadataWriter mw, uint sdataRVA, out uint guidHeapOffset)
 		{
 			// Now that we're ready to start writing, we need to do some fix ups
 			moduleBuilder.TypeRef.Fixup(moduleBuilder);
@@ -490,18 +414,18 @@ namespace IKVM.Reflection.Writer
 		private sealed class ExportTables
 		{
 			private readonly TextSection text;
-			internal readonly uint entries;
-			internal readonly uint ordinalBase;
-			internal readonly uint nameCount;
-			internal readonly uint namesLength;
-			internal readonly uint exportAddressTableRVA;
-			internal readonly uint exportNamePointerTableRVA;
-			internal readonly uint exportOrdinalTableRVA;
-			internal readonly uint namesRVA;
-			internal readonly uint stubsRVA;
+			public readonly uint entries;
+			public readonly uint ordinalBase;
+			public readonly uint nameCount;
+			public readonly uint namesLength;
+			public readonly uint exportAddressTableRVA;
+			public readonly uint exportNamePointerTableRVA;
+			public readonly uint exportOrdinalTableRVA;
+			public readonly uint namesRVA;
+			public readonly uint stubsRVA;
 			private readonly uint stubLength;
 
-			internal ExportTables(TextSection text)
+			public ExportTables(TextSection text)
 			{
 				this.text = text;
 				ordinalBase = GetOrdinalBase(out entries);
@@ -526,7 +450,7 @@ namespace IKVM.Reflection.Writer
 				}
 			}
 
-			internal uint Length
+			public uint Length
 			{
 				get { return (stubsRVA + stubLength * (uint)text.moduleBuilder.unmanagedExports.Count) - text.ExportTablesRVA; }
 			}
@@ -561,7 +485,7 @@ namespace IKVM.Reflection.Writer
 				return length;
 			}
 
-			internal void Write(MetadataWriter mw, uint sdataRVA)
+			public void Write(MetadataWriter mw, uint sdataRVA)
 			{
 				// sort the exports by ordinal
 				text.moduleBuilder.unmanagedExports.Sort(CompareUnmanagedExportOrdinals);
@@ -685,7 +609,7 @@ namespace IKVM.Reflection.Writer
 				return x.ordinal.CompareTo(y.ordinal);
 			}
 
-			internal void GetRelocations(List<Relocation> list)
+			public void GetRelocations(List<Relocation> list)
 			{
 				ushort type;
 				uint rva;
@@ -825,17 +749,17 @@ namespace IKVM.Reflection.Writer
 			mw.Write((byte)0);
 		}
 
-		internal int Length
+		public int Length
 		{
 			get { return (int)(StartupStubRVA - BaseRVA + StartupStubLength); }
 		}
 
 		struct Relocation : IComparable<Relocation>
 		{
-			internal readonly uint rva;
-			internal readonly ushort type;
+			public readonly uint rva;
+			public readonly ushort type;
 
-			internal Relocation(ushort type, uint rva)
+			public Relocation(ushort type, uint rva)
 			{
 				this.type = type;
 				this.rva = rva;
@@ -849,17 +773,17 @@ namespace IKVM.Reflection.Writer
 
 		struct RelocationBlock
 		{
-			internal readonly uint PageRVA;
-			internal readonly ushort[] TypeOffset;
+			public readonly uint PageRVA;
+			public readonly ushort[] TypeOffset;
 
-			internal RelocationBlock(uint pageRva, ushort[] typeOffset)
+			public RelocationBlock(uint pageRva, ushort[] typeOffset)
 			{
 				this.PageRVA = pageRva;
 				this.TypeOffset = typeOffset;
 			}
 		}
 
-		internal void WriteRelocations(MetadataWriter mw)
+		public void WriteRelocations(MetadataWriter mw)
 		{
 			foreach (RelocationBlock block in relocations)
 			{
@@ -872,7 +796,7 @@ namespace IKVM.Reflection.Writer
 			}
 		}
 
-		internal uint PackRelocations()
+		public uint PackRelocations()
 		{
 			List<Relocation> list = new List<Relocation>();
 			switch (peWriter.Headers.FileHeader.Machine)

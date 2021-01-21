@@ -31,21 +31,18 @@ using IMAGE_DATA_DIRECTORY = IKVM.Reflection.Reader.IMAGE_DATA_DIRECTORY;
 
 namespace IKVM.Reflection.Writer
 {
-	sealed class PEWriter
+	public sealed class PEWriter
 	{
 		private readonly BinaryWriter bw;
 		private readonly IMAGE_NT_HEADERS hdr = new IMAGE_NT_HEADERS();
 
-		internal PEWriter(Stream stream)
+		public PEWriter(Stream stream)
 		{
 			bw = new BinaryWriter(stream);
 			WriteMSDOSHeader();
 		}
 
-		public IMAGE_NT_HEADERS Headers
-		{
-			get { return hdr; }
-		}
+		public IMAGE_NT_HEADERS Headers => hdr;
 
 		public uint HeaderSize
 		{
@@ -82,7 +79,7 @@ namespace IKVM.Reflection.Writer
 			});
 		}
 
-		internal void WritePEHeaders()
+		public void WritePEHeaders()
 		{
 			bw.Write(hdr.Signature);
 
@@ -99,7 +96,7 @@ namespace IKVM.Reflection.Writer
 			hdr.OptionalHeader.Write(bw);
 		}
 
-		internal void WriteSectionHeader(SectionHeader sectionHeader)
+		public void WriteSectionHeader(SectionHeader sectionHeader)
 		{
 			byte[] name = new byte[8];
 			System.Text.Encoding.UTF8.GetBytes(sectionHeader.Name, 0, sectionHeader.Name.Length, name, 0);
@@ -115,36 +112,31 @@ namespace IKVM.Reflection.Writer
 			bw.Write(sectionHeader.Characteristics);
 		}
 
-		internal uint ToFileAlignment(uint p)
+		public uint ToFileAlignment(uint p)
 		{
 			return (p + (Headers.OptionalHeader.FileAlignment - 1)) & ~(Headers.OptionalHeader.FileAlignment - 1);
 		}
 
-		internal uint ToSectionAlignment(uint p)
+		public uint ToSectionAlignment(uint p)
 		{
 			return (p + (Headers.OptionalHeader.SectionAlignment - 1)) & ~(Headers.OptionalHeader.SectionAlignment - 1);
 		}
 
-		internal bool Is32Bit
-		{
-			get { return (Headers.FileHeader.Characteristics & IMAGE_FILE_HEADER.IMAGE_FILE_32BIT_MACHINE) != 0; }
-		}
+		public bool Is32Bit => (Headers.FileHeader.Characteristics & IMAGE_FILE_HEADER.IMAGE_FILE_32BIT_MACHINE) != 0;
 
-		internal uint Thumb
-		{
+		public uint Thumb =>
 			// On ARM we need to set the least significant bit of the program counter to select the Thumb instruction set
-			get { return Headers.FileHeader.Machine == IMAGE_FILE_HEADER.IMAGE_FILE_MACHINE_ARM ? 1u : 0u; }
-		}
+			Headers.FileHeader.Machine == IMAGE_FILE_HEADER.IMAGE_FILE_MACHINE_ARM ? 1u : 0u;
 	}
 
-	sealed class IMAGE_NT_HEADERS
+	public sealed class IMAGE_NT_HEADERS
 	{
 		public DWORD Signature = 0x00004550;	// "PE\0\0"
 		public IMAGE_FILE_HEADER FileHeader = new IMAGE_FILE_HEADER();
 		public IMAGE_OPTIONAL_HEADER OptionalHeader = new IMAGE_OPTIONAL_HEADER();
 	}
 
-	sealed class IMAGE_FILE_HEADER
+	public sealed class IMAGE_FILE_HEADER
 	{
 		public const WORD IMAGE_FILE_MACHINE_I386 = 0x014c;
 		public const WORD IMAGE_FILE_MACHINE_ARM = 0x01c4;
@@ -165,7 +157,7 @@ namespace IKVM.Reflection.Writer
 		public WORD Characteristics = IMAGE_FILE_EXECUTABLE_IMAGE;
 	}
 
-	sealed class IMAGE_OPTIONAL_HEADER
+	public sealed class IMAGE_OPTIONAL_HEADER
 	{
 		public const WORD IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10b;
 		public const WORD IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20b;
@@ -205,7 +197,7 @@ namespace IKVM.Reflection.Writer
 		public DWORD NumberOfRvaAndSizes = 16;
 		public IMAGE_DATA_DIRECTORY[] DataDirectory = new IMAGE_DATA_DIRECTORY[16];
 
-		internal void Write(BinaryWriter bw)
+		public void Write(BinaryWriter bw)
 		{
 			bw.Write(Magic);
 			bw.Write(MajorLinkerVersion);
@@ -262,7 +254,7 @@ namespace IKVM.Reflection.Writer
 		}
 	}
 
-	class SectionHeader
+	public class SectionHeader
 	{
 		public const DWORD IMAGE_SCN_CNT_CODE = 0x00000020;
 		public const DWORD IMAGE_SCN_CNT_INITIALIZED_DATA = 0x00000040;

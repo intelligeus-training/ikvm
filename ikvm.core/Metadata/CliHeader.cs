@@ -25,46 +25,46 @@ using System.IO;
 
 namespace IKVM.Reflection.Metadata
 {
-	struct RvaSize
+	public struct RvaSize
 	{
-		internal uint VirtualAddress;
-		internal uint Size;
+		public uint VirtualAddress;
+		public uint Size;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			VirtualAddress = br.ReadUInt32();
 			Size = br.ReadUInt32();
 		}
 
-		internal void Write(IKVM.Reflection.Writer.MetadataWriter mw)
+		public void Write(IKVM.Reflection.Writer.MetadataWriter mw)
 		{
 			mw.Write(VirtualAddress);
 			mw.Write(Size);
 		}
 	}
 
-	sealed class CliHeader
+	public sealed class CliHeader
 	{
-		internal const uint COMIMAGE_FLAGS_ILONLY = 0x00000001;
-		internal const uint COMIMAGE_FLAGS_32BITREQUIRED = 0x00000002;
-		internal const uint COMIMAGE_FLAGS_STRONGNAMESIGNED = 0x00000008;
-		internal const uint COMIMAGE_FLAGS_NATIVE_ENTRYPOINT = 0x00000010;
-		internal const uint COMIMAGE_FLAGS_32BITPREFERRED = 0x00020000;
+		public const uint COMIMAGE_FLAGS_ILONLY = 0x00000001;
+		public const uint COMIMAGE_FLAGS_32BITREQUIRED = 0x00000002;
+		public const uint COMIMAGE_FLAGS_STRONGNAMESIGNED = 0x00000008;
+		public const uint COMIMAGE_FLAGS_NATIVE_ENTRYPOINT = 0x00000010;
+		public const uint COMIMAGE_FLAGS_32BITPREFERRED = 0x00020000;
 
-		internal uint Cb = 0x48;
-		internal ushort MajorRuntimeVersion;
-		internal ushort MinorRuntimeVersion;
-		internal RvaSize MetaData;
-		internal uint Flags;
-		internal uint EntryPointToken;
-		internal RvaSize Resources;
-		internal RvaSize StrongNameSignature;
-		internal RvaSize CodeManagerTable;
-		internal RvaSize VTableFixups;
-		internal RvaSize ExportAddressTableJumps;
-		internal RvaSize ManagedNativeHeader;
+		public uint Cb = 0x48;
+		public ushort MajorRuntimeVersion;
+		public ushort MinorRuntimeVersion;
+		public RvaSize MetaData;
+		public uint Flags;
+		public uint EntryPointToken;
+		public RvaSize Resources;
+		public RvaSize StrongNameSignature;
+		public RvaSize CodeManagerTable;
+		public RvaSize VTableFixups;
+		public RvaSize ExportAddressTableJumps;
+		public RvaSize ManagedNativeHeader;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			Cb = br.ReadUInt32();
 			MajorRuntimeVersion = br.ReadUInt16();
@@ -80,7 +80,7 @@ namespace IKVM.Reflection.Metadata
 			ManagedNativeHeader.Read(br);
 		}
 
-		internal void Write(IKVM.Reflection.Writer.MetadataWriter mw)
+		public void Write(IKVM.Reflection.Writer.MetadataWriter mw)
 		{
 			mw.Write(Cb);
 			mw.Write(MajorRuntimeVersion);

@@ -382,7 +382,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	abstract class Table<T> : Table
+	public abstract class Table<T> : Table
 	{
 		public T[] records = Empty<T>.Array;
 		protected int rowCount;
@@ -419,7 +419,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	abstract class SortedTable<T> : Table<T>
+	public abstract class SortedTable<T> : Table<T>
 		where T : SortedTable<T>.IRecord
 	{
 		public interface IRecord
@@ -705,7 +705,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldPtrTable : Table<int>
+	public sealed class FieldPtrTable : Table<int>
 	{
 		public const int Index = 0x03;
 
@@ -718,7 +718,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldTable : Table<FieldTable.Record>
+	public sealed class FieldTable : Table<FieldTable.Record>
 	{
 		public const int Index = 0x04;
 
@@ -754,7 +754,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodPtrTable : Table<int>
+	public sealed class MethodPtrTable : Table<int>
 	{
 		public const int Index = 0x05;
 
@@ -767,7 +767,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodDefTable : Table<MethodDefTable.Record>
+	public sealed class MethodDefTable : Table<MethodDefTable.Record>
 	{
 		public const int Index = 0x06;
 		private int baseRVA;
@@ -816,7 +816,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ParamPtrTable : Table<int>
+	public sealed class ParamPtrTable : Table<int>
 	{
 		public const int Index = 0x07;
 
@@ -829,7 +829,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ParamTable : Table<ParamTable.Record>
+	public sealed class ParamTable : Table<ParamTable.Record>
 	{
 		public const int Index = 0x08;
 
@@ -864,7 +864,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class InterfaceImplTable : SortedTable<InterfaceImplTable.Record>
+	public sealed class InterfaceImplTable : SortedTable<InterfaceImplTable.Record>
 	{
 		public const int Index = 0x09;
 
@@ -940,7 +940,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MemberRefTable : Table<MemberRefTable.Record>
+	public sealed class MemberRefTable : Table<MemberRefTable.Record>
 	{
 		public const int Index = 0x0A;
 
@@ -1003,7 +1003,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ConstantTable : SortedTable<ConstantTable.Record>
+	public sealed class ConstantTable : SortedTable<ConstantTable.Record>
 	{
 		public const int Index = 0x0B;
 
@@ -1132,7 +1132,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class CustomAttributeTable : SortedTable<CustomAttributeTable.Record>
+	public sealed class CustomAttributeTable : SortedTable<CustomAttributeTable.Record>
 	{
 		public const int Index = 0x0C;
 
@@ -1256,7 +1256,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldMarshalTable : SortedTable<FieldMarshalTable.Record>
+	public sealed class FieldMarshalTable : SortedTable<FieldMarshalTable.Record>
 	{
 		public const int Index = 0x0D;
 
@@ -1325,7 +1325,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class DeclSecurityTable : SortedTable<DeclSecurityTable.Record>
+	public sealed class DeclSecurityTable : SortedTable<DeclSecurityTable.Record>
 	{
 		public const int Index = 0x0E;
 
@@ -1402,7 +1402,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ClassLayoutTable : SortedTable<ClassLayoutTable.Record>
+	public sealed class ClassLayoutTable : SortedTable<ClassLayoutTable.Record>
 	{
 		public const int Index = 0x0f;
 
@@ -1453,7 +1453,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldLayoutTable : SortedTable<FieldLayoutTable.Record>
+	public sealed class FieldLayoutTable : SortedTable<FieldLayoutTable.Record>
 	{
 		public const int Index = 0x10;
 
@@ -1509,7 +1509,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class StandAloneSigTable : Table<int>
+	public sealed class StandAloneSigTable : Table<int>
 	{
 		public const int Index = 0x11;
 
@@ -1547,7 +1547,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventMapTable : SortedTable<EventMapTable.Record>
+	public sealed class EventMapTable : SortedTable<EventMapTable.Record>
 	{
 		public const int Index = 0x12;
 
@@ -1594,7 +1594,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventPtrTable : Table<int>
+	public sealed class EventPtrTable : Table<int>
 	{
 		public const int Index = 0x13;
 
@@ -1607,7 +1607,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class EventTable : Table<EventTable.Record>
+	public sealed class EventTable : Table<EventTable.Record>
 	{
 		public const int Index = 0x14;
 
@@ -1648,7 +1648,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyMapTable : SortedTable<PropertyMapTable.Record>
+	public sealed class PropertyMapTable : SortedTable<PropertyMapTable.Record>
 	{
 		public const int Index = 0x15;
 
@@ -1695,7 +1695,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyPtrTable : Table<int>
+	public sealed class PropertyPtrTable : Table<int>
 	{
 		public const int Index = 0x16;
 
@@ -1708,7 +1708,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class PropertyTable : Table<PropertyTable.Record>
+	public sealed class PropertyTable : Table<PropertyTable.Record>
 	{
 		public const int Index = 0x17;
 
@@ -1749,7 +1749,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodSemanticsTable : SortedTable<MethodSemanticsTable.Record>
+	public sealed class MethodSemanticsTable : SortedTable<MethodSemanticsTable.Record>
 	{
 		public const int Index = 0x18;
 
@@ -1878,7 +1878,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodImplTable : SortedTable<MethodImplTable.Record>
+	public sealed class MethodImplTable : SortedTable<MethodImplTable.Record>
 	{
 		public const int Index = 0x19;
 
@@ -1939,7 +1939,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ModuleRefTable : Table<int>
+	public sealed class ModuleRefTable : Table<int>
 	{
 		public const int Index = 0x1A;
 
@@ -1979,7 +1979,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class TypeSpecTable : Table<int>
+	public sealed class TypeSpecTable : Table<int>
 	{
 		public const int Index = 0x1B;
 
@@ -2005,7 +2005,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ImplMapTable : SortedTable<ImplMapTable.Record>
+	public sealed class ImplMapTable : SortedTable<ImplMapTable.Record>
 	{
 		public const int Index = 0x1C;
 
@@ -2069,7 +2069,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FieldRVATable : SortedTable<FieldRVATable.Record>
+	public sealed class FieldRVATable : SortedTable<FieldRVATable.Record>
 	{
 		public const int Index = 0x1D;
 
@@ -2133,7 +2133,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class AssemblyTable : Table<AssemblyTable.Record>
+	public sealed class AssemblyTable : Table<AssemblyTable.Record>
 	{
 		public const int Index = 0x20;
 
@@ -2193,7 +2193,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class AssemblyRefTable : Table<AssemblyRefTable.Record>
+	public sealed class AssemblyRefTable : Table<AssemblyRefTable.Record>
 	{
 		public const int Index = 0x23;
 
@@ -2275,7 +2275,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class FileTable : Table<FileTable.Record>
+	public sealed class FileTable : Table<FileTable.Record>
 	{
 		public const int Index = 0x26;
 
@@ -2316,7 +2316,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ExportedTypeTable : Table<ExportedTypeTable.Record>
+	public sealed class ExportedTypeTable : Table<ExportedTypeTable.Record>
 	{
 		public const int Index = 0x27;
 
@@ -2386,7 +2386,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class ManifestResourceTable : Table<ManifestResourceTable.Record>
+	public sealed class ManifestResourceTable : Table<ManifestResourceTable.Record>
 	{
 		public const int Index = 0x28;
 
@@ -2438,7 +2438,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class NestedClassTable : SortedTable<NestedClassTable.Record>
+	public sealed class NestedClassTable : SortedTable<NestedClassTable.Record>
 	{
 		public const int Index = 0x29;
 
@@ -2498,7 +2498,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class GenericParamTable : SortedTable<GenericParamTable.Record>, IComparer<GenericParamTable.Record>
+	public sealed class GenericParamTable : SortedTable<GenericParamTable.Record>, IComparer<GenericParamTable.Record>
 	{
 		public const int Index = 0x2A;
 
@@ -2611,7 +2611,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class MethodSpecTable : Table<MethodSpecTable.Record>
+	public sealed class MethodSpecTable : Table<MethodSpecTable.Record>
 	{
 		public const int Index = 0x2B;
 
@@ -2669,7 +2669,7 @@ namespace IKVM.Reflection.Metadata
 		}
 	}
 
-	sealed class GenericParamConstraintTable : SortedTable<GenericParamConstraintTable.Record>
+	public sealed class GenericParamConstraintTable : SortedTable<GenericParamConstraintTable.Record>
 	{
 		public const int Index = 0x2C;
 

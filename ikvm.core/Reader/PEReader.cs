@@ -30,16 +30,16 @@ using System.IO;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class MSDOS_HEADER
+	public sealed class MSDOS_HEADER
 	{
-		internal const WORD MAGIC_MZ = 0x5A4D;
+		public const WORD MAGIC_MZ = 0x5A4D;
 
-		internal WORD signature;	// 'MZ'
+		public WORD signature;	// 'MZ'
 		// skip 58 bytes
-		internal DWORD peSignatureOffset;
+		public DWORD peSignatureOffset;
 	}
 
-	sealed class IMAGE_NT_HEADERS
+	public sealed class IMAGE_NT_HEADERS
 	{
 		public const DWORD MAGIC_SIGNATURE = 0x00004550;	// "PE\0\0"
 
@@ -47,7 +47,7 @@ namespace IKVM.Reflection.Reader
 		public IMAGE_FILE_HEADER FileHeader = new IMAGE_FILE_HEADER();
 		public IMAGE_OPTIONAL_HEADER OptionalHeader = new IMAGE_OPTIONAL_HEADER();
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			Signature = br.ReadUInt32();
 			if (Signature != IMAGE_NT_HEADERS.MAGIC_SIGNATURE)
@@ -65,7 +65,7 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	sealed class IMAGE_FILE_HEADER
+	public sealed class IMAGE_FILE_HEADER
 	{
 		public const WORD IMAGE_FILE_MACHINE_I386 = 0x014c;
 		public const WORD IMAGE_FILE_MACHINE_IA64 = 0x0200;
@@ -84,7 +84,7 @@ namespace IKVM.Reflection.Reader
 		public WORD SizeOfOptionalHeader;
 		public WORD Characteristics;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			Machine = br.ReadUInt16();
 			NumberOfSections = br.ReadUInt16();
@@ -96,7 +96,7 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	sealed class IMAGE_OPTIONAL_HEADER
+	public sealed class IMAGE_OPTIONAL_HEADER
 	{
 		public const WORD IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10b;
 		public const WORD IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20b;
@@ -136,7 +136,7 @@ namespace IKVM.Reflection.Reader
 		public DWORD NumberOfRvaAndSizes;
 		public IMAGE_DATA_DIRECTORY[] DataDirectory;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			Magic = br.ReadUInt16();
 			if (Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC && Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
@@ -198,19 +198,19 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	struct IMAGE_DATA_DIRECTORY
+	public struct IMAGE_DATA_DIRECTORY
 	{
 		public DWORD VirtualAddress;
 		public DWORD Size;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			VirtualAddress = br.ReadUInt32();
 			Size = br.ReadUInt32();
 		}
 	}
 
-	class SectionHeader
+	public class SectionHeader
 	{
 		public const DWORD IMAGE_SCN_CNT_CODE = 0x00000020;
 		public const DWORD IMAGE_SCN_CNT_INITIALIZED_DATA = 0x00000040;
@@ -230,7 +230,7 @@ namespace IKVM.Reflection.Reader
 		public WORD NumberOfLinenumbers;
 		public DWORD Characteristics;
 
-		internal void Read(BinaryReader br)
+		public void Read(BinaryReader br)
 		{
 			char[] name = new char[8];
 			int len = 8;
@@ -256,14 +256,14 @@ namespace IKVM.Reflection.Reader
 		}
 	}
 
-	sealed class PEReader
+	public sealed class PEReader
 	{
 		private MSDOS_HEADER msdos = new MSDOS_HEADER();
 		private IMAGE_NT_HEADERS headers = new IMAGE_NT_HEADERS();
 		private SectionHeader[] sections;
 		private bool mapped;
 
-		internal void Read(BinaryReader br, bool mapped)
+		public void Read(BinaryReader br, bool mapped)
 		{
 			this.mapped = mapped;
 			msdos.signature = br.ReadUInt16();
@@ -285,28 +285,28 @@ namespace IKVM.Reflection.Reader
 			}
 		}
 
-		internal IMAGE_FILE_HEADER FileHeader
+		public IMAGE_FILE_HEADER FileHeader
 		{
 			get { return headers.FileHeader; }
 		}
 
-		internal IMAGE_OPTIONAL_HEADER OptionalHeader
+		public IMAGE_OPTIONAL_HEADER OptionalHeader
 		{
 			get { return headers.OptionalHeader; }
 		}
 
-		internal DWORD GetComDescriptorVirtualAddress()
+		public DWORD GetComDescriptorVirtualAddress()
 		{
 			return headers.OptionalHeader.DataDirectory[14].VirtualAddress;
 		}
 
-		internal void GetDataDirectoryEntry(int index, out int rva, out int length)
+		public void GetDataDirectoryEntry(int index, out int rva, out int length)
 		{
 			rva = (int)headers.OptionalHeader.DataDirectory[index].VirtualAddress;
 			length = (int)headers.OptionalHeader.DataDirectory[index].Size;
 		}
 
-		internal long RvaToFileOffset(DWORD rva)
+		public long RvaToFileOffset(DWORD rva)
 		{
 			if (mapped)
 			{
@@ -322,7 +322,7 @@ namespace IKVM.Reflection.Reader
 			throw new BadImageFormatException();
 		}
 
-		internal bool GetSectionInfo(int rva, out string name, out int characteristics, out int virtualAddress, out int virtualSize, out int pointerToRawData, out int sizeOfRawData)
+		public bool GetSectionInfo(int rva, out string name, out int characteristics, out int virtualAddress, out int virtualSize, out int pointerToRawData, out int sizeOfRawData)
 		{
 			for (int i = 0; i < sections.Length; i++)
 			{

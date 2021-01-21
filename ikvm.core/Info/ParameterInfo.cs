@@ -27,11 +27,7 @@ namespace IKVM.Reflection
 {
 	public abstract class ParameterInfo : ICustomAttributeProvider
 	{
-		// prevent external subclasses
-		internal ParameterInfo()
-		{
-		}
-
+		
 		public sealed override bool Equals(object obj)
 		{
 			var other = obj as ParameterInfo;
@@ -62,7 +58,7 @@ namespace IKVM.Reflection
 		public abstract bool __TryGetFieldMarshal(out FieldMarshal fieldMarshal);
 		public abstract MemberInfo Member { get; }
 		public abstract int MetadataToken { get; }
-		internal abstract Module Module { get; }
+		public abstract Module Module { get; }
 
 		public Type[] GetOptionalCustomModifiers()
 		{
@@ -109,7 +105,7 @@ namespace IKVM.Reflection
 		private readonly MemberInfo member;
 		private readonly ParameterInfo forward;
 
-		internal ParameterInfoWrapper(MemberInfo member, ParameterInfo forward)
+		public ParameterInfoWrapper(MemberInfo member, ParameterInfo forward)
 		{
 			this.member = member;
 			this.forward = forward;
@@ -139,6 +135,6 @@ namespace IKVM.Reflection
 
 		public override int MetadataToken => forward.MetadataToken;
 
-		internal override Module Module => member.Module;
+		public override Module Module => member.Module;
 	}
 }

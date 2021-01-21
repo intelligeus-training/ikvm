@@ -34,7 +34,7 @@ namespace IKVM.Reflection
 		private readonly bool isManifestModule;
 		private bool imported;
 
-		internal RawModule(ModuleReader module)
+		public RawModule(ModuleReader module)
 		{
 			this.module = module;
 			isManifestModule = module.Assembly != null;
@@ -77,7 +77,7 @@ namespace IKVM.Reflection
 			}
 		}
 
-		internal AssemblyReader ToAssembly()
+		public AssemblyReader ToAssembly()
 		{
 			if (imported)
 			{
@@ -87,7 +87,7 @@ namespace IKVM.Reflection
 			return (AssemblyReader)module.Assembly;
 		}
 
-		internal Module ToModule(Assembly assembly)
+		public Module ToModule(Assembly assembly)
 		{
 			if (module.Assembly != null)
 			{
@@ -435,12 +435,12 @@ namespace IKVM.Reflection
 			return ResolveType(metadataToken, null, null);
 		}
 
-		internal sealed class GenericContext : IGenericContext
+		public sealed class GenericContext : IGenericContext
 		{
 			private readonly Type[] genericTypeArguments;
 			private readonly Type[] genericMethodArguments;
 
-			internal GenericContext(Type[] genericTypeArguments, Type[] genericMethodArguments)
+			public GenericContext(Type[] genericTypeArguments, Type[] genericMethodArguments)
 			{
 				this.genericTypeArguments = genericTypeArguments;
 				this.genericMethodArguments = genericMethodArguments;
@@ -468,7 +468,7 @@ namespace IKVM.Reflection
 			
 		}
 
-		internal abstract Type ResolveType(int metadataToken, IGenericContext context);
+		public abstract Type ResolveType(int metadataToken, IGenericContext context);
 
 		public MethodBase ResolveMethod(int metadataToken)
 		{

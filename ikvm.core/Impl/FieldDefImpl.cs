@@ -26,49 +26,34 @@ using IKVM.Reflection.Metadata;
 
 namespace IKVM.Reflection.Reader
 {
-	sealed class FieldDefImpl : FieldInfo
+	public sealed class FieldDefImpl : FieldInfo
 	{
 		private readonly ModuleReader module;
 		private readonly TypeDefImpl declaringType;
 		private readonly int index;
 		private FieldSignature lazyFieldSig;
 
-		internal FieldDefImpl(ModuleReader module, TypeDefImpl declaringType, int index)
+		public FieldDefImpl(ModuleReader module, TypeDefImpl declaringType, int index)
 		{
 			this.module = module;
 			this.declaringType = declaringType;
 			this.index = index;
 		}
 
-		public override FieldAttributes Attributes
-		{
-			get { return (FieldAttributes)module.Field.records[index].Flags; }
-		}
+		public override FieldAttributes Attributes => (FieldAttributes)module.Field.records[index].Flags;
 
-		public override Type DeclaringType
-		{
-			get { return declaringType.IsModulePseudoType ? null : declaringType; }
-		}
+		public override Type DeclaringType => declaringType.IsModulePseudoType ? null : declaringType;
 
-		public override string Name
-		{
-			get { return module.GetString(module.Field.records[index].Name); }
-		}
+		public override string Name => module.GetString(module.Field.records[index].Name);
 
 		public override string ToString()
 		{
 			return this.FieldType.Name + " " + this.Name;
 		}
 
-		public override Module Module
-		{
-			get { return module; }
-		}
+		public override Module Module => module;
 
-		public override int MetadataToken
-		{
-			get { return (FieldTable.Index << 24) + index + 1; }
-		}
+		public override int MetadataToken => (FieldTable.Index << 24) + index + 1;
 
 		public override object GetRawConstantValue()
 		{
@@ -110,24 +95,19 @@ namespace IKVM.Reflection.Reader
 			return false;
 		}
 
-		internal override FieldSignature FieldSignature
-		{
-			get { return lazyFieldSig ?? (lazyFieldSig = FieldSignature.ReadSig(module, module.GetBlob(module.Field.records[index].Signature), declaringType)); }
-		}
+		public override FieldSignature FieldSignature => lazyFieldSig 
+		                                                 ?? (lazyFieldSig = FieldSignature.ReadSig(module, module.GetBlob(module.Field.records[index].Signature), declaringType));
 
-		internal override int ImportTo(Emit.ModuleBuilder module)
+		public override int ImportTo(Emit.ModuleBuilder module)
 		{
 			return module.ImportMethodOrField(declaringType, this.Name, this.FieldSignature);
 		}
 
-		internal override int GetCurrentToken()
+		public override int GetCurrentToken()
 		{
 			return this.MetadataToken;
 		}
 
-		internal override bool IsBaked
-		{
-			get { return true; }
-		}
+		public override bool IsBaked => true;
 	}
 }

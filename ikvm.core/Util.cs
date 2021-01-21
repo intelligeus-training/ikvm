@@ -87,14 +87,14 @@ namespace IKVM.Reflection
 #endif
 	}
 
-	static class Empty<T>
+	public static class Empty<T>
 	{
-		internal static readonly T[] Array = new T[0];
+		public static readonly T[] Array = new T[0];
 	}
 
-	static class Util
+	public static class Util
 	{
-		internal static int[] Copy(int[] array)
+		public static int[] Copy(int[] array)
 		{
 			if (array == null || array.Length == 0)
 			{
@@ -105,7 +105,7 @@ namespace IKVM.Reflection
 			return copy;
 		}
 
-		internal static Type[] Copy(Type[] array)
+		public static Type[] Copy(Type[] array)
 		{
 			if (array == null || array.Length == 0)
 			{
@@ -116,7 +116,7 @@ namespace IKVM.Reflection
 			return copy;
 		}
 
-		internal static T[] ToArray<T, V>(List<V> list, T[] empty) where V : T
+		public static T[] ToArray<T, V>(List<V> list, T[] empty) where V : T
 		{
 			if (list == null || list.Count == 0)
 			{
@@ -130,7 +130,7 @@ namespace IKVM.Reflection
 			return array;
 		}
 
-		internal static T[] ToArray<T>(IEnumerable<T> values)
+		public static T[] ToArray<T>(IEnumerable<T> values)
 		{
 			return values == null
 				? Empty<T>.Array
@@ -138,7 +138,7 @@ namespace IKVM.Reflection
 		}
 
 		// note that an empty array matches a null reference
-		internal static bool ArrayEquals(Type[] t1, Type[] t2)
+		public static bool ArrayEquals(Type[] t1, Type[] t2)
 		{
 			if (t1 == t2)
 			{
@@ -166,7 +166,7 @@ namespace IKVM.Reflection
 			return false;
 		}
 
-		internal static bool TypeEquals(Type t1, Type t2)
+		public static bool TypeEquals(Type t1, Type t2)
 		{
 			if (t1 == t2)
 			{
@@ -179,7 +179,7 @@ namespace IKVM.Reflection
 			return t1.Equals(t2);
 		}
 
-		internal static int GetHashCode(Type[] types)
+		public static int GetHashCode(Type[] types)
 		{
 			if (types == null)
 			{
@@ -197,7 +197,7 @@ namespace IKVM.Reflection
 			return h;
 		}
 
-		internal static bool ArrayEquals(CustomModifiers[] m1, CustomModifiers[] m2)
+		public static bool ArrayEquals(CustomModifiers[] m1, CustomModifiers[] m2)
 		{
 			if (m1 == null || m2 == null)
 			{
@@ -217,7 +217,7 @@ namespace IKVM.Reflection
 			return true;
 		}
 
-		internal static int GetHashCode(CustomModifiers[] mods)
+		public static int GetHashCode(CustomModifiers[] mods)
 		{
 			int h = 0;
 			if (mods != null)
@@ -230,33 +230,33 @@ namespace IKVM.Reflection
 			return h;
 		}
 
-		internal static T NullSafeElementAt<T>(T[] array, int index)
+		public static T NullSafeElementAt<T>(T[] array, int index)
 		{
 			return array == null ? default(T) : array[index];
 		}
 
-		internal static int NullSafeLength<T>(T[] array)
+		public static int NullSafeLength<T>(T[] array)
 		{
 			return array == null ? 0 : array.Length;
 		}
 	}
 
 	[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]
-	struct SingleConverter
+	public struct SingleConverter
 	{
 		[System.Runtime.InteropServices.FieldOffset(0)]
 		private int i;
 		[System.Runtime.InteropServices.FieldOffset(0)]
 		private float f;
 
-		internal static int SingleToInt32Bits(float v)
+		public static int SingleToInt32Bits(float v)
 		{
 			SingleConverter c = new SingleConverter();
 			c.f = v;
 			return c.i;
 		}
 
-		internal static float Int32BitsToSingle(int v)
+		public static float Int32BitsToSingle(int v)
 		{
 			SingleConverter c = new SingleConverter();
 			c.i = v;
@@ -266,7 +266,7 @@ namespace IKVM.Reflection
 
     static class TypeUtil
     {
-        internal static bool IsEnum(System.Type type)
+        public static bool IsEnum(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).IsEnum;
@@ -275,7 +275,7 @@ namespace IKVM.Reflection
 #endif
         }
 
-        internal static System.Reflection.Assembly GetAssembly(System.Type type)
+        public static System.Reflection.Assembly GetAssembly(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).Assembly;
@@ -284,7 +284,7 @@ namespace IKVM.Reflection
 #endif
         }
 
-        internal static System.Reflection.MethodBase GetDeclaringMethod(System.Type type)
+        public static System.Reflection.MethodBase GetDeclaringMethod(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).DeclaringMethod;
@@ -293,7 +293,7 @@ namespace IKVM.Reflection
 #endif
         }
 
-        internal static bool IsGenericType(System.Type type)
+        public static bool IsGenericType(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).IsGenericType;
@@ -302,7 +302,7 @@ namespace IKVM.Reflection
 #endif
         }
 
-        internal static bool IsGenericTypeDefinition(System.Type type)
+        public static bool IsGenericTypeDefinition(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).IsGenericTypeDefinition;
@@ -311,7 +311,7 @@ namespace IKVM.Reflection
 #endif
         }
 
-        internal static System.Type[] GetGenericArguments(System.Type type)
+        public static System.Type[] GetGenericArguments(System.Type type)
         {
 #if NETSTANDARD
             return System.Reflection.IntrospectionExtensions.GetTypeInfo(type).GenericTypeArguments;

@@ -30,9 +30,9 @@ namespace IKVM.Reflection.Emit
 	{
 		private readonly MethodBuilder methodBuilder;
 
-		internal ConstructorBuilder(MethodBuilder mb)
+		public ConstructorBuilder(MethodBuilder mb)
 		{
-			this.methodBuilder = mb;
+			methodBuilder = mb;
 		}
 
 		public override bool Equals(object obj)
@@ -132,12 +132,12 @@ namespace IKVM.Reflection.Emit
 			methodBuilder.SetMethodBody(il, maxStack, localSignature, exceptionHandlers, tokenFixups);
 		}
 
-		internal override MethodInfo GetMethodInfo()
+		public override MethodInfo GetMethodInfo()
 		{
 			return methodBuilder;
 		}
 
-		internal override MethodInfo GetMethodOnTypeDefinition()
+		public override MethodInfo GetMethodOnTypeDefinition()
 		{
 			return methodBuilder;
 		}
